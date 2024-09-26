@@ -1,18 +1,16 @@
 import { convertShogithreadToKI2 } from '@/app/lib/common';
-import { KifuStore } from 'kifu-for-js';
 
 const BskyPublicApiPrefix: string = 'https://public.api.bsky.app/xrpc';
 const ShogithreadDID: string = 'did:plc:mpyhemzzouqzykmbwiblggwg';
 const ShogithreadHandle: string = 'shogithread.bsky.social';
 const ShogithreadUrlSpecifiedPostPrefix: string = 'https://bsky.app/profile';
 const ShogithreadUrlValidRegExp: string = `^${ShogithreadUrlSpecifiedPostPrefix}/[^/]+/post/[^/]+$`
-//const ShogithreadUrlProfile = `${ShogithreadUrlSpecifiedPostPrefix}/${ShogithreadHandle}`;
-//const ShogithreadUrlPostPathFragment = 'post';
-//const ShogithreadUrlPostPrefix = `${ShogithreadUrlProfile}/${ShogithreadUrlPostPathFragment}`;
 export const ShogithreadUrlPlaceholder: string = `${ShogithreadUrlSpecifiedPostPrefix}/********/post/********`;
 const AtUriScheme: string = 'at://';
 const AtUriCollectionPost: string = 'app.bsky.feed.post';
 const MessageInvalidPostURL: string = '指定されたURLは有効な将棋threadスレッドのポストではありません';
+const MessageErrorOfAPI: string = 'Bluesky APIエラー';
+const MessageInternalError: string = '内部エラー';
 
 export type ParsedInfoSingleMove = {
   text: string | null,
@@ -20,6 +18,7 @@ export type ParsedInfoSingleMove = {
   did: string | null,
   handle: string | null,
   displayName: string | null,
+  alt: string | null,
 }
 
 export type ParsedInfo = {
@@ -27,6 +26,15 @@ export type ParsedInfo = {
   movesAlt: string,
 };
 
+
+// TODO: 全般的にAPIレスポンスオブジェクト構造の検証
+
+// 指し手履歴スレッドをクエリ
+// パラメタ
+//   formData：画面フォームデータ
+//     url：指し手履歴スレッド中のいずれかのポスト参照URL
+// 戻り値
+//   指し手履歴KI2棋譜データ
 export async function queryShogithread(formData: FormData): Promise<string> {
   const rawFormData = {
     url: formData.get('url'),
@@ -85,18 +93,17 @@ async function parseSpecifiedURL(url: string): Promise<ParsedInfo> {
   console.log(`api response: ${apiResponseString}`);
 
   let parsedInfo: ParsedInfo = { moves: [], movesAlt: '' };
-  // TODO: APIレスポンスオブジェクト構造の検証
-  const lexicon = apiResponse.thread.post.record.embed["$type"];
-//  console.log(`lexicon: ${lexicon}`);
   if (isShogithread) { // 指定URLが将棋threadのポスト
     // ポストrecordのlexicon（キー$typeの値）からURL指定ポストが投了ポストかスレッド中ポストかを判別し、投了ポストなら引用内の最終指し手ポストを改めて解析対象とする
+    const lexicon = apiResponse.thread.post.record.embed["$type"];
+//    console.log(`lexicon: ${lexicon}`);
 
-    // KIFフォーマットなど投了情報を使用する場合
+    // KIFフォーマットなど投了情報を使用する場合の参考
     //let isResign: boolean = false;
 
     switch(lexicon) {
       case 'app.bsky.embed.record': // 通常レコード（画像埋め込みなし）：投了ポストと仮定
-        // KIFフォーマットなど投了情報を使用する場合
+        // KIFフォーマットなど投了情報を使用する場合の参考
         /*
         isResign = true;
         // 投了日時は投了ポスト基準
@@ -110,7 +117,7 @@ async function parseSpecifiedURL(url: string): Promise<ParsedInfo> {
       case 'app.bsky.embed.images': // 画像埋め込みあり：指し手ポストと仮定
         parsedInfo = parseThread(apiResponse.thread);
 
-        // KIFフォーマットなど投了情報を使用する場合
+        // KIFフォーマットなど投了情報を使用する場合の参考（KI2ではないので注意）
         /*
         if (isResign) {
           // 投了
@@ -138,9 +145,9 @@ async function parseSpecifiedURL(url: string): Promise<ParsedInfo> {
         break;
       default:
         // TODO: エラー処理
-        throw new Error(`不明なlexicon: ${lexicon}`);
+        throw new Error(`想定外のlexicon: ${lexicon}`);
     }
-  } else { // 指定URLが将棋thread以外のポスト
+  } else { // 指定URLが将棋thread以外のポストならばリプライ親ポストの将棋threadポストを処理対象とする
     if (apiResponse.thread.hasOwnProperty('parent')) {
       const parentDID = apiResponse.thread.parent.post.author.did;
 
@@ -149,12 +156,12 @@ async function parseSpecifiedURL(url: string): Promise<ParsedInfo> {
       console.log(`parent handle: ${parentHandle}`);
 
       if (parentDID === ShogithreadDID) {
-//        // リプライ先ポストを将棋ポストとしてスレッド再取得
-//        apiResponse = await getPostThread(apiResponse.thread.parent.post.uri);
         parsedInfo = parseThread(apiResponse.thread.parent);
-      } 
+      } else { // リプライ先が将棋threadポストではない
+        throw new Error(`${MessageInvalidPostURL}: リプライ先が将棋threadではありません`);
+      }
     } else { // リプライ先が存在しない
-      throw new Error(MessageInvalidPostURL);
+      throw new Error(`${MessageInvalidPostURL}: 将棋threadへのリプライではありません`);
     }
   }
   return parsedInfo;
@@ -179,8 +186,10 @@ async function getDID(handle: string) {
       "Accept":"application/json"
     }
   });
-  // TODO: 異常系対応
 //  console.log(`response status: ${response.status}`);
+  if (response.status != 200) {
+    throw new Error(`${MessageErrorOfAPI}: resolveHandle@getDID`);
+  }
   const apiResponse = await response.json();
   return apiResponse.did;
 }
@@ -206,15 +215,17 @@ async function getPostThread(atUri: string) {
       "Accept":"application/json"
     }
   });
-  // TODO: 異常系対応
 //  console.log(`response status: ${response.status}`);
+  if (response.status != 200) {
+    throw new Error(`${MessageErrorOfAPI}: getPostThread`);
+  }
   const apiResponse = await response.json();
   return apiResponse;
 }
 
 // スレッド解析
 // パラメタ
-//   thread：getPostThread APIレスポンスJSON中のthreadオブジェクト
+//   thread：getPostThread APIレスポンスJSON中のthreadオブジェクト（先頭ポストは将棋thread指し手ポストと仮定）
 // 戻り値
 //   解析情報（ParsedInfo）
 function parseThread(thread: any): ParsedInfo {
@@ -224,20 +235,13 @@ function parseThread(thread: any): ParsedInfo {
   const alt: string = thread.post.record.embed.images[0].alt;
   // textに埋め込まれている指し手情報
   const text: string = thread.post.record.text;
-/*
-  // 指し手時刻
-  const moveAt = thread.post.indexedAt;
-//  console.log(`alt: ${alt}`);
-//  console.log(`text: ${text}`);
-  // 指し手履歴配列
-  const moves: string[] = [];
-  // 指し手時刻履歴配列
-  const movesAt: string[] = [];
-*/
+
   const parsedInfo: ParsedInfo = { moves: [], movesAlt: alt };
-  // リプライ先親ポストがあれば親ポスト（先行指し手）を解析
+  // リプライ先親ポスト（人による指し手ポストを仮定）を解析
   if (thread.hasOwnProperty('parent')) {
     parseParent(thread.parent, parsedInfo);
+  } else {
+    throw new Error(`${MessageInternalError}: parseThread`);
   }
   // 指し手履歴配列に解析開始指し手（解析対象最終手）テキストを設定
   const playerMove: ParsedInfoSingleMove | undefined = parsedInfo.moves.at(-1);
@@ -245,19 +249,6 @@ function parseThread(thread: any): ParsedInfo {
     playerMove.text = text;
   }
   return parsedInfo;
-/*
-  // 指し手履歴配列に解析開始指し手（解析対象最終手）を追加
-  moves.push(text);
-  // 指し手時刻履歴配列に解析開始指し手時刻（解析対象最終手時刻）を追加
-  movesAt.push(moveAt);
-  console.log(`moves: ${moves}`);
-  console.log(`moves_at: ${movesAt}`);
-  return {
-    textMoves: moves,
-    altMoves: alt,
-    movesAt: movesAt,
-  };
-*/
 }
 
 // リプライ先親ポスト（先行指し手）の解析
@@ -283,41 +274,28 @@ function parseParent(parent: any, parsedInfo: ParsedInfo) {
   // 子ポストフラグ：処理中ポストのparentが存在すればtrue
   const isChild = parent.hasOwnProperty('parent');
   // 処理中ポストが子ポストであれば親ポストを再帰解析
+  // 履歴情報構築前にスレッドを遡って辿り、折り返しで戻る際にparsedInfo.movesにpushすることにより配列要素は時系列順に整列
   if (isChild) {
     parseParent(parent.parent, parsedInfo);
   }
-  // 処理中ポストが子ポストかつ将棋threadアカウントであれば指し手履歴に追加
-  // →スレッド先頭の対局開始ポストは対象外、将棋threadアカウントの確定手のみ対象
-/*
-  if (isChild && (did === ShogithreadDid)) {
-    moves.push(text);
-    moves_at.push(moveAt);
-  }
-*/
-  if (isChild) {
+
+  // 以降はスレッド親ポスト再帰解析の戻り処理：処理順としては指し手の時系列順
+  if (isChild) { // 子ポストのみ：将棋threadアカウントの対局開始ポストは処理対象外
     if (did === ShogithreadDID) {
       // 将棋threadアカウント
-      // リプライ元の指し手指示ポストから生成した履歴要素に遡ってtextを格納
+      // リプライ元の指し手指示ポストから生成した履歴要素に遡ってtext, altを格納
       const playerMove: ParsedInfoSingleMove | undefined = parsedInfo.moves.at(-1);
       if (playerMove !== undefined) {
         playerMove.text = text;
+        playerMove.alt = parent.post.record.embed.images[0].alt;
+      } else {
+        throw new Error(`${MessageInternalError}: parseParent`);
       }
-/*
-      parsedInfo.moves.push({ text: text, at: null, did: null, handle: null, displayName: null});
-*/
     } else {
       // 将棋threadアカウント以外（指し手指示）
-      // textはリプライの将棋threadポストから取得
-      parsedInfo.moves.push({ text: null, at: moveAt, did: did, handle: handle, displayName: displayName});
-/*
-      const actorMove: ParsedInfoSingleMove | undefined = parsedInfo.moves.at(-1);
-      if (actorMove !== undefined) {
-        actorMove.at = moveAt;
-        actorMove.did = did;
-        actorMove.handle = handle;
-        actorMove.displayName = displayName;
-      }
-*/
+      // 指し手履歴追加
+      // text, altはリプライの将棋threadポスト処理時に設定
+      parsedInfo.moves.push({ text: null, at: moveAt, did: did, handle: handle, displayName: displayName, alt: null, });
     }
   }
 }
