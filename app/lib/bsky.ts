@@ -45,7 +45,7 @@ export async function queryShogithread(formData: FormData): Promise<string> {
   if (rawFormData.url) {
     const parsedInfo = await parseSpecifiedURL(rawFormData.url.toString());
 
-    console.log(parsedInfo.moves.map((x)=>{return x.text?.replace(/.+([△▲][^ ]+) .+$/, "$1")}).join(" "));
+//    console.log(parsedInfo.moves.map((x)=>{return x.text?.replace(/.+([△▲][^ ]+) .+$/, "$1")}).join(" "));
 
     kifuText = convertShogithreadToKI2(parsedInfo);
   } else {
@@ -88,9 +88,9 @@ async function parseSpecifiedURL(url: string): Promise<ParsedInfo> {
   let apiResponse = await getPostThread(atUri);
 
 // for debug
-  // APIレスポンスをJSONシリアライズ（空白インデント:2）
-  const apiResponseString = JSON.stringify(apiResponse, null, 2);
-  console.log(`api response: ${apiResponseString}`);
+//  // APIレスポンスをJSONシリアライズ（空白インデント:2）
+//  const apiResponseString = JSON.stringify(apiResponse, null, 2);
+//  console.log(`api response: ${apiResponseString}`);
 
   let parsedInfo: ParsedInfo = { moves: [], movesAlt: '' };
   if (isShogithread) { // 指定URLが将棋threadのポスト
@@ -152,8 +152,8 @@ async function parseSpecifiedURL(url: string): Promise<ParsedInfo> {
       const parentDID = apiResponse.thread.parent.post.author.did;
 
 // for debug
-      const parentHandle = apiResponse.thread.parent.post.author.handle;
-      console.log(`parent handle: ${parentHandle}`);
+//      const parentHandle = apiResponse.thread.parent.post.author.handle;
+//      console.log(`parent handle: ${parentHandle}`);
 
       if (parentDID === ShogithreadDID) {
         parsedInfo = parseThread(apiResponse.thread.parent);
@@ -269,7 +269,7 @@ function parseParent(parent: any, parsedInfo: ParsedInfo) {
   // ポスト（指し手）のアカウント表示名
   const displayName = parent.post.author.displayName;
 
-  console.log(`${moveAt} ${text}`);
+//  console.log(`${moveAt} ${text}`);
 
   // 子ポストフラグ：処理中ポストのparentが存在すればtrue
   const isChild = parent.hasOwnProperty('parent');
