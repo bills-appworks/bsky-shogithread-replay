@@ -1,7 +1,8 @@
-import { KifuLite, KifuStore } from 'kifu-for-js';
+import { KifuLite } from 'kifu-for-js';
+import { ReplayState } from '@/app/lib/common';
 
-const KifuForJS = ({replayState}) => {
-  return (<KifuLite kifuStore={replayState.kifuStore} />);
+const KifuForJS = ({ replayState }: { replayState: ReplayState }) => {
+  return (<KifuLite kifuStore={ replayState.kifuStore } />);
 }
 
 export default KifuForJS;

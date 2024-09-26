@@ -12,13 +12,14 @@ const Input = ({ setReplayState, replayState }: { setReplayState: React.Dispatch
     // https://zenn.dev/kage1020/scraps/beec58cd5a3df9
     const formData = new FormData(event.target as HTMLFormElement);
     const kifuText = await queryShogithread(formData);
-    setReplayState({kifuStore: new KifuStore({ kifu: kifuText}), url: replayState.url});
+    setReplayState({ kifuStore: new KifuStore({ kifu: kifuText}), url: replayState.url, });
   };
 
   return (
     <div>
       <form onSubmit={handleSubmit}>
         <div>
+          将棋thread URL：
           <input
             className="w-full"
             id="url"
@@ -27,7 +28,7 @@ const Input = ({ setReplayState, replayState }: { setReplayState: React.Dispatch
             placeholder={ShogithreadUrlPlaceholder}
             key={replayState.url}
             defaultValue={replayState.url}
-            onChange={(event) => {setReplayState({ kifuStore: replayState.kifuStore, url: event.target.value})}}
+            onChange={(event) => {setReplayState({ kifuStore: replayState.kifuStore, url: event.target.value, })}}
           />
         </div>
         <div>
@@ -35,7 +36,7 @@ const Input = ({ setReplayState, replayState }: { setReplayState: React.Dispatch
           <button className="ml-2 bg-green-500 shadow-2xl"
             onClick={(event) => {
               event.preventDefault();
-              setReplayState({kifuStore: new KifuStore({ kifu: ""}), url: ""});
+              setReplayState({ kifuStore: new KifuStore({ kifu: "" }), url: "", });
             }}
           >リセット</button>
         </div>
