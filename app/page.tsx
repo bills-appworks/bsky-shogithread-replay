@@ -1,101 +1,141 @@
+'use client';
+
 import Image from "next/image";
+import Link from "next/link";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBluesky } from '@fortawesome/free-brands-svg-icons';
+import { faLink } from '@fortawesome/free-solid-svg-icons';
+import Input from '@/app/ui/input';
+import KifuForJS from '@/app/ui/kifu-for-js';
+import HistoryView from '@/app/ui/history-view';
+import Export from '@/app/ui/export';
+import PrivacyPolicy from '@/app/ui/privacy-policy';
+import React from "react";
+import { useState } from 'react';
+import { ReplayState } from '@/app/lib/common';
+import { KifuStore } from 'kifu-for-js';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  // InputコンポーネントでのonSubmit時の結果をKifuForJSコンポーネントに反映するためここで状態管理
+  const initialReplayState: ReplayState = { kifuStore: new KifuStore({kifu: ""}), url: "", historyView: "", };
+  const [ replayState, setReplayState ] = useState(initialReplayState);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  return (
+    <div className={`flex flex-row`}>
+      <div className="flex flex-col">
+        <div className="w-4 md:w-12 h-[50vh] bg-[#B3936C]" />
+        <div className="w-4 md:w-12 h-[50vh] bg-white" />
+      </div>
+      <div className="border-x border-x-white bg-[#DEBF7E] p-2">
+        <div className="border-2 border-black p-1 space-y-6">
+          <div className="bg-[url('/board.jpg')] bg-cover p-1">
+            <Title />
+            <Description />
+          </div>
+          <Input setReplayState={setReplayState} replayState={replayState} />
+          <div className={`flex flex-row justify-center
+            [&_button]:rounded [&_button]:border [&_button]:border-gray-500
+            [&_button]:bg-[#FFE581] hover:[&_button]:bg-[#EFD571] active:[&_button]:bg-[#DFC561]
+            [&_div[aria-label]]:!bg-[#FFFFDD] 
+          `}>
+            <KifuForJS replayState={replayState} />
+          </div>
+          <HistoryView replayState={replayState} />
+          <Export replayState={replayState} />
+          <Notice />
+          <Footer />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
+      <div className="flex flex-col">
+        <div className="w-4 md:w-12 h-[50vh] bg-white" />
+        <div className="w-4 md:w-12 h-[50vh] bg-[#B3936C]" />
+      </div>
+    </div>
+  );
+}
+
+// タイトル
+const Title: React.FC = () => {
+  return (
+    <div className="flex flex-row justify-center">
+      <Image src="/title.png" width="450" height="100" alt="Re:将棋thread" />
+    </div>
+  );
+}
+
+// 説明
+const Description: React.FC = () => {
+  return (
+    <div>
+      <div className="backdrop-blur-md p-2">
+        <ul className="list-disc list-inside">
+          <li>
+            <Link href="https://bsky.app/" rel="noopener noreferrer" target="_blank">
+              <span className="rounded px-1 text-white bg-[#0085FF] hover:bg-[#0075EF] active:bg-[#0065DF]">
+                Bluesky{' '}
+                <FontAwesomeIcon icon={faBluesky} className="text-xs"/>
+              </span>
+            </Link>
+            に投稿されている
+            <Link href="https://bsky.app/profile/shogithread.bsky.social"  rel="noopener noreferrer" target="_blank">
+              <span className="rounded px-1 text-black bg-[#FFE581] hover:bg-[#EFD571] active:bg-[#DFC561]">
+                将棋<span className="font-sans">thread</span> {' '}
+                <FontAwesomeIcon icon={faLink} className="text-xs" />
+              </span>
+            </Link>
+            の対局スレッドから棋譜を再生します。
+          </li>
+          <ol className="ml-3 list-decimal list-inside">
+            <li>以下の入力欄に対局スレッド中の最終指し手ポストのURLを指定</li>
+            <li>「棋譜リプレイ」を押す</li>
+          </ol>
+          <li>盤面の下にある操作パネルで指し手を進めたり戻したりできます。</li>
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+// 留意事項
+const Notice: React.FC = () => {
+  return (
+    <div>
+      <h2 className="text-lg font-bold">[留意事項]</h2>
+      <div>
+        <ul className="list-disc list-inside">
+          <li>利用によって被ったいかなる損害・トラブルについても、作者は一切責任を負いかねます。</li>
+          <li>現バージョンでは手数が約500手を超えると正常に動作しないことが想定されます。</li>
+          <li>「将棋thread対局URL」の指定は以下に従います。</li>
+          <ul className="ml-3 list-disc list-inside">
+            <li>以下のポストへのURLが有効です。</li>
+            <ul className="ml-3 list-disc list-inside">
+              <li>将棋threadによる投了「○○手で先手（後手）の勝ち」</li>
+              <li>将棋threadによる指し手確定「○○手目:（指し手）」</li>
+              <li>プレイヤーによる将棋threadへのリプライ</li>
+            </ul>
+            <li>指定URLが指すポストまでの棋譜が対象となります。指定URLより後（指定URLポストへのリプライ）の指し手については対象となりません。</li>
+            <li>指定URLが将棋threadポストの場合、その指し手までがリプレイ対象となります。</li>
+            <li>指定URLがプレイヤーのポストの場合、その前の指し手（リプライ先の将棋threadポスト）までが対象となります。</li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+// フッター
+const Footer: React.FC = () => {
+  return (
+    <div>
+      <hr />
+      <div className="font-sans">Copyright &copy; 2024 bills-appworks</div>
+      <div className="font-sans">Author: (Bluesky)
+        <Link href="https://bsky.app/profile/bills-appworks.blue" target="_blank">@bills-appworks.blue{' '}
+          <FontAwesomeIcon icon={faLink} className="text-xs" />
+        </Link>
+      </div>
+      <hr />
+      <PrivacyPolicy />
     </div>
   );
 }
