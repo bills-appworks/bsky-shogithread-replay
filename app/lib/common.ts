@@ -8,7 +8,12 @@ export type ReplayState = {
 };
 
 export function convertShogithreadToKI2(parsedInfo: ParsedInfo): string {
-  return parsedInfo.moves.map((parsedInfoSingleMove: ParsedInfoSingleMove) => {
-    return parsedInfoSingleMove.text?.replace(/.+([△▲][^ ]+) .+$/, "$1");
-  }).join(" ");
+  const startText = '*対局開始';
+  const movesText = parsedInfo.moves.map((parsedInfoSingleMove: ParsedInfoSingleMove) => {
+    // 指し手ポストのテキストからKI2部分抽出
+    const textKI2 = parsedInfoSingleMove.text?.replace(/.+([△▲][^ ]+) .+$/, "$1");
+    // KI2部分＋コメント行（将棋threadポストのテキスト）
+    return `${textKI2}\n*${parsedInfoSingleMove.text}`;
+  }).join("\n");
+  return `${startText}\n${movesText}`
 }

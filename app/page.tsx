@@ -106,12 +106,12 @@ const Description: React.FC = () => {
 const Notice: React.FC = () => {
   return (
     <div>
-      <h2>留意事項</h2>
+      <h2 className="text-lg font-bold">[留意事項]</h2>
       <div>
         <ul className="list-disc list-inside">
           <li>利用によって被ったいかなる損害・トラブルについても、作者は一切責任を負いかねます。</li>
           <li>現バージョンでは手数が約500手を超えると正常に動作しないことが想定されます。</li>
-          <li>「将棋thread URL」の指定は以下に従います。</li>
+          <li>「将棋thread対局URL」の指定は以下に従います。</li>
           <ul className="ml-3 list-disc list-inside">
             <li>以下のポストへのURLが有効です。</li>
             <ul className="ml-3 list-disc list-inside">

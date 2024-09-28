@@ -25,8 +25,9 @@ export type ParsedInfoSingleMove = {
 // スレッド解析情報（各データはポストから未加工）
 export type ParsedInfo = {
   moves: ParsedInfoSingleMove[], // スレッドの棋譜履歴（単体指し手情報の配列）
+  text: string, // 指定URLポストのテキスト
   movesAlt: string, // 指定スレッドでの最終指し手の将棋threadポストの画像のalt（usi）
-  resignAt: string | null; // 投了日時（指定URLのポストが投了確定でない場合はnull）
+  resignAt: string | null, // 投了日時（指定URLのポストが投了確定でない場合はnull）
 };
 
 
@@ -95,7 +96,7 @@ async function parseSpecifiedURL(url: string): Promise<ParsedInfo> {
 //  const apiResponseString = JSON.stringify(apiResponse, null, 2);
 //  console.log(`api response: ${apiResponseString}`);
 
-  const parsedInfo: ParsedInfo = { moves: [], movesAlt: '', resignAt: null };
+  const parsedInfo: ParsedInfo = { moves: [], text: apiResponse.thread.post.record.text, movesAlt: '', resignAt: null };
   if (isShogithread) { // 指定URLが将棋threadのポスト
     // ポストrecordのlexicon（キー$typeの値）からURL指定ポストが投了ポストかスレッド中ポストかを判別し、投了ポストなら引用内の最終指し手ポストを改めて解析対象とする
     const lexicon: string = apiResponse.thread.post.record.embed["$type"];
