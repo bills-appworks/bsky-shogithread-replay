@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+//import localFont from "next/font/local";
+import { Klee_One, Noto_Sans_JP } from 'next/font/google';
 import "./globals.css";
 
 /*
@@ -14,6 +15,10 @@ const geistMono = localFont({
   weight: "100 900",
 });
 */
+const kleeOne = Klee_One({
+  weight: '400',
+  subsets: ['latin'],
+});
 
 import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
@@ -33,6 +38,7 @@ export default function RootLayout({
     <html lang="en">
       <body
 /*        className={`${geistSans.variable} ${geistMono.variable} antialiased`} */
+        className={`${kleeOne.className}`}
       >
         {children}
       </body>

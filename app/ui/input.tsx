@@ -11,8 +11,8 @@ const Input = ({ setReplayState, replayState }: { setReplayState: React.Dispatch
     // event.target型解決
     // https://zenn.dev/kage1020/scraps/beec58cd5a3df9
     const formData = new FormData(event.target as HTMLFormElement);
-    const kifuText = await queryShogithread(formData);
-    setReplayState({ kifuStore: new KifuStore({ kifu: kifuText}), url: replayState.url, });
+    const [kifuText, historyViewText] = await queryShogithread(formData);
+    setReplayState({ kifuStore: new KifuStore({ kifu: kifuText}), url: replayState.url, historyView: historyViewText, });
   };
 
   return (
@@ -41,7 +41,7 @@ const Input = ({ setReplayState, replayState }: { setReplayState: React.Dispatch
           <button className="ml-2 bg-[#FFE581] hover:bg-[#EFD571] active:bg-[#DFC561]
             shadow shadow-black p-1 rounded border border-black" type="reset"
             onClick={(event) => {
-              setReplayState({ kifuStore: new KifuStore({ kifu: "" }), url: "", });
+              setReplayState({ kifuStore: new KifuStore({ kifu: "" }), url: "", historyView: "", });
             }}
           >
             リセット

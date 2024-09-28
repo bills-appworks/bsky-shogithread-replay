@@ -2,12 +2,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Klee_One } from 'next/font/google';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBluesky } from '@fortawesome/free-brands-svg-icons';
 import { faLink } from '@fortawesome/free-solid-svg-icons';
 import Input from '@/app/ui/input';
 import KifuForJS from '@/app/ui/kifu-for-js';
+import HistoryView from '@/app/ui/history-view';
 import Export from '@/app/ui/export';
 import PrivacyPolicy from '@/app/ui/privacy-policy';
 import React from "react";
@@ -15,20 +15,13 @@ import { useState } from 'react';
 import { ReplayState } from '@/app/lib/common';
 import { KifuStore } from 'kifu-for-js';
 
-const kleeOne = Klee_One({
-  weight: '400',
-  subsets: ['latin'],
-})
-
-
-
 export default function Home() {
   // InputコンポーネントでのonSubmit時の結果をKifuForJSコンポーネントに反映するためここで状態管理
-  const initialReplayState: ReplayState = { kifuStore: new KifuStore({kifu: ""}), url: "" };
+  const initialReplayState: ReplayState = { kifuStore: new KifuStore({kifu: ""}), url: "", historyView: "", };
   const [ replayState, setReplayState ] = useState(initialReplayState);
 
   return (
-    <div className={`${kleeOne.className} flex flex-row`}>
+    <div className={`flex flex-row`}>
       <div className="flex flex-col">
         <div className="w-4 md:w-12 h-[50vh] bg-[#B3936C]" />
         <div className="w-4 md:w-12 h-[50vh] bg-white" />
@@ -40,15 +33,16 @@ export default function Home() {
             <Description />
           </div>
           <Input setReplayState={setReplayState} replayState={replayState} />
-          <div className="flex flex-row justify-center
+          <div className={`flex flex-row justify-center
             [&_button]:rounded [&_button]:border [&_button]:border-gray-500
             [&_button]:bg-[#FFE581] hover:[&_button]:bg-[#EFD571] active:[&_button]:bg-[#DFC561]
-            [&_div[aria-label]]:!bg-[#FFFFDD] [&_div[aria-label]]:scrollbar-base-color
-          ">
+            [&_div[aria-label]]:!bg-[#FFFFDD] 
+          `}>
             <KifuForJS replayState={replayState} />
           </div>
-          <Notice />
+          <HistoryView replayState={replayState} />
           <Export replayState={replayState} />
+          <Notice />
           <Footer />
         </div>
       </div>
