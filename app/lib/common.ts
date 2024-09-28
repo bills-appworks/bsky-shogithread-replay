@@ -15,5 +15,9 @@ export function convertShogithreadToKI2(parsedInfo: ParsedInfo): string {
     // KI2部分＋コメント行（将棋threadポストのテキスト）
     return `${textKI2}\n*${parsedInfoSingleMove.text}`;
   }).join("\n");
-  return `${startText}\n${movesText}`
+  let movesKI2 = `${startText}\n${movesText}`;
+  if (parsedInfo.resignAt !== null) {
+    movesKI2 = `${movesKI2}\nまで${parsedInfo.text}`
+  }
+  return movesKI2;
 }
