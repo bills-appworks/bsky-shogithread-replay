@@ -18,27 +18,35 @@ const Input = ({ setReplayState, replayState }: { setReplayState: React.Dispatch
   return (
     <div>
       <form onSubmit={handleSubmit}>
+        <div className="space-y-1">
         <div>
-          将棋thread URL：
+          <div className="flex justify-center"><span className="font-bold">将棋thread対局URLを入力</span> (対局スレッドの最終指し手ポスト)</div>
+        </div>
+        <div className="flex justify-center">
           <input
-            className="w-full"
+            className="w-full rounded border-2 border-black bg-[#FFFFDD] font-sans"
             id="url"
             name="url"
             type="url"
             placeholder={ShogithreadUrlPlaceholder}
             key={replayState.url}
             defaultValue={replayState.url}
-            onChange={(event) => {setReplayState({ kifuStore: replayState.kifuStore, url: event.target.value, })}}
           />
         </div>
-        <div>
-          <button className="bg-green-500 shadow-2xl" type="submit">棋譜リプレイ</button>
-          <button className="ml-2 bg-green-500 shadow-2xl"
+        <div className="flex justify-center">
+          <button className="bg-[#FFE581] hover:bg-[#EFD571] active:bg-[#DFC561]
+            shadow shadow-black font-bold p-1 rounded border-2 border-black" type="submit">
+            棋譜リプレイ
+          </button>
+          <button className="ml-2 bg-[#FFE581] hover:bg-[#EFD571] active:bg-[#DFC561]
+            shadow shadow-black p-1 rounded border border-black" type="reset"
             onClick={(event) => {
-              event.preventDefault();
               setReplayState({ kifuStore: new KifuStore({ kifu: "" }), url: "", });
             }}
-          >リセット</button>
+          >
+            リセット
+          </button>
+        </div>
         </div>
       </form>
     </div>
