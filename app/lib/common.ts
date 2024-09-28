@@ -9,7 +9,7 @@ export const notoSansJP = Noto_Sans_JP({
 
 // UIコンポーネント間でクエリ結果共有のための状態
 export type ReplayState = {
-  kifuStore;
+  kifuStore: any;
   url: string;
   historyView: string;
 };
