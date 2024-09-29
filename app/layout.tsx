@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 //import localFont from "next/font/local";
 import { Klee_One, Noto_Sans_JP } from 'next/font/google';
-import "@app/globals.css";
+import "@/app/globals.css";
 
 /*
 const geistSans = localFont({
