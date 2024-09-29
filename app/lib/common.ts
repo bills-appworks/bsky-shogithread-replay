@@ -2,6 +2,8 @@ import { Noto_Sans_JP } from 'next/font/google';
 import { KifuStore } from 'kifu-for-js';
 import { ParsedInfoSingleMove, ParsedInfo } from '@/app/lib/bsky';
 
+export const Version: string = "1.0.0"
+
 export const notoSansJP = Noto_Sans_JP({
   weight: '400',
   subsets: ['latin'],

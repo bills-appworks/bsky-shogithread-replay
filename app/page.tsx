@@ -12,7 +12,7 @@ import Export from '@/app/ui/export';
 import PrivacyPolicy from '@/app/ui/privacy-policy';
 import React from "react";
 import { useState } from 'react';
-import { ResultDisplayState } from '@/app/lib/common';
+import { Version, ResultDisplayState } from '@/app/lib/common';
 import { KifuStore } from 'kifu-for-js';
 
 export default function Home() {
@@ -29,27 +29,29 @@ export default function Home() {
         <div className="w-4 md:w-12 xl:w-24 2xl:w-48 h-[50vh] bg-white" />
       </div>
       <div className="border-x border-x-white bg-[#DEBF7E] p-2">
-        <div className="border-2 border-black p-1 space-y-6">
-          <div className="bg-[url('/board.jpg')] bg-cover p-1">
+        <div className="border-2 border-black space-y-6">
+          <div className="bg-[url('/board.jpg')] bg-cover">
             <Title />
             <Description />
           </div>
-          <Input
-            setKifuStoreState={setKifuStoreState} kifuStoreState={kifuStoreState}
-            setURLState={setURLState} urlState={urlState}
-            setResultDisplayState={setResultDisplayState} resultDisplayState={resultDisplayState}
-          />
-          <div className={`flex flex-row justify-center
-            [&_button]:rounded [&_button]:border [&_button]:border-gray-500
-            [&_button]:bg-[#FFE581] hover:[&_button]:bg-[#EFD571] active:[&_button]:bg-[#DFC561]
-            [&_div[aria-label]]:!bg-[#FFFFDD] 
-          `}>
-            <KifuForJS kifuStoreState={kifuStoreState} />
+          <div className="p-2 space-y-6">
+            <Input
+              setKifuStoreState={setKifuStoreState} kifuStoreState={kifuStoreState}
+              setURLState={setURLState} urlState={urlState}
+              setResultDisplayState={setResultDisplayState} resultDisplayState={resultDisplayState}
+            />
+            <div className={`flex flex-row justify-center
+              [&_button]:rounded [&_button]:border [&_button]:border-gray-500
+              [&_button]:bg-[#FFE581] hover:[&_button]:bg-[#EFD571] active:[&_button]:bg-[#DFC561]
+              [&_div[aria-label]]:!bg-[#FFFFDD] 
+            `}>
+              <KifuForJS kifuStoreState={kifuStoreState} />
+            </div>
+            <HistoryView resultDisplayState={resultDisplayState} />
+            <Export resultDisplayState={resultDisplayState} />
+            <Notice />
+            <Footer />
           </div>
-          <HistoryView resultDisplayState={resultDisplayState} />
-          <Export resultDisplayState={resultDisplayState} />
-          <Notice />
-          <Footer />
         </div>
       </div>
       <div className="flex flex-col">
@@ -63,7 +65,7 @@ export default function Home() {
 // タイトル
 const Title: React.FC = () => {
   return (
-    <div className="flex flex-row justify-center">
+    <div className="flex flex-row justify-center p-2">
       <Image src="/title.png" width="450" height="100" alt="Re:将棋thread" />
     </div>
   );
@@ -136,8 +138,10 @@ const Footer: React.FC = () => {
   return (
     <div>
       <hr />
+      <div className="font-sans">Version: {Version}</div>
       <div className="font-sans">Copyright &copy; 2024 bills-appworks</div>
-      <div className="font-sans">Author: (Bluesky)
+      <div className="font-sans">Author: (Bluesky{' '}
+        <FontAwesomeIcon icon={faBluesky} className="text-xs"/>){' '}
         <Link href="https://bsky.app/profile/bills-appworks.blue" target="_blank">@bills-appworks.blue{' '}
           <FontAwesomeIcon icon={faLink} className="text-xs" />
         </Link>
