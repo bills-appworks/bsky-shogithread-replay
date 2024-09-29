@@ -7,10 +7,12 @@ export const notoSansJP = Noto_Sans_JP({
   subsets: ['latin'],
 });
 
-// UIコンポーネント間でクエリ結果共有のための状態
-export type ReplayState = {
+// UIコンポーネント間でクエリ結果共有のための状態管理の型
+export type KifuStoreState = {
   kifuStore: any;
-  url: string;
+};
+
+export type ResultDisplayState = {
   historyView: string;
   dataUSI: string;
   dataKI2: string;

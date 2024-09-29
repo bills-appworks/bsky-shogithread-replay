@@ -12,13 +12,15 @@ import Export from '@/app/ui/export';
 import PrivacyPolicy from '@/app/ui/privacy-policy';
 import React from "react";
 import { useState } from 'react';
-import { ReplayState } from '@/app/lib/common';
+import { ResultDisplayState } from '@/app/lib/common';
 import { KifuStore } from 'kifu-for-js';
 
 export default function Home() {
-  // InputコンポーネントでのonSubmit時の結果をKifuForJSコンポーネントに反映するためここで状態管理
-  const initialReplayState: ReplayState = { kifuStore: new KifuStore({kifu: ""}), url: "", historyView: "", dataUSI:"", dataKI2:"", dataKIF:"", };
-  const [ replayState, setReplayState ] = useState(initialReplayState);
+  // コンポーネント間の状態を共有するためここで状態管理
+  const [ kifuStoreState, setKifuStoreState ] = useState({kifuStore: new KifuStore({kifu: ""})});
+  const [ urlState, setURLState ] = useState("");
+  const initialResultDisplayState: ResultDisplayState = { historyView: "", dataUSI: "", dataKI2: "", dataKIF: "", };
+  const [ resultDisplayState, setResultDisplayState] = useState(initialResultDisplayState);
 
   return (
     <div className={`flex flex-row`}>
@@ -32,16 +34,20 @@ export default function Home() {
             <Title />
             <Description />
           </div>
-          <Input setReplayState={setReplayState} replayState={replayState} />
+          <Input
+            setKifuStoreState={setKifuStoreState} kifuStoreState={kifuStoreState}
+            setURLState={setURLState} urlState={urlState}
+            setResultDisplayState={setResultDisplayState} resultDisplayState={resultDisplayState}
+          />
           <div className={`flex flex-row justify-center
             [&_button]:rounded [&_button]:border [&_button]:border-gray-500
             [&_button]:bg-[#FFE581] hover:[&_button]:bg-[#EFD571] active:[&_button]:bg-[#DFC561]
             [&_div[aria-label]]:!bg-[#FFFFDD] 
           `}>
-            <KifuForJS replayState={replayState} />
+            <KifuForJS kifuStoreState={kifuStoreState} />
           </div>
-          <HistoryView replayState={replayState} />
-          <Export replayState={replayState} />
+          <HistoryView resultDisplayState={resultDisplayState} />
+          <Export resultDisplayState={resultDisplayState} />
           <Notice />
           <Footer />
         </div>

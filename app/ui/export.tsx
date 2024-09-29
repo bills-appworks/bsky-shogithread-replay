@@ -1,7 +1,7 @@
-import { ReplayState, notoSansJP } from '@/app/lib/common';
+import { ResultDisplayState, notoSansJP } from '@/app/lib/common';
 
-const Export = ({ replayState }: {replayState:  ReplayState }) => {
-  return (
+const Export = ({ resultDisplayState }: {resultDisplayState:  ResultDisplayState }) => {
+    return (
     <div>
       <hr />
       <h2 className="text-lg font-bold">[棋譜データ]</h2>
@@ -15,8 +15,8 @@ const Export = ({ replayState }: {replayState:  ReplayState }) => {
             className={`w-full h-40 rounded border border-black bg-[#FFFFDD] ${notoSansJP.className}`}
             id="kifu-data-usi"
             name="kifu-data-usi"
-            key={replayState.dataUSI}
-            defaultValue={replayState.dataUSI}
+            key={resultDisplayState.dataUSI}
+            defaultValue={resultDisplayState.dataUSI}
             readOnly
           />
         </details>
@@ -29,8 +29,8 @@ const Export = ({ replayState }: {replayState:  ReplayState }) => {
             className={`w-full h-40 rounded border border-black bg-[#FFFFDD] ${notoSansJP.className}`}
             id="kifu-data-ki2"
             name="kifu-data-ki2"
-            key={replayState.dataKI2}
-            defaultValue={replayState.dataKI2}
+            key={resultDisplayState.dataKI2}
+            defaultValue={resultDisplayState.dataKI2}
             readOnly
           />
         </details>
@@ -43,8 +43,8 @@ const Export = ({ replayState }: {replayState:  ReplayState }) => {
             className={`w-full h-40 rounded border border-black bg-[#FFFFDD] ${notoSansJP.className}`}
             id="kifu-data-kif"
             name="kifu-data-kif"
-            key={replayState.dataKIF}
-            defaultValue={replayState.dataKIF}
+            key={resultDisplayState.dataKIF}
+            defaultValue={resultDisplayState.dataKIF}
             readOnly
           />
         </details>

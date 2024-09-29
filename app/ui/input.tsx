@@ -1,18 +1,24 @@
 'use client';
 
 import { ShogithreadUrlPlaceholder, queryShogithread} from '@/app/lib/bsky';
-import { ReplayState } from '@/app/lib/common';
+import { KifuStoreState, ResultDisplayState } from '@/app/lib/common';
 import React from 'react';
 import { KifuStore } from 'kifu-for-js';
 
-const Input = ({ setReplayState, replayState }: { setReplayState: React.Dispatch<React.SetStateAction<ReplayState>>, replayState: ReplayState }) => {
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+const Input = (
+  {setKifuStoreState, kifuStoreState, setURLState, urlState, setResultDisplayState, resultDisplayState}: {
+     setKifuStoreState: React.Dispatch<React.SetStateAction<KifuStoreState>>, kifuStoreState: KifuStoreState,
+     setURLState: React.Dispatch<React.SetStateAction<string>>, urlState: string,
+     setResultDisplayState: React.Dispatch<React.SetStateAction<ResultDisplayState>>, resultDisplayState: ResultDisplayState,
+  }) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     // event.target型解決
     // https://zenn.dev/kage1020/scraps/beec58cd5a3df9
     const formData = new FormData(event.target as HTMLFormElement);
     const [kifuText, historyViewText, dataUSI, dataKI2, dataKIF] = await queryShogithread(formData);
-    setReplayState({ kifuStore: new KifuStore({ kifu: kifuText}), url: replayState.url, historyView: historyViewText, dataUSI: dataUSI, dataKI2: dataKI2, dataKIF: dataKIF, });
+    setKifuStoreState({ kifuStore: new KifuStore({ kifu: kifuText })});
+    setResultDisplayState({historyView: historyViewText, dataUSI: dataUSI, dataKI2: dataKI2, dataKIF: dataKIF, })
   };
 
   return (
@@ -29,17 +35,12 @@ const Input = ({ setReplayState, replayState }: { setReplayState: React.Dispatch
             name="url"
             type="url"
             placeholder={ShogithreadUrlPlaceholder}
-            key={replayState.url}
-            defaultValue={replayState.url}
-            onChange={(event) => {
-              setReplayState({
-                kifuStore: replayState.kifuStore,
-                url: event.target.value,
-                historyView: replayState.historyView,
-                dataUSI: replayState.dataUSI,
-                dataKI2: replayState.dataKI2,
-                dataKIF: replayState.dataKIF,
-              });
+// 状態管理(onChange=>setState)でdefaultValue(key)は競合するのでvalueに変更
+//            key={urlState}
+//            defaultValue={urlState}
+            value={urlState}
+            onChange={(event) => { 
+              setURLState(event.target.value);
             }}
           />
         </div>
@@ -47,7 +48,7 @@ const Input = ({ setReplayState, replayState }: { setReplayState: React.Dispatch
           <button className="bg-[#FFE581] hover:bg-[#EFD571] active:bg-[#DFC561]
             disabled:font-normal disabled:border-1 disabled:shadow-none disabled:border-gray-500 disabled:bg-gray-300 disabled:text-gray-400
             shadow shadow-black font-bold p-1 rounded border-2 border-black"
-            disabled={replayState.url.length == 0}
+            disabled={urlState.length == 0}
             type="submit"
           >
             棋譜リプレイ
@@ -55,7 +56,9 @@ const Input = ({ setReplayState, replayState }: { setReplayState: React.Dispatch
           <button className="ml-2 bg-[#FFE581] hover:bg-[#EFD571] active:bg-[#DFC561]
             shadow shadow-black p-1 rounded border border-black" type="reset"
             onClick={(event) => {
-              setReplayState({ kifuStore: new KifuStore({ kifu: "" }), url: "", historyView: "", dataUSI: "", dataKI2: "", dataKIF: "", });
+              setKifuStoreState({ kifuStore: new KifuStore({ kifu: "" })});
+              setURLState("");
+              setResultDisplayState({ historyView: "", dataUSI: "", dataKI2: "", dataKIF: "", });
             }}
           >
             リセット
