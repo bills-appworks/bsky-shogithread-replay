@@ -17,14 +17,14 @@ import { KifuStore } from 'kifu-for-js';
 
 export default function Home() {
   // InputコンポーネントでのonSubmit時の結果をKifuForJSコンポーネントに反映するためここで状態管理
-  const initialReplayState: ReplayState = { kifuStore: new KifuStore({kifu: ""}), url: "", historyView: "", };
+  const initialReplayState: ReplayState = { kifuStore: new KifuStore({kifu: ""}), url: "", historyView: "", dataUSI:"", dataKI2:"", dataKIF:"", };
   const [ replayState, setReplayState ] = useState(initialReplayState);
 
   return (
     <div className={`flex flex-row`}>
       <div className="flex flex-col">
-        <div className="w-4 md:w-12 h-[50vh] bg-[#B3936C]" />
-        <div className="w-4 md:w-12 h-[50vh] bg-white" />
+        <div className="w-4 md:w-12 xl:w-24 2xl:w-48 h-[50vh] bg-[#B3936C]" />
+        <div className="w-4 md:w-12 xl:w-24 2xl:w-48 h-[50vh] bg-white" />
       </div>
       <div className="border-x border-x-white bg-[#DEBF7E] p-2">
         <div className="border-2 border-black p-1 space-y-6">
@@ -47,8 +47,8 @@ export default function Home() {
         </div>
       </div>
       <div className="flex flex-col">
-        <div className="w-4 md:w-12 h-[50vh] bg-white" />
-        <div className="w-4 md:w-12 h-[50vh] bg-[#B3936C]" />
+        <div className="w-4 md:w-12 xl:w-24 2xl:w-48 h-[50vh] bg-white" />
+        <div className="w-4 md:w-12 xl:w-24 2xl:w-48 h-[50vh] bg-[#B3936C]" />
       </div>
     </div>
   );
@@ -100,11 +100,13 @@ const Description: React.FC = () => {
 const Notice: React.FC = () => {
   return (
     <div>
+      <hr />
       <h2 className="text-lg font-bold">[留意事項]</h2>
       <div>
         <ul className="list-disc list-inside">
           <li>利用によって被ったいかなる損害・トラブルについても、作者は一切責任を負いかねます。</li>
           <li>現バージョンでは手数が約500手を超えると正常に動作しないことが想定されます。</li>
+          <li>プレイヤーがBluesky</li>
           <li>「将棋thread対局URL」の指定は以下に従います。</li>
           <ul className="ml-3 list-disc list-inside">
             <li>以下のポストへのURLが有効です。</li>

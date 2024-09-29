@@ -1,4 +1,4 @@
-import { convertShogithreadToHistoryView, convertShogithreadToKI2 } from '@/app/lib/common';
+import { convertShogithreadToHistoryView, convertShogithreadToKI2, convertShogithreadToKif } from '@/app/lib/common';
 
 const BskyPublicApiPrefix: string = 'https://public.api.bsky.app/xrpc';
 const ShogithreadDID: string = 'did:plc:mpyhemzzouqzykmbwiblggwg';
@@ -39,7 +39,7 @@ export type ParsedInfo = {
 //     url：指し手履歴スレッド中のいずれかのポスト参照URL
 // 戻り値
 //   指し手履歴KI2棋譜データ
-export async function queryShogithread(formData: FormData): Promise<[string, string]> {
+export async function queryShogithread(formData: FormData): Promise<[string, string, string, string, string]> {
   const rawFormData = {
     url: formData.get('url'),
   }
@@ -47,6 +47,9 @@ export async function queryShogithread(formData: FormData): Promise<[string, str
 //  console.log("url: " + rawFormData.url);
   let kifuText: string = '';
   let historyViewText: string = '';
+  let dataUSI: string = '';
+  let dataKI2: string = '';
+  let dataKIF: string = '';
   if (rawFormData.url) {
     const parsedInfo = await parseSpecifiedURL(rawFormData.url.toString());
 
@@ -54,10 +57,13 @@ export async function queryShogithread(formData: FormData): Promise<[string, str
 
     kifuText = convertShogithreadToKI2(parsedInfo);
     historyViewText = convertShogithreadToHistoryView(parsedInfo);
+    dataUSI = parsedInfo.movesAlt;
+    dataKI2 = kifuText;
+    dataKIF = convertShogithreadToKif(parsedInfo);
   } else {
     throw new Error('フォームデータが無効です');
   }
-  return [kifuText, historyViewText];
+  return [kifuText, historyViewText, dataUSI, dataKI2, dataKIF];
 }
 
 // 指定URLを解析
