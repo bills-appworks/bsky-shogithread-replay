@@ -53,7 +53,10 @@ export function convertShogithreadToKI2(parsedInfo: ParsedInfo, isOutputPlayer: 
     }
     return text;
   }).join("\n");
-  let movesKI2 = `${startText}\n${movesText}`;
+  let movesKI2 = `${movesText}`;
+  if (isOutputComment) {
+    movesKI2 = `${startText}\n${movesKI2}`
+  }
   if (parsedInfo.resignAt !== null) {
     movesKI2 = `${movesKI2}\nまで${parsedInfo.text}`
   }
