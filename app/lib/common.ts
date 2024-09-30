@@ -21,6 +21,12 @@ export type ResultDisplayState = {
   dataKIF: string;
 };
 
+export type SpecifiedOption = {
+  isOutputPlayer: boolean;
+  isOutputCommentKI2: boolean;
+  isOutputCommentKIF: boolean;
+};
+
 // KIF形式消費時間最大単位
 enum KifDatetimeMaxUnit {
   Second,
@@ -31,14 +37,21 @@ enum KifDatetimeMaxUnit {
   Year,
 };
 
-export function convertShogithreadToKI2(parsedInfo: ParsedInfo): string {
+export function convertShogithreadToKI2(parsedInfo: ParsedInfo, isOutputPlayer: boolean = true, isOutputComment: boolean = true): string {
   const startText = '*対局開始';
   const movesText = parsedInfo.moves.map((parsedInfoSingleMove: ParsedInfoSingleMove) => {
     // 指し手ポストのテキストからKI2部分抽出
-    const textKI2 = extractMoveKI2(parsedInfoSingleMove.text);
-    const datetime = convertISO8601ToKifDatetime(parsedInfoSingleMove.at);
-    // KI2部分＋コメント行（指し手メタ情報）
-    return `${textKI2}\n*${parsedInfoSingleMove.text}\n*${parsedInfoSingleMove.displayName}\n*${datetime}`;
+    let text = extractMoveKI2(parsedInfoSingleMove.text);
+    // コメント行（指し手メタ情報）
+    if (isOutputComment) {
+      const datetime = convertISO8601ToKifDatetime(parsedInfoSingleMove.at);
+      //text += `\n*${parsedInfoSingleMove.text}`; // 指し手ポストテキスト
+      text += `\n*${datetime}`;
+      if (isOutputPlayer) {
+        text += `\n*${parsedInfoSingleMove.displayName}`;
+      }
+    }
+    return text;
   }).join("\n");
   let movesKI2 = `${startText}\n${movesText}`;
   if (parsedInfo.resignAt !== null) {
@@ -46,12 +59,18 @@ export function convertShogithreadToKI2(parsedInfo: ParsedInfo): string {
   }
   return movesKI2;
 }
-export function convertShogithreadToHistoryView(parsedInfo: ParsedInfo): string {
+export function convertShogithreadToHistoryView(parsedInfo: ParsedInfo, isOutputPlayer: boolean = true): string {
   let movesText = parsedInfo.moves.map((parsedInfoSingleMove: ParsedInfoSingleMove) => {
     const datetime = convertISO8601ToKifDatetime(parsedInfoSingleMove.at);
     const moveStep = extractMoveStep(parsedInfoSingleMove.text).padEnd(3, '　');
-    const moveText = extractMoveKI2(parsedInfoSingleMove.text).padEnd(6, '　');
-    return `${datetime}    ${moveStep}${moveText} ${parsedInfoSingleMove.displayName}`
+    const moveText = extractMoveKI2(parsedInfoSingleMove.text);
+    let text = `${datetime}    ${moveStep}`;
+    if (isOutputPlayer) {
+      text += `${moveText.padEnd(6, '　')}${parsedInfoSingleMove.displayName}`;
+    } else {
+      text += `${moveText}`
+    }
+    return text;
   }).join("\n");
   if (parsedInfo.resignAt !== null) {
     const datetime = convertISO8601ToKifDatetime(parsedInfo.resignAt);
@@ -74,7 +93,7 @@ function extractMoveStep(shogithreadText: string | null): string {
   return shogithreadText?.replace(/(.+)[△▲][^ ]+ .+$/, "$1");
 }
 
-export function convertShogithreadToKif(parsedInfo: ParsedInfo, isTurnOutput: boolean = false, isPlayerOutput: boolean = true): string {
+export function convertShogithreadToKIF(parsedInfo: ParsedInfo, isOutputTurn: boolean = false, isOutputPlayer: boolean = true, isOutputComment: boolean = true, isOutputTime: boolean = true): string {
   const startMove: ParsedInfoSingleMove | undefined = parsedInfo.moves.at(0);
   const endMove: ParsedInfoSingleMove | undefined = parsedInfo.moves.at(-1);
 
@@ -114,7 +133,7 @@ export function convertShogithreadToKif(parsedInfo: ParsedInfo, isTurnOutput: bo
       // 手番・移動先座標・駒・装飾子
       let moveTextTo: string | undefined = parsedInfoMove.text?.replace(/[0-9]+手目: ([▲△][^ ]+) (\([^)]+\))/, "$1");
       // 手番（▲△）出力抑止
-      if (!isTurnOutput) {
+      if (!isOutputTurn) {
         moveTextTo = moveTextTo?.substring(1);
       }
       // 移動元座標
@@ -168,18 +187,30 @@ export function convertShogithreadToKif(parsedInfo: ParsedInfo, isTurnOutput: bo
     let consumptionTime: string = '0:00';
     // 累積の消費時間
     let cumulativeConsumptionTime: string = '00:00:00';
-    if (index > 0) {
-      const prevMove: ParsedInfoSingleMove | undefined = parsedInfo.moves.at(index - 1);
-      if (prevMove !== undefined) {
-        const prevMoveAt: string | null = prevMove.at;
-        const thisMoveAt: string | null = parsedInfoMove.at;
-        if (prevMoveAt != null && thisMoveAt != null) {
-          consumptionTime = getDiffISO8601ToKifDatetime(prevMoveAt, thisMoveAt, KifDatetimeMaxUnit.Minute);
-          cumulativeConsumptionTime = getDiffISO8601ToKifDatetime(startDatetime, thisMoveAt, KifDatetimeMaxUnit.Hour);
+    if (isOutputTime) {
+      if (index > 0) {
+        const prevMove: ParsedInfoSingleMove | undefined = parsedInfo.moves.at(index - 1);
+        if (prevMove !== undefined) {
+          const prevMoveAt: string | null = prevMove.at;
+          const thisMoveAt: string | null = parsedInfoMove.at;
+          if (prevMoveAt != null && thisMoveAt != null) {
+            consumptionTime = getDiffISO8601ToKifDatetime(prevMoveAt, thisMoveAt, KifDatetimeMaxUnit.Minute);
+            cumulativeConsumptionTime = getDiffISO8601ToKifDatetime(startDatetime, thisMoveAt, KifDatetimeMaxUnit.Hour);
+          }
         }
       }
     }
-    return `${index + 1} ${moveText} ( ${consumptionTime}/${cumulativeConsumptionTime})`;
+    let text = `${index + 1} ${moveText} ( ${consumptionTime}/${cumulativeConsumptionTime})`
+    // コメント行（指し手メタ情報）
+    if (isOutputComment) {
+      const datetime = convertISO8601ToKifDatetime(parsedInfoMove.at);
+      //text += `\n*${parsedInfoMove.text}`; // 指し手ポストテキスト
+      text += `\n*${datetime}`;
+      if (isOutputPlayer) {
+        text += `\n*${parsedInfoMove.displayName}`;
+      }
+    }
+    return text;
   });
   return kifHeader + kifMoves.join("\n");
 }

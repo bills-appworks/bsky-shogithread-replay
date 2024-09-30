@@ -1,6 +1,14 @@
-import { ResultDisplayState, notoSansJP } from '@/app/lib/common';
+import { ResultDisplayState, SpecifiedOption, convertShogithreadToKI2, convertShogithreadToKIF, notoSansJP } from '@/app/lib/common';
+import { ParsedInfo } from '@/app/lib/bsky';
 
-const Export = ({ resultDisplayState }: {resultDisplayState:  ResultDisplayState }) => {
+const Export = ({ parsedInfoState, setResultDisplayState, resultDisplayState, setSpecifiedOptionState, specifiedOptionState }:
+  {
+    parsedInfoState: ParsedInfo,
+    setResultDisplayState: React.Dispatch<React.SetStateAction<ResultDisplayState>>,
+    resultDisplayState: ResultDisplayState,
+    setSpecifiedOptionState: React.Dispatch<React.SetStateAction<SpecifiedOption>>,
+    specifiedOptionState: SpecifiedOption,
+  }) => {
     return (
     <div>
       <hr />
@@ -10,7 +18,7 @@ const Export = ({ resultDisplayState }: {resultDisplayState:  ResultDisplayState
           bg-[#FFE581] hover:bg-[#EFD571] active:bg-[#DFC561]
           shadow shadow-black
         ">
-          <summary>USI形式</summary>
+          <summary>SFEN(USI)形式</summary>
           <textarea
             className={`w-full h-40 rounded border border-black bg-[#FFFFDD] ${notoSansJP.className}`}
             id="kifu-data-usi"
@@ -25,6 +33,27 @@ const Export = ({ resultDisplayState }: {resultDisplayState:  ResultDisplayState
           shadow shadow-black
         ">
           <summary>KI2形式</summary>
+          <input
+            type="checkbox"
+            id="comment-ki2"
+            name="comment-ki2"
+            checked={specifiedOptionState.isOutputCommentKI2}
+            onChange={(event) => {
+              setSpecifiedOptionState({
+                isOutputPlayer: specifiedOptionState.isOutputPlayer,
+                isOutputCommentKI2: event.target.checked,
+                isOutputCommentKIF: specifiedOptionState.isOutputCommentKIF,
+              });
+              const text = convertShogithreadToKI2(parsedInfoState, specifiedOptionState.isOutputPlayer, event.target.checked);
+              setResultDisplayState({
+                historyView: resultDisplayState.historyView,
+                dataUSI: resultDisplayState.dataUSI,
+                dataKI2: text,
+                dataKIF: resultDisplayState.dataKIF,
+              });
+            }}
+          />
+          <label htmlFor="comment-ki2">コメント出力</label>
           <textarea
             className={`w-full h-40 rounded border border-black bg-[#FFFFDD] ${notoSansJP.className}`}
             id="kifu-data-ki2"
@@ -38,7 +67,28 @@ const Export = ({ resultDisplayState }: {resultDisplayState:  ResultDisplayState
           bg-[#FFE581] hover:bg-[#EFD571] active:bg-[#DFC561]
           shadow shadow-black
         ">
-          <summary>KIF形式</summary>
+          <summary>KIF形式（アルファ版：一部形式未準拠）</summary>
+          <input
+            type="checkbox"
+            id="comment-kif"
+            name="comment-kif"
+            checked={specifiedOptionState.isOutputCommentKIF}
+            onChange={(event) => {
+              setSpecifiedOptionState({
+                isOutputPlayer: specifiedOptionState.isOutputPlayer,
+                isOutputCommentKI2: specifiedOptionState.isOutputCommentKI2,
+                isOutputCommentKIF: event.target.checked,
+              });
+              const text = convertShogithreadToKIF(parsedInfoState, false, specifiedOptionState.isOutputPlayer, event.target.checked, true);
+              setResultDisplayState({
+                historyView: resultDisplayState.historyView,
+                dataUSI: resultDisplayState.dataUSI,
+                dataKI2: resultDisplayState.dataKI2,
+                dataKIF: text,
+              });
+            }}
+          />
+          <label htmlFor="comment-kif">コメント出力</label>
           <textarea
             className={`w-full h-40 rounded border border-black bg-[#FFFFDD] ${notoSansJP.className}`}
             id="kifu-data-kif"

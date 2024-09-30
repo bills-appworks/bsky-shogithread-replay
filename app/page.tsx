@@ -12,18 +12,24 @@ import Export from '@/app/ui/export';
 import PrivacyPolicy from '@/app/ui/privacy-policy';
 import React from "react";
 import { useState } from 'react';
-import { Version, ResultDisplayState } from '@/app/lib/common';
+import { Version, ResultDisplayState, SpecifiedOption } from '@/app/lib/common';
 import { KifuStore } from 'kifu-for-js';
+import { ParsedInfo, ParsedInfoSingleMove } from "@/app/lib/bsky";
 
 export default function Home() {
   // コンポーネント間の状態を共有するためここで状態管理
+  const initialMoves: ParsedInfoSingleMove = {text: null, at: null, did: null, handle: null, displayName: null, alt: null, };
+  const initialParsedInfo: ParsedInfo = {moves:[initialMoves], text: "", movesAlt: "", resignAt: null, };
+  const [ parsedInfoState, setParsedInfoState ] = useState(initialParsedInfo);
   const [ kifuStoreState, setKifuStoreState ] = useState({kifuStore: new KifuStore({kifu: ""})});
   const [ urlState, setURLState ] = useState("");
   const initialResultDisplayState: ResultDisplayState = { historyView: "", dataUSI: "", dataKI2: "", dataKIF: "", };
-  const [ resultDisplayState, setResultDisplayState] = useState(initialResultDisplayState);
+  const [ resultDisplayState, setResultDisplayState ] = useState(initialResultDisplayState);
+  const initialSpecifiedOption: SpecifiedOption = { isOutputPlayer: true, isOutputCommentKI2: true, isOutputCommentKIF: true, };
+  const [ specifiedOptionState, setSpecifiedOptionState ] = useState(initialSpecifiedOption);
 
   return (
-    <div className={`flex flex-row`}>
+    <div className="flex flex-row">
       <div className="flex flex-col">
         <div className="w-4 md:w-12 xl:w-24 2xl:w-48 h-[50vh] bg-[#B3936C]" />
         <div className="w-4 md:w-12 xl:w-24 2xl:w-48 h-[50vh] bg-white" />
@@ -36,19 +42,25 @@ export default function Home() {
           </div>
           <div className="p-2 space-y-6">
             <Input
+              setParsedInfoState={setParsedInfoState} parsedInfoState={parsedInfoState}
               setKifuStoreState={setKifuStoreState} kifuStoreState={kifuStoreState}
               setURLState={setURLState} urlState={urlState}
               setResultDisplayState={setResultDisplayState} resultDisplayState={resultDisplayState}
+              setSpecifiedOptionState={setSpecifiedOptionState} specifiedOptionState={specifiedOptionState}
             />
-            <div className={`flex flex-row justify-center
+            <div className="flex flex-row justify-center
               [&_button]:rounded [&_button]:border [&_button]:border-gray-500
               [&_button]:bg-[#FFE581] hover:[&_button]:bg-[#EFD571] active:[&_button]:bg-[#DFC561]
               [&_div[aria-label]]:!bg-[#FFFFDD] 
-            `}>
+            ">
               <KifuForJS kifuStoreState={kifuStoreState} />
             </div>
             <HistoryView resultDisplayState={resultDisplayState} />
-            <Export resultDisplayState={resultDisplayState} />
+            <Export
+              parsedInfoState={parsedInfoState}
+              setResultDisplayState={setResultDisplayState} resultDisplayState={resultDisplayState}
+              setSpecifiedOptionState={setSpecifiedOptionState} specifiedOptionState={specifiedOptionState}
+            />
             <Notice />
             <Footer />
           </div>
@@ -114,7 +126,6 @@ const Notice: React.FC = () => {
         <ul className="list-disc list-inside">
           <li>利用によって被ったいかなる損害・トラブルについても、作者は一切責任を負いかねます。</li>
           <li>現バージョンでは手数が約500手を超えると正常に動作しないことが想定されます。</li>
-          <li>プレイヤーがBluesky</li>
           <li>「将棋thread対局URL」の指定は以下に従います。</li>
           <ul className="ml-3 list-disc list-inside">
             <li>以下のポストへのURLが有効です。</li>
