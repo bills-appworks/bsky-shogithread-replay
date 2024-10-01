@@ -1,6 +1,10 @@
+// Google Fonts
 import { Noto_Sans_JP } from 'next/font/google';
+// 定義参照
 import { KifuStore } from 'kifu-for-js';
 import { ParsedInfoSingleMove, ParsedInfo } from '@/app/lib/bsky';
+import { queryShogithread } from '@/app/lib/bsky';
+import { DialogBoxState } from '@/app/ui/dialog-box';
 
 export const Version: string = "1.0.0"
 
@@ -27,6 +31,15 @@ export type SpecifiedOption = {
   isOutputCommentKIF: boolean;
 };
 
+// 状態初期値
+const initialMoves: ParsedInfoSingleMove = {text: null, at: null, did: null, handle: null, displayName: null, alt: null, };
+export const initialParsedInfo: ParsedInfo = {moves:[initialMoves], text: "", movesAlt: "", resignAt: null, };
+export const initialKifuStore = {kifuStore: new KifuStore({ kifu: "", })};
+export const initialURLState = '';
+export const initialResultDisplayState: ResultDisplayState = { historyView: "", dataUSI: "", dataKI2: "", dataKIF: "", };
+export const initialSpecifiedOption: SpecifiedOption = { isOutputPlayer: true, isOutputCommentKI2: true, isOutputCommentKIF: true, };
+export const initialDialogBoxState: DialogBoxState = { isOpen: false, textTitle: '確認してください', textBody: '', };
+
 // KIF形式消費時間最大単位
 enum KifDatetimeMaxUnit {
   Second,
@@ -35,6 +48,34 @@ enum KifDatetimeMaxUnit {
   Day,
   Month,
   Year,
+};
+
+export async function buildShogithreadInfo(
+  url: string | null,
+  profile: string | null,
+  recordId: string | null,
+  isOutputPlayer: boolean,
+  isOutputCommentKI2: boolean,
+  isOutputCommentKIF: boolean,
+//  setDialogBoxState: React.Dispatch<React.SetStateAction<DialogBoxState>>,
+//  dialogBoxState: DialogBoxState,
+): Promise<[ParsedInfo, any, ResultDisplayState]> {
+//  try{
+    const [parsedInfo, kifuText, historyViewText, dataUSI, dataKI2, dataKIF] = await queryShogithread(url, profile, recordId, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF);
+    const kifuStore = new KifuStore({ kifu: kifuText });
+    const resultDisplayState: ResultDisplayState = {
+      historyView: historyViewText,
+      dataUSI: dataUSI,
+      dataKI2: dataKI2,
+      dataKIF: dataKIF,
+    }
+    return [parsedInfo, kifuStore, resultDisplayState];
+//  } catch(e: unknown) {
+//    if (e instanceof Error) {
+////      setDialogBoxState({ isOpen: true, textTitle: dialogBoxState.textTitle, textBody: e.message});
+//      console.log(e);
+//    }
+//  }
 };
 
 export function convertShogithreadToKI2(parsedInfo: ParsedInfo, isOutputPlayer: boolean = true, isOutputComment: boolean = true): string {
@@ -62,6 +103,7 @@ export function convertShogithreadToKI2(parsedInfo: ParsedInfo, isOutputPlayer: 
   }
   return movesKI2;
 }
+
 export function convertShogithreadToHistoryView(parsedInfo: ParsedInfo, isOutputPlayer: boolean = true): string {
   let movesText = parsedInfo.moves.map((parsedInfoSingleMove: ParsedInfoSingleMove) => {
     const datetime = convertISO8601ToKifDatetime(parsedInfoSingleMove.at);

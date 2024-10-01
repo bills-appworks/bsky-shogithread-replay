@@ -1,28 +1,33 @@
 'use client';
 
-import { ParsedInfo, ShogithreadUrlPlaceholder, queryShogithread} from '@/app/lib/bsky';
-import { KifuStoreState, ResultDisplayState, SpecifiedOption } from '@/app/lib/common';
-import { DialogBoxState } from '@/app/ui/dialog-box';
+// React
 import React from 'react';
+// Next.js
+import { useSearchParams, usePathname, useRouter } from 'next/navigation';
+// 定義参照
+import { ParsedInfo, ShogithreadUrlPlaceholder, queryShogithread} from '@/app/lib/bsky';
+//import { KifuStoreState, ResultDisplayState, SpecifiedOption } from '@/app/lib/common';
+import { KifuStoreState, ResultDisplayState, SpecifiedOption, initialParsedInfo, initialKifuStore, initialURLState, initialResultDisplayState, initialSpecifiedOption, initialDialogBoxState } from '@/app/lib/common';
+import { DialogBoxState } from '@/app/ui/dialog-box';
 import { KifuStore } from 'kifu-for-js';
+import RenderFromTemplateContext from 'next/dist/client/components/render-from-template-context';
 
-const Input = (
-  {
-    setParsedInfoState, parsedInfoState,
-    setKifuStoreState, kifuStoreState,
-    setURLState, urlState,
-    setResultDisplayState, resultDisplayState,
-    setSpecifiedOptionState, specifiedOptionState,
-    setDialogBoxState, dialogBoxState,
-  }: {
-    setParsedInfoState: React.Dispatch<React.SetStateAction<ParsedInfo>>, parsedInfoState: ParsedInfo,
-    setKifuStoreState: React.Dispatch<React.SetStateAction<KifuStoreState>>, kifuStoreState: KifuStoreState,
-    setURLState: React.Dispatch<React.SetStateAction<string>>, urlState: string,
-    setResultDisplayState: React.Dispatch<React.SetStateAction<ResultDisplayState>>, resultDisplayState: ResultDisplayState,
-    setSpecifiedOptionState: React.Dispatch<React.SetStateAction<SpecifiedOption>>, specifiedOptionState: SpecifiedOption,
-    setDialogBoxState: React.Dispatch<React.SetStateAction<DialogBoxState>>, dialogBoxState: DialogBoxState,
-  }) => {
-
+const Input = ({
+  setParsedInfoState, parsedInfoState,
+  setKifuStoreState, kifuStoreState,
+  setURLState, urlState,
+  setResultDisplayState, resultDisplayState,
+  setSpecifiedOptionState, specifiedOptionState,
+  setDialogBoxState, dialogBoxState,
+}: {
+  setParsedInfoState: React.Dispatch<React.SetStateAction<ParsedInfo>>, parsedInfoState: ParsedInfo,
+  setKifuStoreState: React.Dispatch<React.SetStateAction<KifuStoreState>>, kifuStoreState: KifuStoreState,
+  setURLState: React.Dispatch<React.SetStateAction<string>>, urlState: string,
+  setResultDisplayState: React.Dispatch<React.SetStateAction<ResultDisplayState>>, resultDisplayState: ResultDisplayState,
+  setSpecifiedOptionState: React.Dispatch<React.SetStateAction<SpecifiedOption>>, specifiedOptionState: SpecifiedOption,
+  setDialogBoxState: React.Dispatch<React.SetStateAction<DialogBoxState>>, dialogBoxState: DialogBoxState,
+}) => {
+/*
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try{
@@ -44,6 +49,21 @@ const Input = (
       }
     }
   }
+*/
+
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const { replace } = useRouter();
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const params = new URLSearchParams();
+    params.set('url', urlState);
+    params.set('player', specifiedOptionState.isOutputPlayer ? 'true' : 'false');
+    params.set('KI2-comment', specifiedOptionState.isOutputCommentKI2 ? 'true' : 'false');
+    params.set('KIF-comment', specifiedOptionState.isOutputCommentKIF ? 'true' : 'false');
+    replace(`${pathname}?${params.toString()}`);
+  }
 
   return (
     <div>
@@ -63,7 +83,7 @@ const Input = (
   //            key={urlState}
   //            defaultValue={urlState}
               value={urlState}
-              onChange={(event) => { 
+              onChange={(event) => {
                 setURLState(event.target.value);
               }}
             />
@@ -96,9 +116,19 @@ const Input = (
             <button className="ml-2 bg-[#FFE581] hover:bg-[#EFD571] active:bg-[#DFC561]
               shadow shadow-black p-1 rounded border border-black" type="reset"
               onClick={(event) => {
+                /*
                 setKifuStoreState({ kifuStore: new KifuStore({ kifu: "" })});
                 setURLState("");
                 setResultDisplayState({ historyView: "", dataUSI: "", dataKI2: "", dataKIF: "", });
+                setSpecifiedOptionState({ isOutput});
+                */
+                setParsedInfoState(initialParsedInfo);
+                setKifuStoreState(initialKifuStore);
+                setURLState(initialURLState);
+                setResultDisplayState(initialResultDisplayState);
+                setSpecifiedOptionState(initialSpecifiedOption);
+                const params = new URLSearchParams();
+                replace(`${pathname}?${params.toString()}`);
               }}
             >
               リセット

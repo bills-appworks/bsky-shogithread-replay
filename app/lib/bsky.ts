@@ -1,3 +1,4 @@
+// 定義参照
 import { convertShogithreadToHistoryView, convertShogithreadToKI2, convertShogithreadToKIF, SpecifiedOption } from '@/app/lib/common';
 
 const BskyPublicApiPrefix: string = 'https://public.api.bsky.app/xrpc';
@@ -39,6 +40,7 @@ export type ParsedInfo = {
 //     url：指し手履歴スレッド中のいずれかのポスト参照URL
 // 戻り値
 //   指し手履歴KI2棋譜データ
+/*
 export async function queryShogithread(formData: FormData, specifiedOptionState: SpecifiedOption): Promise<[ParsedInfo, string, string, string, string, string]> {
   const rawFormData = {
     url: formData.get('url'),
@@ -66,27 +68,62 @@ export async function queryShogithread(formData: FormData, specifiedOptionState:
   }
   return [parsedInfo, kifuText, historyViewText, dataUSI, dataKI2, dataKIF];
 }
+*/
+export async function queryShogithread(
+  url: string | null,
+  profile: string | null,
+  recordId: string | null,
+  isOutputPlayer: boolean,
+  isOutputCommentKI2: boolean,
+  isOutputCommentKIF: boolean,
+): Promise<[ParsedInfo, string, string, string, string, string]> {
+//  console.log("url: " + url);
+  let kifuText: string = '';
+  let historyViewText: string = '';
+  let dataUSI: string = '';
+  let dataKI2: string = '';
+  let dataKIF: string = '';
+
+  const parsedInfo = await parseSpecifiedURL(url, profile, recordId, isOutputPlayer);
+
+//  console.log(parsedInfo.moves.map((x)=>{return x.text?.replace(/.+([△▲][^ ]+) .+$/, "$1")}).join(" "));
+
+  kifuText = convertShogithreadToKI2(parsedInfo, isOutputPlayer, true);
+  historyViewText = convertShogithreadToHistoryView(parsedInfo, isOutputPlayer);
+  dataUSI = parsedInfo.movesAlt;
+  dataKI2 = convertShogithreadToKI2(parsedInfo, isOutputPlayer, isOutputCommentKI2);
+  dataKIF = convertShogithreadToKIF(parsedInfo, false, isOutputPlayer, isOutputCommentKIF, true);
+  return [parsedInfo, kifuText, historyViewText, dataUSI, dataKI2, dataKIF];
+}
 
 // 指定URLを解析
 // パラメタ
 //   url：利用者指定URL
 // 戻り値
 //   解析情報（ParsedInfo）
-async function parseSpecifiedURL(url: string, isOutputPlayer: boolean): Promise<ParsedInfo> {
+async function parseSpecifiedURL(url: string | null, profile: string | null, recordId: string | null, isOutputPlayer: boolean): Promise<ParsedInfo> {
   // TODO:ハンドルまたはDID、record idのスマートな抽出
 
-  // 明らかにBlueskyポストを示すものではないURLの除外
-  if (!new RegExp(`${ShogithreadUrlValidRegExp}`).test(url)) {
-    throw new Error(MessageInvalidPostURL);
-  }
+  let profileIdentity = null;
+  if (url) {
+    // 明らかにBlueskyポストを示すものではないURLの除外
+    if (!new RegExp(`${ShogithreadUrlValidRegExp}`).test(url)) {
+      throw new Error(MessageInvalidPostURL);
+    }
 
-  // ハンドルまたはDIDの確認
-  let profileIdentity: string = url.replace(`${ShogithreadUrlSpecifiedPostPrefix}/`, '');
-  profileIdentity = profileIdentity.replace(/^([^/]+)\/.+$/,"$1");
+    // ハンドルまたはDIDの確認
+    profileIdentity = url.replace(`${ShogithreadUrlSpecifiedPostPrefix}/`, '');
+    profileIdentity = profileIdentity.replace(/^([^/]+)\/.+$/,"$1");
+    // URLからrecord idを抽出
+    recordId = url.replace(`${ShogithreadUrlSpecifiedPostPrefix}/${profileIdentity}/post/`, '');
+  } else{
+    if (!profile || !recordId) {
+      throw new Error('パラメタにはハンドルまたはDID、レコードIDを指定してください。');
+    }
+    profileIdentity = profile;
+  }
   const isShogithread: boolean = (profileIdentity === ShogithreadHandle || profileIdentity === ShogithreadDID);
 
-  // URLからrecord idを抽出
-  const recordId: string = url.replace(`${ShogithreadUrlSpecifiedPostPrefix}/${profileIdentity}/post/`, '');
   // AT URIを構築：at://<DID>/app.bsky.feed.post/<record key>
   if (isShogithread) {
     profileIdentity = ShogithreadDID;

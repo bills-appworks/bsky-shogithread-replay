@@ -1,36 +1,79 @@
 'use client';
 
+// React
+import React, { useEffect } from "react";
+import { useState } from 'react';
+// Next.js
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams, usePathname } from 'next/navigation';
+// Font Awesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBluesky } from '@fortawesome/free-brands-svg-icons';
 import { faLink } from '@fortawesome/free-solid-svg-icons';
+// アプリ内UIコンポーネント
 import Input from '@/app/ui/input';
 import KifuForJS from '@/app/ui/kifu-for-js';
 import HistoryView from '@/app/ui/history-view';
 import Export from '@/app/ui/export';
 import PrivacyPolicy from '@/app/ui/privacy-policy';
-import React from "react";
-import { useState } from 'react';
-import { Version, ResultDisplayState, SpecifiedOption } from '@/app/lib/common';
+import DialogBox from '@/app/ui/dialog-box';
+// 定義参照
+import { Version, ResultDisplayState, SpecifiedOption, buildShogithreadInfo, initialParsedInfo, initialKifuStore, initialURLState, initialResultDisplayState, initialSpecifiedOption, initialDialogBoxState } from '@/app/lib/common';
 import { KifuStore } from 'kifu-for-js';
 import { ParsedInfo, ParsedInfoSingleMove } from "@/app/lib/bsky";
-import DialogBox from '@/app/ui/dialog-box';
 import { DialogBoxState } from '@/app/ui/dialog-box';
 
 export default function Home() {
   // コンポーネント間の状態を共有するためここで状態管理
-  const initialMoves: ParsedInfoSingleMove = {text: null, at: null, did: null, handle: null, displayName: null, alt: null, };
-  const initialParsedInfo: ParsedInfo = {moves:[initialMoves], text: "", movesAlt: "", resignAt: null, };
   const [ parsedInfoState, setParsedInfoState ] = useState(initialParsedInfo);
-  const [ kifuStoreState, setKifuStoreState ] = useState({kifuStore: new KifuStore({kifu: ""})});
-  const [ urlState, setURLState ] = useState("");
-  const initialResultDisplayState: ResultDisplayState = { historyView: "", dataUSI: "", dataKI2: "", dataKIF: "", };
+  const [ kifuStoreState, setKifuStoreState ] = useState(initialKifuStore);
+  const [ urlState, setURLState ] = useState(initialURLState);
   const [ resultDisplayState, setResultDisplayState ] = useState(initialResultDisplayState);
-  const initialSpecifiedOption: SpecifiedOption = { isOutputPlayer: true, isOutputCommentKI2: true, isOutputCommentKIF: true, };
   const [ specifiedOptionState, setSpecifiedOptionState ] = useState(initialSpecifiedOption);
-  const initialDialogBoxState: DialogBoxState = { isOpen: false, textTitle: '確認してください', textBody: '', };
   const [ dialogBoxState, setDialogBoxState ] = useState(initialDialogBoxState);
+
+  // URLクエリパラメタ処理
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const url = searchParams.get('url');
+  const isOutputPlayer = searchParams.get('player') != 'false';
+  const isOutputCommentKI2 = searchParams.get('KI2-comment') != 'false';
+  const isOutputCommentKIF = searchParams.get('KIF-comment') != 'false';
+  const profile = searchParams.get('profile');
+  const recordId = searchParams.get('record-id');
+  const step = searchParams.get('step');
+
+  // クエリパラメタにURL/profile/record id指定時にfetchして状態・画面に反映
+  const procedureQueryParameter = async (url: string | null, profile: string | null, recordId: string | null, isOutputPlayer: boolean, isOutputCommentKI2: boolean, isOutputCommentKIF: boolean, step: string | null) => {
+    try {
+      const [parsedInfo, kifuStore, resultDisplayState]: [parsedInfo: ParsedInfo, kifuStore: any, resultDisplayState: ResultDisplayState] = await buildShogithreadInfo(url, profile, recordId, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF);
+      setParsedInfoState(parsedInfo);
+      if (step) {
+        kifuStore.player.goto(parseInt(step));
+      }
+      setKifuStoreState({kifuStore: kifuStore});
+      setURLState(url ? url : '');
+      setResultDisplayState(resultDisplayState);
+      setSpecifiedOptionState({ isOutputPlayer: isOutputPlayer, isOutputCommentKI2: isOutputCommentKI2, isOutputCommentKIF: isOutputCommentKIF, })
+    } catch(e: unknown) {
+      if (e instanceof Error) {
+        setParsedInfoState(initialParsedInfo);
+        setKifuStoreState(initialKifuStore);
+        // URLは指定時のものを維持
+        setResultDisplayState(initialResultDisplayState);
+        // オプション指定は維持
+        setDialogBoxState({ isOpen: true, textTitle: dialogBoxState.textTitle, textBody: e.message});
+      }
+    }
+};
+
+  // コンポーネントレンダリング後にクエリパラメタによるfetchと反映を実施（状態変更副作用が発生するため直接実行すると初期化処理と競合）
+  useEffect(() => {
+    if (url || (profile && recordId)) {
+      procedureQueryParameter(url, profile, recordId, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step);
+    }
+  }, [pathname, searchParams]);
 
   return (
     <>
