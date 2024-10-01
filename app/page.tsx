@@ -50,11 +50,10 @@ export default function Home() {
     try {
       const [parsedInfo, kifuStore, resultDisplayState]: [parsedInfo: ParsedInfo, kifuStore: any, resultDisplayState: ResultDisplayState] = await buildShogithreadInfo(url, profile, recordId, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF);
       setParsedInfoState(parsedInfo);
-      if (step) {
-        kifuStore.player.goto(parseInt(step));
-      } else {
+      if (!step) {
         step = '0';
       }
+      kifuStore.player.goto(parseInt(step));
       setKifuStoreState({ kifuStore: kifuStore});
       setKifuManageState({ isBuilt: true, step: parseInt(step) });
       setURLState(url ? url : '');
@@ -65,9 +64,9 @@ export default function Home() {
         setParsedInfoState(initialParsedInfo);
         setKifuStoreState(initialKifuStore);
         setKifuManageState(initialKifuManageState);
-        // URLは指定時のものを維持
+        // setURLState() URLは指定時のものを維持
         setResultDisplayState(initialResultDisplayState);
-        // オプション指定は維持
+        // setSpecifiedOptionState() オプション指定は維持
         setDialogBoxState({ isOpen: true, textTitle: dialogBoxState.textTitle, textBody: e.message});
       }
     }
