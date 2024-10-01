@@ -100,8 +100,8 @@ export function convertShogithreadToKIF(parsedInfo: ParsedInfo, isOutputTurn: bo
   const startMove: ParsedInfoSingleMove | undefined = parsedInfo.moves.at(0);
   const endMove: ParsedInfoSingleMove | undefined = parsedInfo.moves.at(-1);
 
-  console.log(`startMove: ${JSON.stringify(startMove, null, 2)}`);
-  console.log(`endMove: ${JSON.stringify(endMove, null, 2)}`);
+//  console.log(`startMove: ${JSON.stringify(startMove, null, 2)}`);
+//  console.log(`endMove: ${JSON.stringify(endMove, null, 2)}`);
 
   if (startMove === undefined || endMove === undefined) {
     return '';

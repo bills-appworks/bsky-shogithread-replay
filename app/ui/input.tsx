@@ -2,37 +2,48 @@
 
 import { ParsedInfo, ShogithreadUrlPlaceholder, queryShogithread} from '@/app/lib/bsky';
 import { KifuStoreState, ResultDisplayState, SpecifiedOption } from '@/app/lib/common';
+import { DialogBoxState } from '@/app/ui/dialog-box';
 import React from 'react';
 import { KifuStore } from 'kifu-for-js';
 
 const Input = (
-  { setParsedInfoState, parsedInfoState,
+  {
+    setParsedInfoState, parsedInfoState,
     setKifuStoreState, kifuStoreState,
     setURLState, urlState,
     setResultDisplayState, resultDisplayState,
     setSpecifiedOptionState, specifiedOptionState,
+    setDialogBoxState, dialogBoxState,
   }: {
     setParsedInfoState: React.Dispatch<React.SetStateAction<ParsedInfo>>, parsedInfoState: ParsedInfo,
     setKifuStoreState: React.Dispatch<React.SetStateAction<KifuStoreState>>, kifuStoreState: KifuStoreState,
     setURLState: React.Dispatch<React.SetStateAction<string>>, urlState: string,
     setResultDisplayState: React.Dispatch<React.SetStateAction<ResultDisplayState>>, resultDisplayState: ResultDisplayState,
     setSpecifiedOptionState: React.Dispatch<React.SetStateAction<SpecifiedOption>>, specifiedOptionState: SpecifiedOption,
+    setDialogBoxState: React.Dispatch<React.SetStateAction<DialogBoxState>>, dialogBoxState: DialogBoxState,
   }) => {
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // event.target型解決
-    // https://zenn.dev/kage1020/scraps/beec58cd5a3df9
-    const formData = new FormData(event.target as HTMLFormElement);
-    const [parsedInfo, kifuText, historyViewText, dataUSI, dataKI2, dataKIF ] = await queryShogithread(formData, specifiedOptionState);
-    setParsedInfoState(parsedInfo);
-    setKifuStoreState({ kifuStore: new KifuStore({ kifu: kifuText })});
-    setResultDisplayState({
-      historyView: historyViewText,
-      dataUSI: dataUSI,
-      dataKI2: dataKI2,
-      dataKIF: dataKIF,
-    });
-  };
+    try{
+      // event.target型解決
+      // https://zenn.dev/kage1020/scraps/beec58cd5a3df9
+      const formData = new FormData(event.target as HTMLFormElement);
+      const [parsedInfo, kifuText, historyViewText, dataUSI, dataKI2, dataKIF] = await queryShogithread(formData, specifiedOptionState);
+      setParsedInfoState(parsedInfo);
+      setKifuStoreState({ kifuStore: new KifuStore({ kifu: kifuText })});
+      setResultDisplayState({
+        historyView: historyViewText,
+        dataUSI: dataUSI,
+        dataKI2: dataKI2,
+        dataKIF: dataKIF,
+      });
+    } catch(e: unknown) {
+      if (e instanceof Error) {
+        setDialogBoxState({ isOpen: true, textTitle: dialogBoxState.textTitle, textBody: e.message});
+      }
+    }
+  }
 
   return (
     <div>

@@ -50,11 +50,11 @@ export async function queryShogithread(formData: FormData, specifiedOptionState:
   let dataUSI: string = '';
   let dataKI2: string = '';
   let dataKIF: string = '';
-  let parsedInfo = undefined;
+  let parsedInfo: ParsedInfo = { moves: [], text: '', movesAlt: '', resignAt: null, };
   if (rawFormData.url) {
     parsedInfo = await parseSpecifiedURL(rawFormData.url.toString(), specifiedOptionState.isOutputPlayer);
 
-//    console.log(parsedInfo.moves.map((x)=>{return x.text?.replace(/.+([△▲][^ ]+) .+$/, "$1")}).join(" "));
+//      console.log(parsedInfo.moves.map((x)=>{return x.text?.replace(/.+([△▲][^ ]+) .+$/, "$1")}).join(" "));
 
     kifuText = convertShogithreadToKI2(parsedInfo, specifiedOptionState.isOutputPlayer, true);
     historyViewText = convertShogithreadToHistoryView(parsedInfo, specifiedOptionState.isOutputPlayer);

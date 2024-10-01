@@ -2,7 +2,7 @@ import { ResultDisplayState, notoSansJP } from '@/app/lib/common';
 
 //const HistoryView = ({ replayState }: {replayState:  ReplayState }) => {
 const HistoryView = ({ resultDisplayState }: {resultDisplayState:  ResultDisplayState }) => {
-    return (
+  return (
     <div>
       <hr />
       <h2 className="text-lg font-bold">[スレッド一覧]</h2>

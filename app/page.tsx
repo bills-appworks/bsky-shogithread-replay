@@ -15,6 +15,8 @@ import { useState } from 'react';
 import { Version, ResultDisplayState, SpecifiedOption } from '@/app/lib/common';
 import { KifuStore } from 'kifu-for-js';
 import { ParsedInfo, ParsedInfoSingleMove } from "@/app/lib/bsky";
+import DialogBox from '@/app/ui/dialog-box';
+import { DialogBoxState } from '@/app/ui/dialog-box';
 
 export default function Home() {
   // コンポーネント間の状態を共有するためここで状態管理
@@ -27,50 +29,62 @@ export default function Home() {
   const [ resultDisplayState, setResultDisplayState ] = useState(initialResultDisplayState);
   const initialSpecifiedOption: SpecifiedOption = { isOutputPlayer: true, isOutputCommentKI2: true, isOutputCommentKIF: true, };
   const [ specifiedOptionState, setSpecifiedOptionState ] = useState(initialSpecifiedOption);
+  const initialDialogBoxState: DialogBoxState = { isOpen: false, textTitle: '確認してください', textBody: '', };
+  const [ dialogBoxState, setDialogBoxState ] = useState(initialDialogBoxState);
 
   return (
-    <div className="flex flex-row">
-      <div className="flex flex-col">
-        <div className="w-4 md:w-12 xl:w-24 2xl:w-48 h-[50vh] bg-[#B3936C]" />
-        <div className="w-4 md:w-12 xl:w-24 2xl:w-48 h-[50vh] bg-white" />
-      </div>
-      <div className="border-x border-x-white bg-[#DEBF7E] p-2">
-        <div className="border-2 border-black space-y-6">
-          <div className="bg-[url('/board.jpg')] bg-cover">
-            <Title />
-            <Description />
-          </div>
-          <div className="p-2 space-y-6">
-            <Input
-              setParsedInfoState={setParsedInfoState} parsedInfoState={parsedInfoState}
-              setKifuStoreState={setKifuStoreState} kifuStoreState={kifuStoreState}
-              setURLState={setURLState} urlState={urlState}
-              setResultDisplayState={setResultDisplayState} resultDisplayState={resultDisplayState}
-              setSpecifiedOptionState={setSpecifiedOptionState} specifiedOptionState={specifiedOptionState}
-            />
-            <div className="flex flex-row justify-center
-              [&_button]:rounded [&_button]:border [&_button]:border-gray-500
-              [&_button]:bg-[#FFE581] hover:[&_button]:bg-[#EFD571] active:[&_button]:bg-[#DFC561]
-              [&_div[aria-label]]:!bg-[#FFFFDD] 
-            ">
-              <KifuForJS kifuStoreState={kifuStoreState} />
+    <>
+      <div className="flex flex-row">
+        <div className="flex flex-col">
+          <div className="w-4 md:w-12 xl:w-24 2xl:w-48 h-[50vh] bg-[#B3936C]" />
+          <div className="w-4 md:w-12 xl:w-24 2xl:w-48 h-[50vh] bg-white" />
+        </div>
+        <div className="border-x border-x-white bg-[#DEBF7E] p-2">
+          <div className="border-2 border-black space-y-6">
+            <div className="bg-[url('/board.jpg')] bg-cover">
+              <Title />
+              <Description />
             </div>
-            <HistoryView resultDisplayState={resultDisplayState} />
-            <Export
-              parsedInfoState={parsedInfoState}
-              setResultDisplayState={setResultDisplayState} resultDisplayState={resultDisplayState}
-              setSpecifiedOptionState={setSpecifiedOptionState} specifiedOptionState={specifiedOptionState}
-            />
-            <Notice />
-            <Footer />
+            <div className="p-2 space-y-6">
+              <Input
+                setParsedInfoState={setParsedInfoState} parsedInfoState={parsedInfoState}
+                setKifuStoreState={setKifuStoreState} kifuStoreState={kifuStoreState}
+                setURLState={setURLState} urlState={urlState}
+                setResultDisplayState={setResultDisplayState} resultDisplayState={resultDisplayState}
+                setSpecifiedOptionState={setSpecifiedOptionState} specifiedOptionState={specifiedOptionState}
+                setDialogBoxState={setDialogBoxState} dialogBoxState={dialogBoxState}
+              />
+              <div className="flex flex-row justify-center
+                [&_button]:rounded [&_button]:border [&_button]:border-gray-500
+                [&_button]:bg-[#FFE581] hover:[&_button]:bg-[#EFD571] active:[&_button]:bg-[#DFC561]
+                [&_div[aria-label]]:!bg-[#FFFFDD] 
+              ">
+                <KifuForJS kifuStoreState={kifuStoreState} />
+              </div>
+              <HistoryView resultDisplayState={resultDisplayState} />
+              <Export
+                parsedInfoState={parsedInfoState}
+                setResultDisplayState={setResultDisplayState} resultDisplayState={resultDisplayState}
+                setSpecifiedOptionState={setSpecifiedOptionState} specifiedOptionState={specifiedOptionState}
+              />
+              <Notice />
+              <Footer />
+            </div>
           </div>
         </div>
+        <div className="flex flex-col">
+          <div className="w-4 md:w-12 xl:w-24 2xl:w-48 h-[50vh] bg-white" />
+          <div className="w-4 md:w-12 xl:w-24 2xl:w-48 h-[50vh] bg-[#B3936C]" />
+        </div>
       </div>
-      <div className="flex flex-col">
-        <div className="w-4 md:w-12 xl:w-24 2xl:w-48 h-[50vh] bg-white" />
-        <div className="w-4 md:w-12 xl:w-24 2xl:w-48 h-[50vh] bg-[#B3936C]" />
-      </div>
-    </div>
+      <DialogBox
+        isOpen={dialogBoxState.isOpen}
+        onCancel={() => setDialogBoxState({ isOpen: false, textTitle: dialogBoxState.textTitle, textBody: dialogBoxState.textBody, })}
+        onOK={() => setDialogBoxState({ isOpen: false, textTitle: dialogBoxState.textTitle, textBody: dialogBoxState.textBody, })}
+        textTitle={dialogBoxState.textTitle}
+        textBody={dialogBoxState.textBody}
+      />
+    </>
   );
 }
 
