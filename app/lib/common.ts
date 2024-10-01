@@ -18,6 +18,11 @@ export type KifuStoreState = {
   kifuStore: any;
 };
 
+export type KifuManageState = {
+  isBuilt: boolean;
+  step: number;
+};
+
 export type ResultDisplayState = {
   historyView: string;
   dataUSI: string;
@@ -34,8 +39,9 @@ export type SpecifiedOption = {
 // 状態初期値
 const initialMoves: ParsedInfoSingleMove = {text: null, at: null, did: null, handle: null, displayName: null, alt: null, };
 export const initialParsedInfo: ParsedInfo = {moves:[initialMoves], text: "", movesAlt: "", resignAt: null, };
-export const initialKifuStore = {kifuStore: new KifuStore({ kifu: "", })};
-export const initialURLState = '';
+export const initialKifuStore = { kifuStore: new KifuStore({ kifu: "", }) };
+export const initialKifuManageState: KifuManageState = { isBuilt: false, step: 0 };
+export const initialURLState: string = '';
 export const initialResultDisplayState: ResultDisplayState = { historyView: "", dataUSI: "", dataKI2: "", dataKIF: "", };
 export const initialSpecifiedOption: SpecifiedOption = { isOutputPlayer: true, isOutputCommentKI2: true, isOutputCommentKIF: true, };
 export const initialDialogBoxState: DialogBoxState = { isOpen: false, textTitle: '確認してください', textBody: '', };

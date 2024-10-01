@@ -19,7 +19,7 @@ import Export from '@/app/ui/export';
 import PrivacyPolicy from '@/app/ui/privacy-policy';
 import DialogBox from '@/app/ui/dialog-box';
 // 定義参照
-import { Version, ResultDisplayState, SpecifiedOption, buildShogithreadInfo, initialParsedInfo, initialKifuStore, initialURLState, initialResultDisplayState, initialSpecifiedOption, initialDialogBoxState } from '@/app/lib/common';
+import { Version, ResultDisplayState, SpecifiedOption, buildShogithreadInfo, initialParsedInfo, initialKifuStore, initialKifuManageState, initialURLState, initialResultDisplayState, initialSpecifiedOption, initialDialogBoxState } from '@/app/lib/common';
 import { KifuStore } from 'kifu-for-js';
 import { ParsedInfo, ParsedInfoSingleMove } from "@/app/lib/bsky";
 import { DialogBoxState } from '@/app/ui/dialog-box';
@@ -28,6 +28,7 @@ export default function Home() {
   // コンポーネント間の状態を共有するためここで状態管理
   const [ parsedInfoState, setParsedInfoState ] = useState(initialParsedInfo);
   const [ kifuStoreState, setKifuStoreState ] = useState(initialKifuStore);
+  const [ kifuManageState, setKifuManageState ] = useState(initialKifuManageState);
   const [ urlState, setURLState ] = useState(initialURLState);
   const [ resultDisplayState, setResultDisplayState ] = useState(initialResultDisplayState);
   const [ specifiedOptionState, setSpecifiedOptionState ] = useState(initialSpecifiedOption);
@@ -51,8 +52,11 @@ export default function Home() {
       setParsedInfoState(parsedInfo);
       if (step) {
         kifuStore.player.goto(parseInt(step));
+      } else {
+        step = '0';
       }
-      setKifuStoreState({kifuStore: kifuStore});
+      setKifuStoreState({ kifuStore: kifuStore});
+      setKifuManageState({ isBuilt: true, step: parseInt(step) });
       setURLState(url ? url : '');
       setResultDisplayState(resultDisplayState);
       setSpecifiedOptionState({ isOutputPlayer: isOutputPlayer, isOutputCommentKI2: isOutputCommentKI2, isOutputCommentKIF: isOutputCommentKIF, })
@@ -60,6 +64,7 @@ export default function Home() {
       if (e instanceof Error) {
         setParsedInfoState(initialParsedInfo);
         setKifuStoreState(initialKifuStore);
+        setKifuManageState(initialKifuManageState);
         // URLは指定時のものを維持
         setResultDisplayState(initialResultDisplayState);
         // オプション指定は維持
@@ -92,6 +97,7 @@ export default function Home() {
               <Input
                 setParsedInfoState={setParsedInfoState} parsedInfoState={parsedInfoState}
                 setKifuStoreState={setKifuStoreState} kifuStoreState={kifuStoreState}
+                setKifuManageState={setKifuManageState} kifuManageState={kifuManageState}
                 setURLState={setURLState} urlState={urlState}
                 setResultDisplayState={setResultDisplayState} resultDisplayState={resultDisplayState}
                 setSpecifiedOptionState={setSpecifiedOptionState} specifiedOptionState={specifiedOptionState}

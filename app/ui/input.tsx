@@ -7,14 +7,14 @@ import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 // 定義参照
 import { ParsedInfo, ShogithreadUrlPlaceholder, queryShogithread} from '@/app/lib/bsky';
 //import { KifuStoreState, ResultDisplayState, SpecifiedOption } from '@/app/lib/common';
-import { KifuStoreState, ResultDisplayState, SpecifiedOption, initialParsedInfo, initialKifuStore, initialURLState, initialResultDisplayState, initialSpecifiedOption, initialDialogBoxState } from '@/app/lib/common';
+import { KifuStoreState, KifuManageState, ResultDisplayState, SpecifiedOption, initialParsedInfo, initialKifuStore, initialKifuManageState, initialURLState, initialResultDisplayState, initialSpecifiedOption, initialDialogBoxState, convertShogithreadToKI2, convertShogithreadToHistoryView, convertShogithreadToKIF } from '@/app/lib/common';
 import { DialogBoxState } from '@/app/ui/dialog-box';
 import { KifuStore } from 'kifu-for-js';
-import RenderFromTemplateContext from 'next/dist/client/components/render-from-template-context';
 
 const Input = ({
   setParsedInfoState, parsedInfoState,
   setKifuStoreState, kifuStoreState,
+  setKifuManageState, kifuManageState,
   setURLState, urlState,
   setResultDisplayState, resultDisplayState,
   setSpecifiedOptionState, specifiedOptionState,
@@ -22,6 +22,7 @@ const Input = ({
 }: {
   setParsedInfoState: React.Dispatch<React.SetStateAction<ParsedInfo>>, parsedInfoState: ParsedInfo,
   setKifuStoreState: React.Dispatch<React.SetStateAction<KifuStoreState>>, kifuStoreState: KifuStoreState,
+  setKifuManageState: React.Dispatch<React.SetStateAction<KifuManageState>>, kifuManageState: KifuManageState,
   setURLState: React.Dispatch<React.SetStateAction<string>>, urlState: string,
   setResultDisplayState: React.Dispatch<React.SetStateAction<ResultDisplayState>>, resultDisplayState: ResultDisplayState,
   setSpecifiedOptionState: React.Dispatch<React.SetStateAction<SpecifiedOption>>, specifiedOptionState: SpecifiedOption,
@@ -65,6 +66,26 @@ const Input = ({
     replace(`${pathname}?${params.toString()}`);
   }
 
+  const onChangeOutputPlayer = (isOutputPlayer: boolean) => {
+    if (kifuManageState.isBuilt) {
+      const step: number = kifuStoreState.kifuStore.player.tesuu;
+      const kifuText = convertShogithreadToKI2(parsedInfoState, isOutputPlayer, true);
+      const kifuStore = new KifuStore({ kifu: kifuText });
+      setKifuStoreState({ kifuStore: kifuStore});
+      kifuStore.player.goto(step);
+      const historyView = convertShogithreadToHistoryView(parsedInfoState, isOutputPlayer);
+      const dataUSI = resultDisplayState.dataUSI;
+      const dataKI2 = convertShogithreadToKI2(parsedInfoState, isOutputPlayer, specifiedOptionState.isOutputCommentKI2);
+      const dataKIF = convertShogithreadToKIF(parsedInfoState, false, isOutputPlayer, specifiedOptionState.isOutputCommentKIF, true);
+      setResultDisplayState({ historyView: historyView, dataUSI: dataUSI, dataKI2: dataKI2, dataKIF: dataKIF });
+    }
+    setSpecifiedOptionState({
+      isOutputPlayer: isOutputPlayer,
+      isOutputCommentKI2: specifiedOptionState.isOutputCommentKI2,
+      isOutputCommentKIF: specifiedOptionState.isOutputCommentKIF,
+    });
+  }
+
   return (
     <div>
       <form onSubmit={handleSubmit}>
@@ -79,9 +100,9 @@ const Input = ({
               name="url"
               type="url"
               placeholder={ShogithreadUrlPlaceholder}
-  // 状態管理(onChange=>setState)でkey/defaultValueは競合するのでvalue
-  //            key={urlState}
-  //            defaultValue={urlState}
+              // 状態管理(onChange=>setState)でkey/defaultValueは競合するのでvalue
+              //key={urlState}
+              //defaultValue={urlState}
               value={urlState}
               onChange={(event) => {
                 setURLState(event.target.value);
@@ -96,11 +117,14 @@ const Input = ({
                 name="player-output"
                 checked={specifiedOptionState.isOutputPlayer}
                 onChange={(event) => {
+                  /*
                   setSpecifiedOptionState({
                     isOutputPlayer: event.target.checked,
                     isOutputCommentKI2: specifiedOptionState.isOutputCommentKI2,
                     isOutputCommentKIF: specifiedOptionState.isOutputCommentKIF,
                   });
+                  */
+                  onChangeOutputPlayer(event.target.checked);
                 }}
               />
               <label className="self-center" htmlFor="player-output">プレイヤー名出力</label>
@@ -124,6 +148,7 @@ const Input = ({
                 */
                 setParsedInfoState(initialParsedInfo);
                 setKifuStoreState(initialKifuStore);
+                setKifuManageState(initialKifuManageState);
                 setURLState(initialURLState);
                 setResultDisplayState(initialResultDisplayState);
                 setSpecifiedOptionState(initialSpecifiedOption);
