@@ -2,7 +2,7 @@
 import { Anybody, Noto_Sans_JP } from 'next/font/google';
 // 定義参照
 import { KifuStore } from 'kifu-for-js';
-import { ParsedInfoSingleMove, ParsedInfo } from '@/app/lib/bsky';
+import { ParsedInfoSingleMove, ParsedInfo, buildPostURL } from '@/app/lib/bsky';
 import { queryShogithread } from '@/app/lib/bsky';
 import { DialogBoxState } from '@/app/ui/dialog-box';
 
@@ -38,12 +38,13 @@ export type SpecifiedOption = {
 };
 
 // 状態初期値
-const initialMoves: ParsedInfoSingleMove = {text: null, at: null, did: null, handle: null, displayName: null, alt: null, };
+const initialMoves: ParsedInfoSingleMove = {text: null, at: null, did: null, handle: null, displayName: null, alt: null, uri: null, };
 export const initialParsedInfo: ParsedInfo = {moves:[initialMoves], text: "", movesAlt: "", resignAt: null, };
 export const initialKifuStore = { kifuStore: new KifuStore({ kifu: "", }) };
 export const initialKifuManageState: KifuManageState = { isBuilt: false, step: 0, };
 export const initialURLState: string = '';
 export const initialResultDisplayState: ResultDisplayState = { replayURL: "", historyView: "", dataUSI: "", dataKI2: "", dataKIF: "", };
+export const initialPostURLState: string = "";
 export const initialSpecifiedOption: SpecifiedOption = { isOutputPlayer: true, isOutputCommentKI2: true, isOutputCommentKIF: true, };
 export const initialDialogBoxState: DialogBoxState = { isOpen: false, textTitle: '確認してください', textBody: '', };
 
@@ -72,7 +73,7 @@ export async function buildShogithreadInfo(
   step : string | null,
 //  setDialogBoxState: React.Dispatch<React.SetStateAction<DialogBoxState>>,
 //  dialogBoxState: DialogBoxState,
-): Promise<[ParsedInfo, any, ResultDisplayState]> {
+): Promise<[ParsedInfo, any, ResultDisplayState, string]> {
 //  try{
     const [parsedInfo, kifuText, historyViewText, dataUSI, dataKI2, dataKIF] = await queryShogithread(url, profile, recordId, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF);
     const kifuStore = new KifuStore({ kifu: kifuText });
@@ -82,8 +83,9 @@ export async function buildShogithreadInfo(
       dataUSI: dataUSI,
       dataKI2: dataKI2,
       dataKIF: dataKIF,
-    }
-    return [parsedInfo, kifuStore, resultDisplayState];
+    };
+    const postURL = buildPostURL(parsedInfo, step ? parseInt(step) : null);
+    return [parsedInfo, kifuStore, resultDisplayState, postURL];
 //  } catch(e: unknown) {
 //    if (e instanceof Error) {
 ////      setDialogBoxState({ isOpen: true, textTitle: dialogBoxState.textTitle, textBody: e.message});

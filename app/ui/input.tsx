@@ -5,7 +5,7 @@ import React, { useEffect, useRef } from 'react';
 // Next.js
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 // 定義参照
-import { ParsedInfo, ShogithreadUrlPlaceholder, queryShogithread} from '@/app/lib/bsky';
+import { ParsedInfo, ShogithreadUrlPlaceholder, queryShogithread, buildPostURL } from '@/app/lib/bsky';
 //import { KifuStoreState, ResultDisplayState, SpecifiedOption } from '@/app/lib/common';
 import { KifuStoreState, KifuManageState, ResultDisplayState, SpecifiedOption, initialParsedInfo, initialKifuStore, initialKifuManageState, initialURLState, initialResultDisplayState, initialSpecifiedOption, initialDialogBoxState, buildReplayURLParameters, convertShogithreadToKI2, convertShogithreadToHistoryView, convertShogithreadToKIF, getURLoriginPath } from '@/app/lib/common';
 import { DialogBoxState } from '@/app/ui/dialog-box';
@@ -17,6 +17,7 @@ const Input = ({
   setKifuManageState, kifuManageState,
   setURLState, urlState,
   setResultDisplayState, resultDisplayState,
+  setPostURLState, postURLState,
   setSpecifiedOptionState, specifiedOptionState,
   setDialogBoxState, dialogBoxState,
 }: {
@@ -25,6 +26,7 @@ const Input = ({
   setKifuManageState: React.Dispatch<React.SetStateAction<KifuManageState>>, kifuManageState: KifuManageState,
   setURLState: React.Dispatch<React.SetStateAction<string>>, urlState: string,
   setResultDisplayState: React.Dispatch<React.SetStateAction<ResultDisplayState>>, resultDisplayState: ResultDisplayState,
+  setPostURLState: React.Dispatch<React.SetStateAction<string>>, postURLState: string,
   setSpecifiedOptionState: React.Dispatch<React.SetStateAction<SpecifiedOption>>, specifiedOptionState: SpecifiedOption,
   setDialogBoxState: React.Dispatch<React.SetStateAction<DialogBoxState>>, dialogBoxState: DialogBoxState,
 }) => {
@@ -53,6 +55,8 @@ const Input = ({
 */
 
   // イベントリスナー内で参照するため
+  const parsedInfoRef = useRef(parsedInfoState);
+  parsedInfoRef.current = parsedInfoState;
   const kifuStoreRef = useRef(kifuStoreState);
   kifuStoreRef.current = kifuStoreState;
   const kifuManageRef = useRef(kifuManageState);
@@ -63,6 +67,8 @@ const Input = ({
   specifiedOptionRef.current = specifiedOptionState;
   const resultDisplayRef = useRef(resultDisplayState);
   resultDisplayRef.current = resultDisplayState;
+  const postURLRef = useRef(postURLState);
+  postURLRef.current = postURLState;
 
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -119,6 +125,7 @@ const Input = ({
         step ? step.toString() : null
       );
       const replayURL: string = getURLoriginPath() + replayURLParameters;
+      const postURL: string = buildPostURL(parsedInfoRef.current, step);
       resultDisplayRef.current = {
         replayURL: replayURL,
         historyView: resultDisplayRef.current.historyView,
@@ -133,6 +140,7 @@ const Input = ({
       if (element && element instanceof HTMLTextAreaElement) {
         element.value = replayURL;
       }
+      setPostURLState(postURL);
       // history.stateを渡さないとKifu for JSでボタン押しっぱなしによる自動再生が動作しない
       history.replaceState(history.state, '', replayURLParameters);
     }

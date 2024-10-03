@@ -21,6 +21,7 @@ export type ParsedInfoSingleMove = {
   handle: string | null, // プレイヤーハンドル
   displayName: string | null, // プレイヤー表示名
   alt: string | null, // 将棋threadポストの画像のalt（usi）
+  uri: string | null, // プレイヤーポストのuri
 }
 
 // スレッド解析情報（各データはポストから未加工）
@@ -139,8 +140,8 @@ async function parseSpecifiedURL(url: string | null, profile: string | null, rec
 
 // for debug
 //  // APIレスポンスをJSONシリアライズ（空白インデント:2）
-//  const apiResponseString = JSON.stringify(apiResponse, null, 2);
-//  console.log(`api response: ${apiResponseString}`);
+  const apiResponseString = JSON.stringify(apiResponse, null, 2);
+  console.log(`api response: ${apiResponseString}`);
 
   const parsedInfo: ParsedInfo = { moves: [], text: apiResponse.thread.post.record.text, movesAlt: '', resignAt: null };
   if (isShogithread) { // 指定URLが将棋threadのポスト
@@ -289,6 +290,8 @@ function parseParent(parent: any, parsedInfo: ParsedInfo) {
       displayName = '(非表示)'
     }
   }
+  // ポスト（指し手）のuri
+  const uri: string = parent.post.uri;
 
 //  console.log(`${moveAt} ${text}`);
 
@@ -316,7 +319,18 @@ function parseParent(parent: any, parsedInfo: ParsedInfo) {
       // 将棋threadアカウント以外（指し手指示）
       // 指し手履歴追加
       // text, altはリプライの将棋threadポスト処理時に設定
-      parsedInfo.moves.push({ text: null, at: moveAt, did: did, handle: handle, displayName: displayName, alt: null, });
+      parsedInfo.moves.push({ text: null, at: moveAt, did: did, handle: handle, displayName: displayName, alt: null, uri: uri, });
     }
+  }
+}
+
+export function buildPostURL(parsedInfo: ParsedInfo, step: number | null): string {
+  if (step && step > 0) {
+    const handle = parsedInfo.moves[step - 1].handle;
+    const uri = parsedInfo.moves[step - 1].uri;
+    const recordId = uri?.replace(/.+\/([^/]+)$/, "$1");
+    return `${ShogithreadUrlSpecifiedPostPrefix}/${handle}/post/${recordId}`;
+  } else {
+    return '';
   }
 }

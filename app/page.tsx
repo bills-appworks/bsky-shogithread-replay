@@ -19,7 +19,21 @@ import Export from '@/app/ui/export';
 import PrivacyPolicy from '@/app/ui/privacy-policy';
 import DialogBox from '@/app/ui/dialog-box';
 // 定義参照
-import { Version, ResultDisplayState, SpecifiedOption, buildShogithreadInfo, initialParsedInfo, initialKifuStore, initialKifuManageState, initialURLState, initialResultDisplayState, initialSpecifiedOption, initialDialogBoxState, getURLoriginPath } from '@/app/lib/common';
+import {
+  Version,
+  ResultDisplayState,
+  SpecifiedOption,
+  buildShogithreadInfo,
+  initialParsedInfo,
+  initialKifuStore,
+  initialKifuManageState,
+  initialURLState,
+  initialResultDisplayState,
+  initialPostURLState,
+  initialSpecifiedOption,
+  initialDialogBoxState,
+  getURLoriginPath
+} from '@/app/lib/common';
 import { KifuStore } from 'kifu-for-js';
 import { ParsedInfo, ParsedInfoSingleMove } from "@/app/lib/bsky";
 import { DialogBoxState } from '@/app/ui/dialog-box';
@@ -31,6 +45,7 @@ export default function Home() {
   const [ kifuManageState, setKifuManageState ] = useState(initialKifuManageState);
   const [ urlState, setURLState ] = useState(initialURLState);
   const [ resultDisplayState, setResultDisplayState ] = useState(initialResultDisplayState);
+  const [ postURLState, setPostURLState ] = useState(initialPostURLState);
   const [ specifiedOptionState, setSpecifiedOptionState ] = useState(initialSpecifiedOption);
   const [ dialogBoxState, setDialogBoxState ] = useState(initialDialogBoxState);
 
@@ -48,7 +63,7 @@ export default function Home() {
   // クエリパラメタにURL/profile/record id指定時にfetchして状態・画面に反映
   const procedureQueryParameter = async (url: string | null, profile: string | null, recordId: string | null, isOutputPlayer: boolean, isOutputCommentKI2: boolean, isOutputCommentKIF: boolean, step: string | null) => {
     try {
-      const [parsedInfo, kifuStore, resultDisplayState]: [parsedInfo: ParsedInfo, kifuStore: any, resultDisplayState: ResultDisplayState] = await buildShogithreadInfo(url, profile, recordId, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step);
+      const [parsedInfo, kifuStore, resultDisplayState, postURLState]: [parsedInfo: ParsedInfo, kifuStore: any, resultDisplayState: ResultDisplayState, postURLState: string] = await buildShogithreadInfo(url, profile, recordId, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step);
       setParsedInfoState(parsedInfo);
       if (step) {
         kifuStore.player.goto(parseInt(step));
@@ -61,6 +76,7 @@ export default function Home() {
 //        resultDisplayState.replayURL += `&step=${step}`;
 //      }
       setResultDisplayState(resultDisplayState);
+      setPostURLState(postURLState);
       setSpecifiedOptionState({ isOutputPlayer: isOutputPlayer, isOutputCommentKI2: isOutputCommentKI2, isOutputCommentKIF: isOutputCommentKIF, })
     } catch(e: unknown) {
       if (e instanceof Error) {
@@ -110,6 +126,7 @@ export default function Home() {
                 setKifuManageState={setKifuManageState} kifuManageState={kifuManageState}
                 setURLState={setURLState} urlState={urlState}
                 setResultDisplayState={setResultDisplayState} resultDisplayState={resultDisplayState}
+                setPostURLState={setPostURLState} postURLState={postURLState}
                 setSpecifiedOptionState={setSpecifiedOptionState} specifiedOptionState={specifiedOptionState}
                 setDialogBoxState={setDialogBoxState} dialogBoxState={dialogBoxState}
               />
@@ -121,7 +138,7 @@ export default function Home() {
                 <KifuForJS kifuStoreState={kifuStoreState} />
               </div>
               <ReplayURL resultDisplayState={resultDisplayState} />
-              <HistoryView resultDisplayState={resultDisplayState} />
+              <HistoryView resultDisplayState={resultDisplayState} postURLState={postURLState} />
               <Export
                 parsedInfoState={parsedInfoState}
                 setKifuManageState={setKifuManageState} kifuManageState={kifuManageState}
