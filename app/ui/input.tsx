@@ -125,8 +125,16 @@ const Input = ({
         dataUSI: resultDisplayRef.current.dataUSI,
         dataKI2: resultDisplayRef.current.dataKI2,
         dataKIF: resultDisplayRef.current.dataKIF,
+      };
+      // history.replaceStateでhistory.stateを渡すとset...Stateしないと変更部分が反映されない
+      // ただしset...Stateすると再レンダリングでユーザresizeがリセットされるため直接設定
+      //setResultDisplayState(resultDisplayRef.current);
+      const element = document.getElementById("replay-url");
+      if (element && element instanceof HTMLTextAreaElement) {
+        element.value = replayURL;
       }
-      history.replaceState(null, '', replayURLParameters);
+      // history.stateを渡さないとKifu for JSでボタン押しっぱなしによる自動再生が動作しない
+      history.replaceState(history.state, '', replayURLParameters);
     }
   };
 
