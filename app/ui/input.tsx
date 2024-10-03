@@ -1,13 +1,13 @@
 'use client';
 
 // React
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 // Next.js
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 // 定義参照
 import { ParsedInfo, ShogithreadUrlPlaceholder, queryShogithread} from '@/app/lib/bsky';
 //import { KifuStoreState, ResultDisplayState, SpecifiedOption } from '@/app/lib/common';
-import { KifuStoreState, KifuManageState, ResultDisplayState, SpecifiedOption, initialParsedInfo, initialKifuStore, initialKifuManageState, initialURLState, initialResultDisplayState, initialSpecifiedOption, initialDialogBoxState, convertShogithreadToKI2, convertShogithreadToHistoryView, convertShogithreadToKIF } from '@/app/lib/common';
+import { KifuStoreState, KifuManageState, ResultDisplayState, SpecifiedOption, initialParsedInfo, initialKifuStore, initialKifuManageState, initialURLState, initialResultDisplayState, initialSpecifiedOption, initialDialogBoxState, buildReplayURLParameters, convertShogithreadToKI2, convertShogithreadToHistoryView, convertShogithreadToKIF, getURLoriginPath } from '@/app/lib/common';
 import { DialogBoxState } from '@/app/ui/dialog-box';
 import { KifuStore } from 'kifu-for-js';
 
@@ -52,6 +52,18 @@ const Input = ({
   }
 */
 
+  // イベントリスナー内で参照するため
+  const kifuStoreRef = useRef(kifuStoreState);
+  kifuStoreRef.current = kifuStoreState;
+  const kifuManageRef = useRef(kifuManageState);
+  kifuManageRef.current = kifuManageState;
+  const urlRef = useRef(urlState);
+  urlRef.current = urlState;
+  const specifiedOptionRef = useRef(specifiedOptionState);
+  specifiedOptionRef.current = specifiedOptionState;
+  const resultDisplayRef = useRef(resultDisplayState);
+  resultDisplayRef.current = resultDisplayState;
+
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
@@ -67,25 +79,120 @@ const Input = ({
   }
 
   const onChangeOutputPlayer = (isOutputPlayer: boolean) => {
+    let replayURLParameters = '';
     if (kifuManageState.isBuilt) {
       const step: number = kifuStoreState.kifuStore.player.tesuu;
+      // 再生盤、スレッド一覧、棋譜データのプレイヤー表示を更新するため再設定
       const kifuText = convertShogithreadToKI2(parsedInfoState, isOutputPlayer, true);
       const kifuStore = new KifuStore({ kifu: kifuText });
       setKifuStoreState({ kifuStore: kifuStore});
       kifuStore.player.goto(step);
+//      const replayURL = buildReplayURL(urlState, null, null, specifiedOptionState.isOutputPlayer, specifiedOptionState.isOutputCommentKI2, specifiedOptionState.isOutputCommentKIF, step ? step.toString() : null);
+//      const replayURL = getURLoriginPath() + buildReplayURLParameters(urlState, null, null, isOutputPlayer, specifiedOptionState.isOutputCommentKI2, specifiedOptionState.isOutputCommentKIF, step ? step.toString() : null);
+      replayURLParameters = buildReplayURLParameters(urlState, null, null, isOutputPlayer, specifiedOptionState.isOutputCommentKI2, specifiedOptionState.isOutputCommentKIF, step ? step.toString() : null);
+      const replayURL = getURLoriginPath() + replayURLParameters;
       const historyView = convertShogithreadToHistoryView(parsedInfoState, isOutputPlayer);
       const dataUSI = resultDisplayState.dataUSI;
       const dataKI2 = convertShogithreadToKI2(parsedInfoState, isOutputPlayer, specifiedOptionState.isOutputCommentKI2);
       const dataKIF = convertShogithreadToKIF(parsedInfoState, false, isOutputPlayer, specifiedOptionState.isOutputCommentKIF, true);
-      setResultDisplayState({ historyView: historyView, dataUSI: dataUSI, dataKI2: dataKI2, dataKIF: dataKIF });
+      setResultDisplayState({ replayURL: replayURL, historyView: historyView, dataUSI: dataUSI, dataKI2: dataKI2, dataKIF: dataKIF, });
     }
     setSpecifiedOptionState({
       isOutputPlayer: isOutputPlayer,
       isOutputCommentKI2: specifiedOptionState.isOutputCommentKI2,
       isOutputCommentKIF: specifiedOptionState.isOutputCommentKIF,
     });
+    history.replaceState(null, '', replayURLParameters);
   }
 
+  const onScrollKifu = () => {
+    if (kifuManageRef.current.isBuilt) {
+      const step: number = kifuStoreRef.current.kifuStore.player.tesuu;
+      kifuManageRef.current = {isBuilt: kifuManageRef.current.isBuilt, step: step, };
+      const replayURLParameters: string = buildReplayURLParameters(
+        urlRef.current,
+        null,
+        null,
+        specifiedOptionRef.current.isOutputPlayer,
+        specifiedOptionRef.current.isOutputCommentKI2,
+        specifiedOptionRef.current.isOutputCommentKIF,
+        step ? step.toString() : null
+      );
+      const replayURL: string = getURLoriginPath() + replayURLParameters;
+      resultDisplayRef.current = {
+        replayURL: replayURL,
+        historyView: resultDisplayRef.current.historyView,
+        dataUSI: resultDisplayRef.current.dataUSI,
+        dataKI2: resultDisplayRef.current.dataKI2,
+        dataKIF: resultDisplayRef.current.dataKIF,
+      }
+      history.replaceState(null, '', replayURLParameters);
+    }
+  };
+
+  useEffect(() => {
+    document.getElementsByClassName('kifuforjs-kifulist')[0].addEventListener("scroll", onScrollKifu);
+    return () => document.getElementsByClassName('kifuforjs-kifulist')[0].removeEventListener("scroll", onScrollKifu);
+  }, [kifuStoreState, kifuManageState, urlState, specifiedOptionState, resultDisplayState]);
+/*
+  useEffect(() => {
+    ["scroll"].forEach((eventType) => {
+      document.getElementsByClassName('kifuforjs-kifulist')[0].addEventListener(eventType, () => {
+        if (kifuManageRef.current.isBuilt) {
+          const step: number = kifuStoreRef.current.kifuStore.player.tesuu;
+//          setKifuManageState({ isBuilt: kifuManageRef.current.isBuilt, step: step });
+          kifuManageRef.current = {isBuilt: kifuManageRef.current.isBuilt, step: step, };
+          const replayURLParameters: string = buildReplayURLParameters(
+            urlRef.current,
+            null,
+            null,
+            specifiedOptionRef.current.isOutputPlayer,
+            specifiedOptionRef.current.isOutputCommentKI2,
+            specifiedOptionRef.current.isOutputCommentKIF,
+            step ? step.toString() : null
+          );
+          const replayURL: string = getURLoriginPath() + replayURLParameters;
+//          setResultDisplayState({
+//            replayURL: replayURL,
+//            historyView: resultDisplayRef.current.historyView,
+//            dataUSI: resultDisplayRef.current.dataUSI,
+//            dataKI2: resultDisplayRef.current.dataKI2,
+//            dataKIF: resultDisplayRef.current.dataKIF,
+//          });
+          resultDisplayRef.current = {
+            replayURL: replayURL,
+            historyView: resultDisplayRef.current.historyView,
+            dataUSI: resultDisplayRef.current.dataUSI,
+            dataKI2: resultDisplayRef.current.dataKI2,
+            dataKIF: resultDisplayRef.current.dataKIF,
+          }
+//          const params = new URLSearchParams();
+//          if (step) {
+//            params.set('step', step.toString());
+//          }
+          history.replaceState(null, '', replayURLParameters);
+        }
+      });
+    });
+  }, [kifuStoreState, kifuManageState, urlState, specifiedOptionState, resultDisplayState]);
+*/
+  /*
+  function buildReplayURL(
+    url: string | null,
+    profile: string | null,
+    recordId: string | null,
+    isOutputPlayer: boolean,
+    isOutputCommentKI2: boolean,
+    isOutputCommentKIF: boolean,
+    step: string | null,
+  ): string {
+    const urlWithHost = new URL(window.location.href);
+    const host = urlWithHost.host;
+    const path = usePathname();
+    const parameters = buildReplayURLParameters(url, profile, recordId, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step);
+    return `${host}${path}?${parameters}`;
+  }
+*/
   return (
     <div>
       <form onSubmit={handleSubmit}>
@@ -152,8 +259,10 @@ const Input = ({
                 setURLState(initialURLState);
                 setResultDisplayState(initialResultDisplayState);
                 setSpecifiedOptionState(initialSpecifiedOption);
-                const params = new URLSearchParams();
-                replace(`${pathname}?${params.toString()}`);
+//                const params = new URLSearchParams();
+//                replace(`${pathname}?${params.toString()}`);
+//                replace(`${pathname}`);
+                history.replaceState(null, '', '/'); // アドレスバークリアされない
               }}
             >
               リセット

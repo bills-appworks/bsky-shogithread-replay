@@ -84,7 +84,7 @@ export async function queryShogithread(
   let dataKI2: string = '';
   let dataKIF: string = '';
 
-  const parsedInfo = await parseSpecifiedURL(url, profile, recordId, isOutputPlayer);
+  const parsedInfo = await parseSpecifiedURL(url, profile, recordId);
 
 //  console.log(parsedInfo.moves.map((x)=>{return x.text?.replace(/.+([△▲][^ ]+) .+$/, "$1")}).join(" "));
 
@@ -101,7 +101,7 @@ export async function queryShogithread(
 //   url：利用者指定URL
 // 戻り値
 //   解析情報（ParsedInfo）
-async function parseSpecifiedURL(url: string | null, profile: string | null, recordId: string | null, isOutputPlayer: boolean): Promise<ParsedInfo> {
+async function parseSpecifiedURL(url: string | null, profile: string | null, recordId: string | null): Promise<ParsedInfo> {
   // TODO:ハンドルまたはDID、record idのスマートな抽出
 
   let profileIdentity = null;
@@ -160,7 +160,7 @@ async function parseSpecifiedURL(url: string | null, profile: string | null, rec
 
         // fall-through：そのまま指し手ポストの解析を続行
       case 'app.bsky.embed.images': // 画像埋め込みあり：指し手ポストと仮定
-        parseThread(apiResponse.thread, parsedInfo, isOutputPlayer);
+        parseThread(apiResponse.thread, parsedInfo);
         break;
       default:
         // TODO: エラー処理
@@ -175,7 +175,7 @@ async function parseSpecifiedURL(url: string | null, profile: string | null, rec
 //      console.log(`parent handle: ${parentHandle}`);
 
       if (parentDID === ShogithreadDID) {
-        parseThread(apiResponse.thread.parent, parsedInfo, isOutputPlayer);
+        parseThread(apiResponse.thread.parent, parsedInfo);
       } else { // リプライ先が将棋threadポストではない
         throw new Error(`${MessageInvalidPostURL}: リプライ先が将棋threadではありません`);
       }
@@ -247,7 +247,7 @@ async function getPostThread(atUri: string) {
 //   thread：getPostThread APIレスポンスJSON中のthreadオブジェクト（先頭ポストは将棋thread指し手ポストと仮定）
 //   parsedInfo：解析情報
 // 戻り値
-function parseThread(thread: any, parsedInfo: ParsedInfo, isOutputPlayer: boolean) {
+function parseThread(thread: any, parsedInfo: ParsedInfo) {
   // TODO:getPostThread上限を解決してリプライ先祖をさらにたどる場合は循環参照検出
   // TODO: APIレスポンスオブジェクト構造（threadオブジェクト構造）の検証・型
   // 画像のaltプロパティに埋め込まれている指し手履歴情報
@@ -257,7 +257,7 @@ function parseThread(thread: any, parsedInfo: ParsedInfo, isOutputPlayer: boolea
 
   // リプライ先親ポスト（人による指し手ポストを仮定）を解析
   if (thread.hasOwnProperty('parent')) {
-    parseParent(thread.parent, parsedInfo, isOutputPlayer);
+    parseParent(thread.parent, parsedInfo);
   } else {
     throw new Error(`${MessageInternalError}: parseThread`);
   }
@@ -272,7 +272,7 @@ function parseThread(thread: any, parsedInfo: ParsedInfo, isOutputPlayer: boolea
 // パラメタ
 //   parent：スレッド構造の先行処理ポストのparentオブジェクト
 //   parsedInfo：解析情報
-function parseParent(parent: any, parsedInfo: ParsedInfo, isOutputPlayer: boolean) {
+function parseParent(parent: any, parsedInfo: ParsedInfo) {
   // TODO: APIレスポンスオブジェクト構造（parentオブジェクト構造）の検証・型
   // textに埋め込まれている指し手情報
   const text: string = parent.post.record.text;
@@ -284,14 +284,10 @@ function parseParent(parent: any, parsedInfo: ParsedInfo, isOutputPlayer: boolea
   const handle: string = parent.post.author.handle;
   // ポスト（指し手）のアカウント表示名
   let displayName: string = parent.post.author.displayName;
-  if (isOutputPlayer) {
-    if (parent.post.author.labels.length > 0) {
-      if (parent.post.author.labels.some((element: any) => element.val == '!no-unauthenticated')) {
-        displayName = '(非表示)'
-      }
+  if (parent.post.author.labels.length > 0) {
+    if (parent.post.author.labels.some((element: any) => element.val == '!no-unauthenticated')) {
+      displayName = '(非表示)'
     }
-  } else {  // プレイヤー名出力チェックなし
-    displayName = '';
   }
 
 //  console.log(`${moveAt} ${text}`);
@@ -301,7 +297,7 @@ function parseParent(parent: any, parsedInfo: ParsedInfo, isOutputPlayer: boolea
   // 処理中ポストが子ポストであれば親ポストを再帰解析
   // 履歴情報構築前にスレッドを遡って辿り、折り返しで戻る際にparsedInfo.movesにpushすることにより配列要素は時系列順に整列
   if (isChild) {
-    parseParent(parent.parent, parsedInfo, isOutputPlayer);
+    parseParent(parent.parent, parsedInfo);
   }
 
   // 以降はスレッド親ポスト再帰解析の戻り処理：処理順としては指し手の時系列順

@@ -1,5 +1,5 @@
-// Google Fonts
-import { Noto_Sans_JP } from 'next/font/google';
+// Next.js
+import { Anybody, Noto_Sans_JP } from 'next/font/google';
 // 定義参照
 import { KifuStore } from 'kifu-for-js';
 import { ParsedInfoSingleMove, ParsedInfo } from '@/app/lib/bsky';
@@ -24,6 +24,7 @@ export type KifuManageState = {
 };
 
 export type ResultDisplayState = {
+  replayURL: string;
   historyView: string;
   dataUSI: string;
   dataKI2: string;
@@ -40,9 +41,9 @@ export type SpecifiedOption = {
 const initialMoves: ParsedInfoSingleMove = {text: null, at: null, did: null, handle: null, displayName: null, alt: null, };
 export const initialParsedInfo: ParsedInfo = {moves:[initialMoves], text: "", movesAlt: "", resignAt: null, };
 export const initialKifuStore = { kifuStore: new KifuStore({ kifu: "", }) };
-export const initialKifuManageState: KifuManageState = { isBuilt: false, step: 0 };
+export const initialKifuManageState: KifuManageState = { isBuilt: false, step: 0, };
 export const initialURLState: string = '';
-export const initialResultDisplayState: ResultDisplayState = { historyView: "", dataUSI: "", dataKI2: "", dataKIF: "", };
+export const initialResultDisplayState: ResultDisplayState = { replayURL: "", historyView: "", dataUSI: "", dataKI2: "", dataKIF: "", };
 export const initialSpecifiedOption: SpecifiedOption = { isOutputPlayer: true, isOutputCommentKI2: true, isOutputCommentKIF: true, };
 export const initialDialogBoxState: DialogBoxState = { isOpen: false, textTitle: '確認してください', textBody: '', };
 
@@ -56,6 +57,11 @@ enum KifDatetimeMaxUnit {
   Year,
 };
 
+export function getURLoriginPath() {
+  const href = new URL(window.location.href);
+  return href.origin + href.pathname;
+}
+
 export async function buildShogithreadInfo(
   url: string | null,
   profile: string | null,
@@ -63,6 +69,7 @@ export async function buildShogithreadInfo(
   isOutputPlayer: boolean,
   isOutputCommentKI2: boolean,
   isOutputCommentKIF: boolean,
+  step : string | null,
 //  setDialogBoxState: React.Dispatch<React.SetStateAction<DialogBoxState>>,
 //  dialogBoxState: DialogBoxState,
 ): Promise<[ParsedInfo, any, ResultDisplayState]> {
@@ -70,6 +77,7 @@ export async function buildShogithreadInfo(
     const [parsedInfo, kifuText, historyViewText, dataUSI, dataKI2, dataKIF] = await queryShogithread(url, profile, recordId, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF);
     const kifuStore = new KifuStore({ kifu: kifuText });
     const resultDisplayState: ResultDisplayState = {
+      replayURL: getURLoriginPath() + buildReplayURLParameters(url, profile, recordId, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step),
       historyView: historyViewText,
       dataUSI: dataUSI,
       dataKI2: dataKI2,
@@ -83,6 +91,34 @@ export async function buildShogithreadInfo(
 //    }
 //  }
 };
+
+export function buildReplayURLParameters(
+  url: string | null,
+  profile: string | null,
+  recordId: string | null,
+  isOutputPlayer: boolean,
+  isOutputCommentKI2: boolean,
+  isOutputCommentKIF: boolean,
+  step: string | null,
+): string {
+  let parameters = {
+     "url": url ? url : '',
+     "player": isOutputPlayer.toString(),
+     "KI2-comment": isOutputCommentKI2.toString(),
+     "KIF-comment": isOutputCommentKIF.toString(),
+  };
+  if (profile) {
+    parameters = { ...parameters, ...{profile: profile}};
+  }
+  if (recordId) {
+    parameters = { ...parameters, ...{"record-id": recordId}};
+  }
+  if (step) {
+    parameters = { ...parameters, ...{step: step}};
+  }
+  const URLParameters = '?' + new URLSearchParams(parameters).toString();
+  return URLParameters;
+}
 
 export function convertShogithreadToKI2(parsedInfo: ParsedInfo, isOutputPlayer: boolean = true, isOutputComment: boolean = true): string {
   const startText = '*対局開始';

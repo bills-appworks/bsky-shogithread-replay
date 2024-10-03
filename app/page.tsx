@@ -1,8 +1,7 @@
 'use client';
 
 // React
-import React, { useEffect } from "react";
-import { useState } from 'react';
+import React, { useState, useEffect } from "react";
 // Next.js
 import Image from "next/image";
 import Link from "next/link";
@@ -14,12 +13,13 @@ import { faLink } from '@fortawesome/free-solid-svg-icons';
 // アプリ内UIコンポーネント
 import Input from '@/app/ui/input';
 import KifuForJS from '@/app/ui/kifu-for-js';
+import ReplayURL from '@/app/ui/replay-url';
 import HistoryView from '@/app/ui/history-view';
 import Export from '@/app/ui/export';
 import PrivacyPolicy from '@/app/ui/privacy-policy';
 import DialogBox from '@/app/ui/dialog-box';
 // 定義参照
-import { Version, ResultDisplayState, SpecifiedOption, buildShogithreadInfo, initialParsedInfo, initialKifuStore, initialKifuManageState, initialURLState, initialResultDisplayState, initialSpecifiedOption, initialDialogBoxState } from '@/app/lib/common';
+import { Version, ResultDisplayState, SpecifiedOption, buildShogithreadInfo, initialParsedInfo, initialKifuStore, initialKifuManageState, initialURLState, initialResultDisplayState, initialSpecifiedOption, initialDialogBoxState, getURLoriginPath } from '@/app/lib/common';
 import { KifuStore } from 'kifu-for-js';
 import { ParsedInfo, ParsedInfoSingleMove } from "@/app/lib/bsky";
 import { DialogBoxState } from '@/app/ui/dialog-box';
@@ -36,7 +36,7 @@ export default function Home() {
 
   // URLクエリパラメタ処理
   const searchParams = useSearchParams();
-  const pathname = usePathname();
+//  const pathname = usePathname();
   const url = searchParams.get('url');
   const isOutputPlayer = searchParams.get('player') != 'false';
   const isOutputCommentKI2 = searchParams.get('KI2-comment') != 'false';
@@ -48,15 +48,18 @@ export default function Home() {
   // クエリパラメタにURL/profile/record id指定時にfetchして状態・画面に反映
   const procedureQueryParameter = async (url: string | null, profile: string | null, recordId: string | null, isOutputPlayer: boolean, isOutputCommentKI2: boolean, isOutputCommentKIF: boolean, step: string | null) => {
     try {
-      const [parsedInfo, kifuStore, resultDisplayState]: [parsedInfo: ParsedInfo, kifuStore: any, resultDisplayState: ResultDisplayState] = await buildShogithreadInfo(url, profile, recordId, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF);
+      const [parsedInfo, kifuStore, resultDisplayState]: [parsedInfo: ParsedInfo, kifuStore: any, resultDisplayState: ResultDisplayState] = await buildShogithreadInfo(url, profile, recordId, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step);
       setParsedInfoState(parsedInfo);
-      if (!step) {
-        step = '0';
+      if (step) {
+        kifuStore.player.goto(parseInt(step));
       }
-      kifuStore.player.goto(parseInt(step));
       setKifuStoreState({ kifuStore: kifuStore});
-      setKifuManageState({ isBuilt: true, step: parseInt(step) });
+      setKifuManageState({ isBuilt: true, step: step ? parseInt(step) : 0, });
       setURLState(url ? url : '');
+//      resultDisplayState.replayURL = `${getURLoriginPath()}${resultDisplayState.replayURL}`;
+//      if (step) {
+//        resultDisplayState.replayURL += `&step=${step}`;
+//      }
       setResultDisplayState(resultDisplayState);
       setSpecifiedOptionState({ isOutputPlayer: isOutputPlayer, isOutputCommentKI2: isOutputCommentKI2, isOutputCommentKIF: isOutputCommentKIF, })
     } catch(e: unknown) {
@@ -70,14 +73,22 @@ export default function Home() {
         setDialogBoxState({ isOpen: true, textTitle: dialogBoxState.textTitle, textBody: e.message});
       }
     }
-};
-
+  };
+/*
+  useEffect(() => {
+    const urlWithHostPath = new URL(window.location.href);
+    const host = urlWithHostPath.host;
+    const path = urlWithHostPath.pathname;
+    setKifuManageState({ isBuilt: kifuManageState.isBuilt, step: kifuManageState.step, URLhostPath: host + path, });
+  }, []);
+*/
   // コンポーネントレンダリング後にクエリパラメタによるfetchと反映を実施（状態変更副作用が発生するため直接実行すると初期化処理と競合）
   useEffect(() => {
     if (url || (profile && recordId)) {
       procedureQueryParameter(url, profile, recordId, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step);
     }
-  }, [pathname, searchParams]);
+//  }, [pathname, searchParams]);
+  }, [searchParams]);
 
   return (
     <>
@@ -109,9 +120,12 @@ export default function Home() {
               ">
                 <KifuForJS kifuStoreState={kifuStoreState} />
               </div>
+              <ReplayURL resultDisplayState={resultDisplayState} />
               <HistoryView resultDisplayState={resultDisplayState} />
               <Export
                 parsedInfoState={parsedInfoState}
+                setKifuManageState={setKifuManageState} kifuManageState={kifuManageState}
+                setURLState={setURLState} urlState={urlState}
                 setResultDisplayState={setResultDisplayState} resultDisplayState={resultDisplayState}
                 setSpecifiedOptionState={setSpecifiedOptionState} specifiedOptionState={specifiedOptionState}
               />

@@ -1,9 +1,13 @@
-import { ResultDisplayState, SpecifiedOption, convertShogithreadToKI2, convertShogithreadToKIF, notoSansJP } from '@/app/lib/common';
+import { KifuManageState, ResultDisplayState, SpecifiedOption, buildReplayURLParameters, convertShogithreadToKI2, convertShogithreadToKIF, getURLoriginPath, notoSansJP } from '@/app/lib/common';
 import { ParsedInfo } from '@/app/lib/bsky';
 
-const Export = ({ parsedInfoState, setResultDisplayState, resultDisplayState, setSpecifiedOptionState, specifiedOptionState }:
+const Export = ({ parsedInfoState, setKifuManageState, kifuManageState, setURLState, urlState, setResultDisplayState, resultDisplayState, setSpecifiedOptionState, specifiedOptionState, }:
   {
     parsedInfoState: ParsedInfo,
+    setKifuManageState: React.Dispatch<React.SetStateAction<KifuManageState>>,
+    kifuManageState: KifuManageState,
+    setURLState: React.Dispatch<React.SetStateAction<string>>,
+    urlState: string,
     setResultDisplayState: React.Dispatch<React.SetStateAction<ResultDisplayState>>,
     resultDisplayState: ResultDisplayState,
     setSpecifiedOptionState: React.Dispatch<React.SetStateAction<SpecifiedOption>>,
@@ -44,13 +48,20 @@ const Export = ({ parsedInfoState, setResultDisplayState, resultDisplayState, se
                 isOutputCommentKI2: event.target.checked,
                 isOutputCommentKIF: specifiedOptionState.isOutputCommentKIF,
               });
-              const text = convertShogithreadToKI2(parsedInfoState, specifiedOptionState.isOutputPlayer, event.target.checked);
-              setResultDisplayState({
-                historyView: resultDisplayState.historyView,
-                dataUSI: resultDisplayState.dataUSI,
-                dataKI2: text,
-                dataKIF: resultDisplayState.dataKIF,
-              });
+              let replayURLParameters = '';
+              if (kifuManageState.isBuilt) {
+                const text = convertShogithreadToKI2(parsedInfoState, specifiedOptionState.isOutputPlayer, event.target.checked);
+                replayURLParameters = buildReplayURLParameters(urlState, null, null, specifiedOptionState.isOutputPlayer, event.target.checked, specifiedOptionState.isOutputCommentKIF, kifuManageState.step.toString(), );
+                const replayURL = getURLoriginPath() + replayURLParameters;
+                setResultDisplayState({
+                  replayURL: replayURL,
+                  historyView: resultDisplayState.historyView,
+                  dataUSI: resultDisplayState.dataUSI,
+                  dataKI2: text,
+                  dataKIF: resultDisplayState.dataKIF,
+                });
+              }
+              history.replaceState(null, '', replayURLParameters);
             }}
           />
           <label htmlFor="comment-ki2">コメント出力</label>
@@ -79,13 +90,20 @@ const Export = ({ parsedInfoState, setResultDisplayState, resultDisplayState, se
                 isOutputCommentKI2: specifiedOptionState.isOutputCommentKI2,
                 isOutputCommentKIF: event.target.checked,
               });
-              const text = convertShogithreadToKIF(parsedInfoState, false, specifiedOptionState.isOutputPlayer, event.target.checked, true);
-              setResultDisplayState({
-                historyView: resultDisplayState.historyView,
-                dataUSI: resultDisplayState.dataUSI,
-                dataKI2: resultDisplayState.dataKI2,
-                dataKIF: text,
-              });
+              let replayURLParameters = '';
+              if (kifuManageState.isBuilt) {
+                const text = convertShogithreadToKIF(parsedInfoState, false, specifiedOptionState.isOutputPlayer, event.target.checked, true);
+                replayURLParameters = buildReplayURLParameters(urlState, null, null, specifiedOptionState.isOutputPlayer, specifiedOptionState.isOutputCommentKI2, event.target.checked, kifuManageState.step.toString(), );
+                const replayURL = getURLoriginPath() + replayURLParameters;
+                setResultDisplayState({
+                  replayURL: replayURL,
+                  historyView: resultDisplayState.historyView,
+                  dataUSI: resultDisplayState.dataUSI,
+                  dataKI2: resultDisplayState.dataKI2,
+                  dataKIF: text,
+                });
+              }
+              history.replaceState(null, '', replayURLParameters);
             }}
           />
           <label htmlFor="comment-kif">コメント出力</label>
