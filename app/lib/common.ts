@@ -2,7 +2,7 @@
 import { Anybody, Noto_Sans_JP } from 'next/font/google';
 // 定義参照
 import { KifuStore } from 'kifu-for-js';
-import { ParsedInfoSingleMove, ParsedInfo, buildPostURL } from '@/app/lib/bsky';
+import { ParsedInfoSingleMove, ParsedInfo, buildPostURL, convertATURItoURL } from '@/app/lib/bsky';
 import { queryShogithread } from '@/app/lib/bsky';
 import { DialogBoxState } from '@/app/ui/dialog-box';
 
@@ -72,8 +72,7 @@ export function setTextAreaById(id: string, text: string) {
 
 export async function buildShogithreadInfo(
   url: string | null,
-  profile: string | null,
-  recordId: string | null,
+  atUri: string | null,
   isOutputPlayer: boolean,
   isOutputCommentKI2: boolean,
   isOutputCommentKIF: boolean,
@@ -82,7 +81,7 @@ export async function buildShogithreadInfo(
 //  dialogBoxState: DialogBoxState,
 ): Promise<[ParsedInfo, any, string, string, string, string, string, string]> {
 //  try{
-    const [parsedInfo, kifuText, historyViewText, dataUSI, dataKI2, dataKIF] = await queryShogithread(url, profile, recordId, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF);
+    const [parsedInfo, kifuText, historyViewText, dataUSI, dataKI2, dataKIF] = await queryShogithread(url, atUri, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF);
     const kifuStore = new KifuStore({ kifu: kifuText });
 //    const resultDisplayState: ResultDisplayState = {
 //      replayURL: getURLoriginPath() + buildReplayURLParameters(url, profile, recordId, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step),
@@ -91,7 +90,7 @@ export async function buildShogithreadInfo(
 //      dataKI2: dataKI2,
 //      dataKIF: dataKIF,
 //    };
-    const replayURL = getURLoriginPath() + buildReplayURLParameters(url, profile, recordId, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step);
+    const replayURL = getURLoriginPath() + buildReplayURLParameters(url, atUri, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step);
     const postURL = buildPostURL(parsedInfo, step ? parseInt(step) : null);
     return [parsedInfo, kifuStore, replayURL, historyViewText, postURL, dataUSI, dataKI2, dataKIF];
 //  } catch(e: unknown) {
@@ -104,25 +103,25 @@ export async function buildShogithreadInfo(
 
 export function buildReplayURLParameters(
   url: string | null,
-  profile: string | null,
-  recordId: string | null,
+  atUri: string | null,
   isOutputPlayer: boolean,
   isOutputCommentKI2: boolean,
   isOutputCommentKIF: boolean,
   step: string | null,
 ): string {
+  if (!url) {
+    if (atUri) {
+      url = convertATURItoURL(atUri, undefined);
+    } else {
+      throw new Error('URLまたはAT-URIが必要です。');
+    }
+  }
   let parameters = {
-     "url": url ? url : '',
-     "player": isOutputPlayer.toString(),
-     "KI2-comment": isOutputCommentKI2.toString(),
-     "KIF-comment": isOutputCommentKIF.toString(),
+    "url": url,
+    "player": isOutputPlayer.toString(),
+    "KI2-comment": isOutputCommentKI2.toString(),
+    "KIF-comment": isOutputCommentKIF.toString(),
   };
-  if (profile) {
-    parameters = { ...parameters, ...{profile: profile}};
-  }
-  if (recordId) {
-    parameters = { ...parameters, ...{"record-id": recordId}};
-  }
   if (step) {
     parameters = { ...parameters, ...{step: step}};
   }

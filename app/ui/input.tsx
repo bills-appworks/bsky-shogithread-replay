@@ -74,7 +74,7 @@ const Input = ({
       kifuStore.player.goto(step);
 //      const replayURL = buildReplayURL(urlState, null, null, specifiedOptionState.isOutputPlayer, specifiedOptionState.isOutputCommentKI2, specifiedOptionState.isOutputCommentKIF, step ? step.toString() : null);
 //      const replayURL = getURLoriginPath() + buildReplayURLParameters(urlState, null, null, isOutputPlayer, specifiedOptionState.isOutputCommentKI2, specifiedOptionState.isOutputCommentKIF, step ? step.toString() : null);
-      replayURLParameters = buildReplayURLParameters(urlState, null, null, isOutputPlayer, specifiedOptionState.isOutputCommentKI2, specifiedOptionState.isOutputCommentKIF, step ? step.toString() : null);
+      replayURLParameters = buildReplayURLParameters(urlState, null, isOutputPlayer, specifiedOptionState.isOutputCommentKI2, specifiedOptionState.isOutputCommentKIF, step ? step.toString() : null);
       const replayURL = getURLoriginPath() + replayURLParameters;
       const historyView = convertShogithreadToHistoryView(parsedInfoState, isOutputPlayer);
 //      const dataUSI = resultDisplayState.dataUSI;
@@ -102,7 +102,6 @@ const Input = ({
       kifuManageRef.current = {isBuilt: kifuManageRef.current.isBuilt, step: step, };
       const replayURLParameters: string = buildReplayURLParameters(
         urlRef.current,
-        null,
         null,
         specifiedOptionRef.current.isOutputPlayer,
         specifiedOptionRef.current.isOutputCommentKI2,

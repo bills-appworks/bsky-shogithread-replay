@@ -35,7 +35,7 @@ import {
   getURLoriginPath
 } from '@/app/lib/common';
 import { KifuStore } from 'kifu-for-js';
-import { ParsedInfo, ParsedInfoSingleMove } from "@/app/lib/bsky";
+import { convertATURItoURL, ParsedInfo, ParsedInfoSingleMove } from "@/app/lib/bsky";
 import { DialogBoxState } from '@/app/ui/dialog-box';
 
 export default function Home() {
@@ -53,24 +53,23 @@ export default function Home() {
   const searchParams = useSearchParams();
 //  const pathname = usePathname();
   const url = searchParams.get('url');
+  const atUri = searchParams.get('at-uri');
   const isOutputPlayer = searchParams.get('player') != 'false';
   const isOutputCommentKI2 = searchParams.get('KI2-comment') != 'false';
   const isOutputCommentKIF = searchParams.get('KIF-comment') != 'false';
-  const profile = searchParams.get('profile');
-  const recordId = searchParams.get('record-id');
   const step = searchParams.get('step');
 
   // クエリパラメタにURL/profile/record id指定時にfetchして状態・画面に反映
-  const procedureQueryParameter = async (url: string | null, profile: string | null, recordId: string | null, isOutputPlayer: boolean, isOutputCommentKI2: boolean, isOutputCommentKIF: boolean, step: string | null) => {
+  const procedureQueryParameter = async (url: string | null, atUri: string | null, isOutputPlayer: boolean, isOutputCommentKI2: boolean, isOutputCommentKIF: boolean, step: string | null) => {
     try {
-      const [parsedInfo, kifuStore, replayURLText, historyViewText, postURLState, dataUSI, dataKI2, dataKIF]: [parsedInfo: ParsedInfo, kifuStore: any, replayURLText: string, historyViewText: string, postURLState: string, dataUSI: string, dataKI2: string, dataKIF: string] = await buildShogithreadInfo(url, profile, recordId, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step);
+      const [parsedInfo, kifuStore, replayURLText, historyViewText, postURLState, dataUSI, dataKI2, dataKIF]: [parsedInfo: ParsedInfo, kifuStore: any, replayURLText: string, historyViewText: string, postURLState: string, dataUSI: string, dataKI2: string, dataKIF: string] = await buildShogithreadInfo(url, atUri, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step);
       setParsedInfoState(parsedInfo);
       if (step) {
         kifuStore.player.goto(parseInt(step));
       }
       setKifuStoreState({ kifuStore: kifuStore});
       setKifuManageState({ isBuilt: true, step: step ? parseInt(step) : 0, });
-      setURLState(url ? url : '');
+      setURLState(url ? url : convertATURItoURL(atUri ? atUri : '', undefined));
 //      resultDisplayState.replayURL = `${getURLoriginPath()}${resultDisplayState.replayURL}`;
 //      if (step) {
 //        resultDisplayState.replayURL += `&step=${step}`;
@@ -111,8 +110,8 @@ export default function Home() {
 */
   // コンポーネントレンダリング後にクエリパラメタによるfetchと反映を実施（状態変更副作用が発生するため直接実行すると初期化処理と競合）
   useEffect(() => {
-    if (url || (profile && recordId)) {
-      procedureQueryParameter(url, profile, recordId, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step);
+    if (url || atUri) {
+      procedureQueryParameter(url, atUri, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step);
     }
 //  }, [pathname, searchParams]);
   }, [searchParams]);

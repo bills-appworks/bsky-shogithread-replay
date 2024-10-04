@@ -64,7 +64,7 @@ const Export = ({ parsedInfoState, setKifuManageState, kifuManageState, setURLSt
               let replayURLParameters = '';
               if (kifuManageState.isBuilt) {
                 const text = convertShogithreadToKI2(parsedInfoState, specifiedOptionState.isOutputPlayer, event.target.checked);
-                replayURLParameters = buildReplayURLParameters(urlState, null, null, specifiedOptionState.isOutputPlayer, event.target.checked, specifiedOptionState.isOutputCommentKIF, kifuManageState.step.toString(), );
+                replayURLParameters = buildReplayURLParameters(urlState, null, specifiedOptionState.isOutputPlayer, event.target.checked, specifiedOptionState.isOutputCommentKIF, kifuManageState.step.toString(), );
                 const replayURL = getURLoriginPath() + replayURLParameters;
 //                setResultDisplayState({
 //                  dataKIF: resultDisplayState.dataKIF,
@@ -103,7 +103,7 @@ const Export = ({ parsedInfoState, setKifuManageState, kifuManageState, setURLSt
               let replayURLParameters = '';
               if (kifuManageState.isBuilt) {
                 const text = convertShogithreadToKIF(parsedInfoState, false, specifiedOptionState.isOutputPlayer, event.target.checked, true);
-                replayURLParameters = buildReplayURLParameters(urlState, null, null, specifiedOptionState.isOutputPlayer, specifiedOptionState.isOutputCommentKI2, event.target.checked, kifuManageState.step.toString(), );
+                replayURLParameters = buildReplayURLParameters(urlState, null, specifiedOptionState.isOutputPlayer, specifiedOptionState.isOutputCommentKI2, event.target.checked, kifuManageState.step.toString(), );
                 const replayURL = getURLoriginPath() + replayURLParameters;
 //                setResultDisplayState({
 //                  dataKIF: text,
