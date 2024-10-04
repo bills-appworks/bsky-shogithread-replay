@@ -30,6 +30,7 @@ export type ParsedInfo = {
   text: string, // 指定URLポストのテキスト
   movesAlt: string, // 指定スレッドでの最終指し手の将棋threadポストの画像のalt（usi）
   resignAt: string | null, // 投了日時（指定URLのポストが投了確定でない場合はnull）
+  resignURI: string | null, // 投了ポストのuri（指定URLのポストが投了確定でない場合はnull）
 };
 
 
@@ -143,7 +144,7 @@ async function parseSpecifiedURL(url: string | null, profile: string | null, rec
   const apiResponseString = JSON.stringify(apiResponse, null, 2);
   console.log(`api response: ${apiResponseString}`);
 
-  const parsedInfo: ParsedInfo = { moves: [], text: apiResponse.thread.post.record.text, movesAlt: '', resignAt: null };
+  const parsedInfo: ParsedInfo = { moves: [], text: apiResponse.thread.post.record.text, movesAlt: '', resignAt: null, resignURI: null, };
   if (isShogithread) { // 指定URLが将棋threadのポスト
     // ポストrecordのlexicon（キー$typeの値）からURL指定ポストが投了ポストかスレッド中ポストかを判別し、投了ポストなら引用内の最終指し手ポストを改めて解析対象とする
     const lexicon: string = apiResponse.thread.post.record.embed["$type"];
@@ -156,6 +157,7 @@ async function parseSpecifiedURL(url: string | null, profile: string | null, rec
       case 'app.bsky.embed.record': // 通常レコード（画像埋め込みなし）：投了ポストと仮定
         // 投了日時は投了ポスト基準
         parsedInfo.resignAt = apiResponse.thread.post.indexedAt;
+        parsedInfo.resignURI = apiResponse.thread.post.uri;
         // 引用内ポストを最終指し手ポストとしてスレッド再取得
         apiResponse = await getPostThread(apiResponse.thread.post.embed.record.uri);
 
@@ -326,8 +328,14 @@ function parseParent(parent: any, parsedInfo: ParsedInfo) {
 
 export function buildPostURL(parsedInfo: ParsedInfo, step: number | null): string {
   if (step && step > 0) {
-    const handle = parsedInfo.moves[step - 1].handle;
-    const uri = parsedInfo.moves[step - 1].uri;
+    let handle, uri;
+    if (parsedInfo.resignAt) {
+      handle = ShogithreadHandle;
+      uri = parsedInfo.resignURI;
+    } else {
+      handle = parsedInfo.moves[step - 1].handle;
+      uri = parsedInfo.moves[step - 1].uri;
+    }
     const recordId = uri?.replace(/.+\/([^/]+)$/, "$1");
     return `${ShogithreadUrlSpecifiedPostPrefix}/${handle}/post/${recordId}`;
   } else {

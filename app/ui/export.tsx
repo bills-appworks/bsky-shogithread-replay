@@ -1,15 +1,28 @@
-import { KifuManageState, ResultDisplayState, SpecifiedOption, buildReplayURLParameters, convertShogithreadToKI2, convertShogithreadToKIF, getURLoriginPath, notoSansJP } from '@/app/lib/common';
+import { KifuManageState, SpecifiedOption, buildReplayURLParameters, convertShogithreadToKI2, convertShogithreadToKIF, getURLoriginPath, setTextAreaById, notoSansJP } from '@/app/lib/common';
 import { ParsedInfo } from '@/app/lib/bsky';
 
-const Export = ({ parsedInfoState, setKifuManageState, kifuManageState, setURLState, urlState, setResultDisplayState, resultDisplayState, setSpecifiedOptionState, specifiedOptionState, }:
+// set...Stateすると再レンダリングでユーザresizeがリセットされるため直接設定
+export function setKifuDataUSIText(text: string) {
+  setTextAreaById('kifu-data-usi', text);
+}
+
+export function setKifuDataKI2Text(text: string) {
+  setTextAreaById('kifu-data-ki2', text);
+}
+
+export function setKifuDataKIFText(text: string) {
+  setTextAreaById('kifu-data-kif', text);
+}
+
+const Export = ({ parsedInfoState, setKifuManageState, kifuManageState, setURLState, urlState, setSpecifiedOptionState, specifiedOptionState, }:
   {
     parsedInfoState: ParsedInfo,
     setKifuManageState: React.Dispatch<React.SetStateAction<KifuManageState>>,
     kifuManageState: KifuManageState,
     setURLState: React.Dispatch<React.SetStateAction<string>>,
     urlState: string,
-    setResultDisplayState: React.Dispatch<React.SetStateAction<ResultDisplayState>>,
-    resultDisplayState: ResultDisplayState,
+//    setResultDisplayState: React.Dispatch<React.SetStateAction<ResultDisplayState>>,
+//    resultDisplayState: ResultDisplayState,
     setSpecifiedOptionState: React.Dispatch<React.SetStateAction<SpecifiedOption>>,
     specifiedOptionState: SpecifiedOption,
   }) => {
@@ -27,8 +40,8 @@ const Export = ({ parsedInfoState, setKifuManageState, kifuManageState, setURLSt
             className={`w-full h-40 rounded border border-black bg-[#FFFFDD] ${notoSansJP.className}`}
             id="kifu-data-usi"
             name="kifu-data-usi"
-            key={resultDisplayState.dataUSI}
-            defaultValue={resultDisplayState.dataUSI}
+//            key={resultDisplayState.dataUSI}
+//            defaultValue={resultDisplayState.dataUSI}
             readOnly
           />
         </details>
@@ -53,13 +66,10 @@ const Export = ({ parsedInfoState, setKifuManageState, kifuManageState, setURLSt
                 const text = convertShogithreadToKI2(parsedInfoState, specifiedOptionState.isOutputPlayer, event.target.checked);
                 replayURLParameters = buildReplayURLParameters(urlState, null, null, specifiedOptionState.isOutputPlayer, event.target.checked, specifiedOptionState.isOutputCommentKIF, kifuManageState.step.toString(), );
                 const replayURL = getURLoriginPath() + replayURLParameters;
-                setResultDisplayState({
-                  replayURL: replayURL,
-                  historyView: resultDisplayState.historyView,
-                  dataUSI: resultDisplayState.dataUSI,
-                  dataKI2: text,
-                  dataKIF: resultDisplayState.dataKIF,
-                });
+//                setResultDisplayState({
+//                  dataKIF: resultDisplayState.dataKIF,
+//                });
+                setKifuDataKI2Text(text);
               }
               history.replaceState(null, '', replayURLParameters);
             }}
@@ -69,8 +79,8 @@ const Export = ({ parsedInfoState, setKifuManageState, kifuManageState, setURLSt
             className={`w-full h-40 rounded border border-black bg-[#FFFFDD] ${notoSansJP.className}`}
             id="kifu-data-ki2"
             name="kifu-data-ki2"
-            key={resultDisplayState.dataKI2}
-            defaultValue={resultDisplayState.dataKI2}
+//            key={resultDisplayState.dataKI2}
+//            defaultValue={resultDisplayState.dataKI2}
             readOnly
           />
         </details>
@@ -95,13 +105,10 @@ const Export = ({ parsedInfoState, setKifuManageState, kifuManageState, setURLSt
                 const text = convertShogithreadToKIF(parsedInfoState, false, specifiedOptionState.isOutputPlayer, event.target.checked, true);
                 replayURLParameters = buildReplayURLParameters(urlState, null, null, specifiedOptionState.isOutputPlayer, specifiedOptionState.isOutputCommentKI2, event.target.checked, kifuManageState.step.toString(), );
                 const replayURL = getURLoriginPath() + replayURLParameters;
-                setResultDisplayState({
-                  replayURL: replayURL,
-                  historyView: resultDisplayState.historyView,
-                  dataUSI: resultDisplayState.dataUSI,
-                  dataKI2: resultDisplayState.dataKI2,
-                  dataKIF: text,
-                });
+//                setResultDisplayState({
+//                  dataKIF: text,
+//                });
+                setKifuDataKIFText(text);
               }
               history.replaceState(null, '', replayURLParameters);
             }}
@@ -111,8 +118,8 @@ const Export = ({ parsedInfoState, setKifuManageState, kifuManageState, setURLSt
             className={`w-full h-40 rounded border border-black bg-[#FFFFDD] ${notoSansJP.className}`}
             id="kifu-data-kif"
             name="kifu-data-kif"
-            key={resultDisplayState.dataKIF}
-            defaultValue={resultDisplayState.dataKIF}
+//            key={resultDisplayState.dataKIF}
+//            defaultValue={resultDisplayState.dataKIF}
             readOnly
           />
         </details>

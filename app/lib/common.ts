@@ -23,13 +23,13 @@ export type KifuManageState = {
   step: number;
 };
 
-export type ResultDisplayState = {
-  replayURL: string;
-  historyView: string;
-  dataUSI: string;
-  dataKI2: string;
-  dataKIF: string;
-};
+//export type ResultDisplayState = {
+//  replayURL: string;
+//  historyView: string;
+//  dataUSI: string;
+//  dataKI2: string;
+//  dataKIF: string;
+//};
 
 export type SpecifiedOption = {
   isOutputPlayer: boolean;
@@ -39,11 +39,11 @@ export type SpecifiedOption = {
 
 // 状態初期値
 const initialMoves: ParsedInfoSingleMove = {text: null, at: null, did: null, handle: null, displayName: null, alt: null, uri: null, };
-export const initialParsedInfo: ParsedInfo = {moves:[initialMoves], text: "", movesAlt: "", resignAt: null, };
+export const initialParsedInfo: ParsedInfo = {moves:[initialMoves], text: "", movesAlt: "", resignAt: null, resignURI: null, };
 export const initialKifuStore = { kifuStore: new KifuStore({ kifu: "", }) };
 export const initialKifuManageState: KifuManageState = { isBuilt: false, step: 0, };
 export const initialURLState: string = '';
-export const initialResultDisplayState: ResultDisplayState = { replayURL: "", historyView: "", dataUSI: "", dataKI2: "", dataKIF: "", };
+//export const initialResultDisplayState: ResultDisplayState = { dataKIF: "", };
 export const initialPostURLState: string = "";
 export const initialSpecifiedOption: SpecifiedOption = { isOutputPlayer: true, isOutputCommentKI2: true, isOutputCommentKIF: true, };
 export const initialDialogBoxState: DialogBoxState = { isOpen: false, textTitle: '確認してください', textBody: '', };
@@ -63,6 +63,13 @@ export function getURLoriginPath() {
   return href.origin + href.pathname;
 }
 
+export function setTextAreaById(id: string, text: string) {
+  const element = document.getElementById(id);
+  if (element && element instanceof HTMLTextAreaElement) {
+    element.value = text;
+  }
+}
+
 export async function buildShogithreadInfo(
   url: string | null,
   profile: string | null,
@@ -73,19 +80,20 @@ export async function buildShogithreadInfo(
   step : string | null,
 //  setDialogBoxState: React.Dispatch<React.SetStateAction<DialogBoxState>>,
 //  dialogBoxState: DialogBoxState,
-): Promise<[ParsedInfo, any, ResultDisplayState, string]> {
+): Promise<[ParsedInfo, any, string, string, string, string, string, string]> {
 //  try{
     const [parsedInfo, kifuText, historyViewText, dataUSI, dataKI2, dataKIF] = await queryShogithread(url, profile, recordId, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF);
     const kifuStore = new KifuStore({ kifu: kifuText });
-    const resultDisplayState: ResultDisplayState = {
-      replayURL: getURLoriginPath() + buildReplayURLParameters(url, profile, recordId, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step),
-      historyView: historyViewText,
-      dataUSI: dataUSI,
-      dataKI2: dataKI2,
-      dataKIF: dataKIF,
-    };
+//    const resultDisplayState: ResultDisplayState = {
+//      replayURL: getURLoriginPath() + buildReplayURLParameters(url, profile, recordId, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step),
+//      historyView: historyViewText,
+//      dataUSI: dataUSI,
+//      dataKI2: dataKI2,
+//      dataKIF: dataKIF,
+//    };
+    const replayURL = getURLoriginPath() + buildReplayURLParameters(url, profile, recordId, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step);
     const postURL = buildPostURL(parsedInfo, step ? parseInt(step) : null);
-    return [parsedInfo, kifuStore, resultDisplayState, postURL];
+    return [parsedInfo, kifuStore, replayURL, historyViewText, postURL, dataUSI, dataKI2, dataKIF];
 //  } catch(e: unknown) {
 //    if (e instanceof Error) {
 ////      setDialogBoxState({ isOpen: true, textTitle: dialogBoxState.textTitle, textBody: e.message});

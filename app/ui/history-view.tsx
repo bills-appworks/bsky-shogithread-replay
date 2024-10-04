@@ -1,10 +1,21 @@
 import Link from "next/link";
-import { ResultDisplayState, notoSansJP } from '@/app/lib/common';
+import { setTextAreaById, notoSansJP } from '@/app/lib/common';
 
 const postLinkButtonText = 'リプレイ中の現在指し手ポストをBlueskyで開く';
 
+// set...Stateすると再レンダリングでユーザresizeがリセットされるため直接設定
+export function setHistoryViewText(text: string) {
+/*
+  const element = document.getElementById("history-view");
+  if (element && element instanceof HTMLTextAreaElement) {
+    element.value = text;
+  }
+*/
+  setTextAreaById('history-view', text);
+}
+
 //const HistoryView = ({ replayState }: {replayState:  ReplayState }) => {
-const HistoryView = ({ resultDisplayState, postURLState, }: { resultDisplayState:  ResultDisplayState, postURLState: string, }) => {
+const HistoryView = ({ postURLState, }: { postURLState: string, }) => {
   return (
     <div className="flex flex-col">
       <hr />
@@ -14,8 +25,8 @@ const HistoryView = ({ resultDisplayState, postURLState, }: { resultDisplayState
           className={`w-full h-20 rounded border border-black bg-[#FFFFDD] ${notoSansJP.className}`}
           id="history-view"
           name="history-view"
-          key={resultDisplayState.historyView}
-          defaultValue={resultDisplayState.historyView}
+//          key={resultDisplayState.historyView}
+//          defaultValue={resultDisplayState.historyView}
           readOnly
         />
         <div className="flex justify-center">

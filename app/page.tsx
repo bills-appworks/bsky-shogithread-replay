@@ -13,22 +13,22 @@ import { faLink } from '@fortawesome/free-solid-svg-icons';
 // アプリ内UIコンポーネント
 import Input from '@/app/ui/input';
 import KifuForJS from '@/app/ui/kifu-for-js';
-import ReplayURL from '@/app/ui/replay-url';
-import HistoryView from '@/app/ui/history-view';
-import Export from '@/app/ui/export';
+import ReplayURL, { setReplayURLText } from '@/app/ui/replay-url';
+import HistoryView, { setHistoryViewText } from '@/app/ui/history-view';
+import Export, { setKifuDataKI2Text, setKifuDataKIFText, setKifuDataUSIText } from '@/app/ui/export';
 import PrivacyPolicy from '@/app/ui/privacy-policy';
 import DialogBox from '@/app/ui/dialog-box';
 // 定義参照
 import {
   Version,
-  ResultDisplayState,
+//  ResultDisplayState,
   SpecifiedOption,
   buildShogithreadInfo,
   initialParsedInfo,
   initialKifuStore,
   initialKifuManageState,
   initialURLState,
-  initialResultDisplayState,
+//  initialResultDisplayState,
   initialPostURLState,
   initialSpecifiedOption,
   initialDialogBoxState,
@@ -44,7 +44,7 @@ export default function Home() {
   const [ kifuStoreState, setKifuStoreState ] = useState(initialKifuStore);
   const [ kifuManageState, setKifuManageState ] = useState(initialKifuManageState);
   const [ urlState, setURLState ] = useState(initialURLState);
-  const [ resultDisplayState, setResultDisplayState ] = useState(initialResultDisplayState);
+//  const [ resultDisplayState, setResultDisplayState ] = useState(initialResultDisplayState);
   const [ postURLState, setPostURLState ] = useState(initialPostURLState);
   const [ specifiedOptionState, setSpecifiedOptionState ] = useState(initialSpecifiedOption);
   const [ dialogBoxState, setDialogBoxState ] = useState(initialDialogBoxState);
@@ -63,7 +63,7 @@ export default function Home() {
   // クエリパラメタにURL/profile/record id指定時にfetchして状態・画面に反映
   const procedureQueryParameter = async (url: string | null, profile: string | null, recordId: string | null, isOutputPlayer: boolean, isOutputCommentKI2: boolean, isOutputCommentKIF: boolean, step: string | null) => {
     try {
-      const [parsedInfo, kifuStore, resultDisplayState, postURLState]: [parsedInfo: ParsedInfo, kifuStore: any, resultDisplayState: ResultDisplayState, postURLState: string] = await buildShogithreadInfo(url, profile, recordId, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step);
+      const [parsedInfo, kifuStore, replayURLText, historyViewText, postURLState, dataUSI, dataKI2, dataKIF]: [parsedInfo: ParsedInfo, kifuStore: any, replayURLText: string, historyViewText: string, postURLState: string, dataUSI: string, dataKI2: string, dataKIF: string] = await buildShogithreadInfo(url, profile, recordId, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step);
       setParsedInfoState(parsedInfo);
       if (step) {
         kifuStore.player.goto(parseInt(step));
@@ -75,8 +75,13 @@ export default function Home() {
 //      if (step) {
 //        resultDisplayState.replayURL += `&step=${step}`;
 //      }
-      setResultDisplayState(resultDisplayState);
+//      setResultDisplayState(resultDisplayState);
+      setReplayURLText(replayURLText);
+      setHistoryViewText(historyViewText);
       setPostURLState(postURLState);
+      setKifuDataUSIText(dataUSI);
+      setKifuDataKI2Text(dataKI2);
+      setKifuDataKIFText(dataKIF);
       setSpecifiedOptionState({ isOutputPlayer: isOutputPlayer, isOutputCommentKI2: isOutputCommentKI2, isOutputCommentKIF: isOutputCommentKIF, })
     } catch(e: unknown) {
       if (e instanceof Error) {
@@ -84,7 +89,13 @@ export default function Home() {
         setKifuStoreState(initialKifuStore);
         setKifuManageState(initialKifuManageState);
         // setURLState() URLは指定時のものを維持
-        setResultDisplayState(initialResultDisplayState);
+//        setResultDisplayState(initialResultDisplayState);
+        setReplayURLText('');
+        setHistoryViewText('');
+        setPostURLState(initialPostURLState);
+        setKifuDataUSIText('');
+        setKifuDataKI2Text('');
+        setKifuDataKIFText('');
         // setSpecifiedOptionState() オプション指定は維持
         setDialogBoxState({ isOpen: true, textTitle: dialogBoxState.textTitle, textBody: e.message});
       }
@@ -125,7 +136,7 @@ export default function Home() {
                 setKifuStoreState={setKifuStoreState} kifuStoreState={kifuStoreState}
                 setKifuManageState={setKifuManageState} kifuManageState={kifuManageState}
                 setURLState={setURLState} urlState={urlState}
-                setResultDisplayState={setResultDisplayState} resultDisplayState={resultDisplayState}
+//                setResultDisplayState={setResultDisplayState} resultDisplayState={resultDisplayState}
                 setPostURLState={setPostURLState} postURLState={postURLState}
                 setSpecifiedOptionState={setSpecifiedOptionState} specifiedOptionState={specifiedOptionState}
                 setDialogBoxState={setDialogBoxState} dialogBoxState={dialogBoxState}
@@ -137,13 +148,13 @@ export default function Home() {
               ">
                 <KifuForJS kifuStoreState={kifuStoreState} />
               </div>
-              <ReplayURL resultDisplayState={resultDisplayState} />
-              <HistoryView resultDisplayState={resultDisplayState} postURLState={postURLState} />
+              <ReplayURL />
+              <HistoryView postURLState={postURLState} />
               <Export
                 parsedInfoState={parsedInfoState}
                 setKifuManageState={setKifuManageState} kifuManageState={kifuManageState}
                 setURLState={setURLState} urlState={urlState}
-                setResultDisplayState={setResultDisplayState} resultDisplayState={resultDisplayState}
+//                setResultDisplayState={setResultDisplayState} resultDisplayState={resultDisplayState}
                 setSpecifiedOptionState={setSpecifiedOptionState} specifiedOptionState={specifiedOptionState}
               />
               <Notice />
