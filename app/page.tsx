@@ -19,8 +19,8 @@ import Export, { setKifuDataKI2Text, setKifuDataKIFText, setKifuDataUSIText } fr
 import PrivacyPolicy from '@/app/ui/privacy-policy';
 import DialogBox from '@/app/ui/dialog-box';
 // 定義参照
+import { Version } from '@/app/lib/definition';
 import {
-  Version,
 //  ResultDisplayState,
   SpecifiedOption,
   buildShogithreadInfo,

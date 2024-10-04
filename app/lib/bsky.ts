@@ -1,5 +1,6 @@
 // 定義参照
-import { convertShogithreadToHistoryView, convertShogithreadToKI2, convertShogithreadToKIF, SpecifiedOption } from '@/app/lib/common';
+import { SpecifiedOption } from '@/app/lib/common';
+import { convertShogithreadToHistoryView, convertShogithreadToKI2, convertShogithreadToKIF } from '@/app/lib/convert';
 
 const BskyPublicApiPrefix: string = 'https://public.api.bsky.app/xrpc';
 const ShogithreadDID: string = 'did:plc:mpyhemzzouqzykmbwiblggwg';

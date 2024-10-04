@@ -1,4 +1,5 @@
-import { KifuManageState, SpecifiedOption, buildReplayURLParameters, convertShogithreadToKI2, convertShogithreadToKIF, getURLoriginPath, setTextAreaById, notoSansJP } from '@/app/lib/common';
+import { KifuManageState, SpecifiedOption, buildReplayURLParameters, getURLoriginPath, setTextAreaById, notoSansJP } from '@/app/lib/common';
+import { convertShogithreadToKI2, convertShogithreadToKIF } from '@/app/lib/convert';
 import { ParsedInfo } from '@/app/lib/bsky';
 
 // set...Stateすると再レンダリングでユーザresizeがリセットされるため直接設定

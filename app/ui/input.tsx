@@ -7,12 +7,13 @@ import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 // 定義参照
 import { ParsedInfo, ShogithreadUrlPlaceholder, queryShogithread, buildPostURL } from '@/app/lib/bsky';
 //import { KifuStoreState, ResultDisplayState, SpecifiedOption } from '@/app/lib/common';
-import { KifuStoreState, KifuManageState, SpecifiedOption, initialParsedInfo, initialKifuStore, initialKifuManageState, initialURLState, initialSpecifiedOption, initialDialogBoxState, buildReplayURLParameters, convertShogithreadToKI2, convertShogithreadToHistoryView, convertShogithreadToKIF, getURLoriginPath, initialPostURLState } from '@/app/lib/common';
+import { KifuStoreState, KifuManageState, SpecifiedOption, initialParsedInfo, initialKifuStore, initialKifuManageState, initialURLState, initialSpecifiedOption, initialDialogBoxState, buildReplayURLParameters, getURLoriginPath, initialPostURLState } from '@/app/lib/common';
+import { convertShogithreadToHistoryView, convertShogithreadToKI2, convertShogithreadToKIF } from '@/app/lib/convert';
 import { setReplayURLText } from '@/app/ui/replay-url';
 import { DialogBoxState } from '@/app/ui/dialog-box';
 import { KifuStore } from 'kifu-for-js';
 import { setHistoryViewText } from './history-view';
-import { setKifuDataKI2Text, setKifuDataKIFText, setKifuDataUSIText } from './export';
+import { setKifuDataKI2Text, setKifuDataKIFText, setKifuDataUSIText } from '@/app/ui/export';
 
 const Input = ({
   setParsedInfoState, parsedInfoState,
