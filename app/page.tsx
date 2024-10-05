@@ -211,7 +211,14 @@ const Description: React.FC = () => {
             <li>以下の入力欄に対局スレッド中の最終指し手ポストのURLを指定</li>
             <li>「棋譜リプレイ」を押す</li>
           </ol>
-          <li>盤面の下にある操作パネルで指し手を進めたり戻したりできます。</li>
+          <li>盤面の下にある操作パネルで指し手を進めたり戻したりできます。{' '}
+            <Link href="https://whtwnd.com/bills-appworks.blue/entries/Re%3A%E5%B0%86%E6%A3%8Bthread" target="_blank">
+              <span className="rounded px-1 text-black bg-[#FFE581] hover:bg-[#EFD571] active:bg-[#DFC561]">
+                説明ページ{' '}
+                <FontAwesomeIcon icon={faLink} className="text-xs" />
+              </span>
+            </Link>
+          </li>
         </ul>
       </div>
     </div>

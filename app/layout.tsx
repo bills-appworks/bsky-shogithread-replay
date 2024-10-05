@@ -18,6 +18,7 @@ const geistMono = localFont({
 const kleeOne = Klee_One({
   weight: '400',
   subsets: ['latin'],
+  display: 'swap',
 });
 
 import { config } from '@fortawesome/fontawesome-svg-core';
@@ -35,7 +36,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ja">
       <body
 /*        className={`${geistSans.variable} ${geistMono.variable} antialiased`} */
         className={`${kleeOne.className}`}
