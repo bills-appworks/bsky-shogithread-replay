@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { queryShogithread } from '@/app/lib/bsky';
 
 export async function GET(request: NextRequest) {
+// 静的ページ出力ではAPI Routeがサポートされていないため無効化
+/*
   const searchParams = request.nextUrl.searchParams;
   const url = searchParams.get('url');
   const atUri = searchParams.get('at-uri');
@@ -26,4 +28,6 @@ export async function GET(request: NextRequest) {
     }
   }
   return NextResponse.json(response);
+*/
+  return NextResponse.json({"error": "Error", "message": "Not implemented"});
 }
