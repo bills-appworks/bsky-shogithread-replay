@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { queryShogithread } from '@/app/lib/bsky';
 
-export const dynamic = 'force-static';
-
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const url = searchParams.get('url');
@@ -29,5 +27,3 @@ export async function GET(request: NextRequest) {
   }
   return NextResponse.json(response);
 }
-
-export async function POST(request: NextRequest) {}
