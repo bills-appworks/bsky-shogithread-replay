@@ -1,12 +1,14 @@
 import { KifuLite } from 'kifu-for-js';
-import { ReplayState } from '@/app/lib/common';
+import { KifuStoreState } from '@/app/lib/common';
+import { faRightToBracket } from '@fortawesome/free-solid-svg-icons';
 
-const KifuForJS = ({ replayState }: { replayState: ReplayState }) => {
-  return (
+const KifuForJS = ({ kifuStoreState }: { kifuStoreState: KifuStoreState }) => {
+    return (
     <KifuLite
-      kifuStore={ replayState.kifuStore }
+      kifuStore={ kifuStoreState.kifuStore }
       style={{
-        border: "1px black solid"
+        border: "1px black solid",
+        backgroundColor: "rgba(255, 255, 255, 0.2)"
       }}
     />
   );

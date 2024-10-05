@@ -1,78 +1,119 @@
+// Next.js
 import { Noto_Sans_JP } from 'next/font/google';
+// 定義参照
 import { KifuStore } from 'kifu-for-js';
-import { ParsedInfoSingleMove, ParsedInfo } from '@/app/lib/bsky';
+import { queryShogithread, ParsedInfoSingleMove, ParsedInfo, buildPostURL, convertATURItoURL } from '@/app/lib/bsky';
+import { DialogBoxState } from '@/app/ui/dialog-box';
 
 export const notoSansJP = Noto_Sans_JP({
   weight: '400',
   subsets: ['latin'],
 });
 
-// UIコンポーネント間でクエリ結果共有のための状態
-export type ReplayState = {
+// UIコンポーネント間でクエリ結果共有のための状態管理の型
+export type KifuStoreState = {
   kifuStore: any;
-  url: string;
-  historyView: string;
 };
 
-export function convertShogithreadToKI2(parsedInfo: ParsedInfo): string {
-  const startText = '*対局開始';
-  const movesText = parsedInfo.moves.map((parsedInfoSingleMove: ParsedInfoSingleMove) => {
-    // 指し手ポストのテキストからKI2部分抽出
-    const textKI2 = extractMoveKI2(parsedInfoSingleMove.text);
-    const datetime = convertISO8601ToKifDatetime(parsedInfoSingleMove.at);
-    // KI2部分＋コメント行（指し手メタ情報）
-    return `${textKI2}\n*${parsedInfoSingleMove.text}\n*${parsedInfoSingleMove.displayName}\n*${datetime}`;
-  }).join("\n");
-  let movesKI2 = `${startText}\n${movesText}`;
-  if (parsedInfo.resignAt !== null) {
-    movesKI2 = `${movesKI2}\nまで${parsedInfo.text}`
-  }
-  return movesKI2;
-}
-export function convertShogithreadToHistoryView(parsedInfo: ParsedInfo): string {
-  let movesText = parsedInfo.moves.map((parsedInfoSingleMove: ParsedInfoSingleMove) => {
-    const datetime = convertISO8601ToKifDatetime(parsedInfoSingleMove.at);
-    const moveStep = extractMoveStep(parsedInfoSingleMove.text).padEnd(3, '　');
-    const moveText = extractMoveKI2(parsedInfoSingleMove.text).padEnd(6, '　');
-    return `${datetime}    ${moveStep}${moveText} ${parsedInfoSingleMove.displayName}`
-  }).join("\n");
-  if (parsedInfo.resignAt !== null) {
-    const datetime = convertISO8601ToKifDatetime(parsedInfo.resignAt);
-    movesText = `${movesText}\n${datetime}    ${parsedInfo.text}`
-  }
-  return movesText;
+export type KifuManageState = {
+  isBuilt: boolean;
+  step: number;
+};
+
+//export type ResultDisplayState = {
+//  replayURL: string;
+//  historyView: string;
+//  dataUSI: string;
+//  dataKI2: string;
+//  dataKIF: string;
+//};
+
+export type SpecifiedOption = {
+  isOutputPlayer: boolean;
+  isOutputCommentKI2: boolean;
+  isOutputCommentKIF: boolean;
+};
+
+// 状態初期値
+const initialMoves: ParsedInfoSingleMove = {text: null, at: null, did: null, handle: null, displayName: null, alt: null, uri: null, };
+export const initialParsedInfo: ParsedInfo = {moves:[initialMoves], text: "", movesAlt: "", resignAt: null, resignURI: null, };
+export const initialKifuStore = { kifuStore: new KifuStore({ kifu: "", }) };
+export const initialKifuManageState: KifuManageState = { isBuilt: false, step: 0, };
+export const initialURLState: string = '';
+//export const initialResultDisplayState: ResultDisplayState = { dataKIF: "", };
+export const initialPostURLState: string = "";
+export const initialSpecifiedOption: SpecifiedOption = { isOutputPlayer: true, isOutputCommentKI2: true, isOutputCommentKIF: true, };
+export const initialDialogBoxState: DialogBoxState = { isOpen: false, textTitle: '確認してください', textBody: '', };
+
+export function getURLoriginPath() {
+  const href = new URL(window.location.href);
+  return href.origin + href.pathname;
 }
 
-function extractMoveKI2(shogithreadText: string | null): string {
-  if (shogithreadText == null) {
-    return '';
+export function setTextAreaById(id: string, text: string) {
+  const element = document.getElementById(id);
+  if (element && element instanceof HTMLTextAreaElement) {
+    element.value = text;
   }
-  return shogithreadText?.replace(/.+([△▲][^ ]+) .+$/, "$1");
 }
 
-function extractMoveStep(shogithreadText: string | null): string {
-  if (shogithreadText == null) {
-    return '';
+export async function buildShogithreadInfo(
+  url: string | null,
+  atUri: string | null,
+  isOutputPlayer: boolean,
+  isOutputCommentKI2: boolean,
+  isOutputCommentKIF: boolean,
+  step : string | null,
+//  setDialogBoxState: React.Dispatch<React.SetStateAction<DialogBoxState>>,
+//  dialogBoxState: DialogBoxState,
+): Promise<[ParsedInfo, any, string, string, string, string, string, string]> {
+//  try{
+    const [parsedInfo, kifuText, historyViewText, dataUSI, dataKI2, dataKIF] = await queryShogithread(url, atUri, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF);
+    const kifuStore = new KifuStore({ kifu: kifuText });
+//    const resultDisplayState: ResultDisplayState = {
+//      replayURL: getURLoriginPath() + buildReplayURLParameters(url, profile, recordId, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step),
+//      historyView: historyViewText,
+//      dataUSI: dataUSI,
+//      dataKI2: dataKI2,
+//      dataKIF: dataKIF,
+//    };
+    const replayURL = getURLoriginPath() + buildReplayURLParameters(url, atUri, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step);
+    const postURL = buildPostURL(parsedInfo, step ? parseInt(step) : null);
+    return [parsedInfo, kifuStore, replayURL, historyViewText, postURL, dataUSI, dataKI2, dataKIF];
+//  } catch(e: unknown) {
+//    if (e instanceof Error) {
+////      setDialogBoxState({ isOpen: true, textTitle: dialogBoxState.textTitle, textBody: e.message});
+//      console.log(e);
+//    }
+//  }
+};
+
+export function buildReplayURLParameters(
+  url: string | null,
+  atUri: string | null,
+  isOutputPlayer: boolean,
+  isOutputCommentKI2: boolean,
+  isOutputCommentKIF: boolean,
+  step: string | null,
+): string {
+  if (!url) {
+    if (atUri) {
+      url = convertATURItoURL(atUri, undefined);
+    } else {
+      throw new Error('URLまたはAT-URIが必要です。');
+    }
   }
-  return shogithreadText?.replace(/(.+)[△▲][^ ]+ .+$/, "$1");
+  let parameters = {
+    "url": url,
+    "player": isOutputPlayer.toString(),
+    "KI2-comment": isOutputCommentKI2.toString(),
+    "KIF-comment": isOutputCommentKIF.toString(),
+  };
+  if (step) {
+    parameters = { ...parameters, ...{step: step}};
+  }
+  const URLParameters = '?' + new URLSearchParams(parameters).toString();
+  return URLParameters;
 }
 
-function convertISO8601ToKifDatetime(iso8601Datetime: string | null): string {
-  const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
 
-  if (iso8601Datetime ==  null) {
-    return '';
-  }
-  const date: Date = new Date(iso8601Datetime);
-  // 日時各要素取得
-  const year: string = date.getFullYear().toString();
-  const month: string = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day: string = date.getDate().toString().padStart(2, '0');;
-  const weekDay: string = weekDays[date.getDay()];
-  const hour: string = date.getHours().toString().padStart(2, '0');
-  const minute: string = date.getMinutes().toString().padStart(2, '0');
-  const second: string = date.getSeconds().toString().padStart(2, '0');
-  // YYYY/MM/DD(曜) hh:mm:ss
-  const kifDatetime: string = `${year}/${month}/${day}(${weekDay}) ${hour}:${minute}:${second}`
-  return kifDatetime;
-}

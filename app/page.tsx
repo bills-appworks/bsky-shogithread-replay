@@ -1,63 +1,185 @@
 'use client';
 
+// React
+import React, { useState, useEffect } from "react";
+// Next.js
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams, usePathname } from 'next/navigation';
+// Font Awesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBluesky } from '@fortawesome/free-brands-svg-icons';
 import { faLink } from '@fortawesome/free-solid-svg-icons';
+// アプリ内UIコンポーネント
 import Input from '@/app/ui/input';
 import KifuForJS from '@/app/ui/kifu-for-js';
-import HistoryView from '@/app/ui/history-view';
-import Export from '@/app/ui/export';
+import ReplayURL, { setReplayURLText } from '@/app/ui/replay-url';
+import HistoryView, { setHistoryViewText } from '@/app/ui/history-view';
+import Export, { setKifuDataKI2Text, setKifuDataKIFText, setKifuDataUSIText } from '@/app/ui/export';
 import PrivacyPolicy from '@/app/ui/privacy-policy';
-import React from "react";
-import { useState } from 'react';
-import { ReplayState } from '@/app/lib/common';
+import DialogBox from '@/app/ui/dialog-box';
+// 定義参照
+import {
+//  ResultDisplayState,
+  SpecifiedOption,
+  buildShogithreadInfo,
+  initialParsedInfo,
+  initialKifuStore,
+  initialKifuManageState,
+  initialURLState,
+//  initialResultDisplayState,
+  initialPostURLState,
+  initialSpecifiedOption,
+  initialDialogBoxState,
+  getURLoriginPath
+} from '@/app/lib/common';
 import { KifuStore } from 'kifu-for-js';
+import { convertATURItoURL, ParsedInfo, ParsedInfoSingleMove } from "@/app/lib/bsky";
+import { DialogBoxState } from '@/app/ui/dialog-box';
 
 export default function Home() {
-  // InputコンポーネントでのonSubmit時の結果をKifuForJSコンポーネントに反映するためここで状態管理
-  const initialReplayState: ReplayState = { kifuStore: new KifuStore({kifu: ""}), url: "", historyView: "", };
-  const [ replayState, setReplayState ] = useState(initialReplayState);
+  // コンポーネント間の状態を共有するためここで状態管理
+  const [ parsedInfoState, setParsedInfoState ] = useState(initialParsedInfo);
+  const [ kifuStoreState, setKifuStoreState ] = useState(initialKifuStore);
+  const [ kifuManageState, setKifuManageState ] = useState(initialKifuManageState);
+  const [ urlState, setURLState ] = useState(initialURLState);
+//  const [ resultDisplayState, setResultDisplayState ] = useState(initialResultDisplayState);
+  const [ postURLState, setPostURLState ] = useState(initialPostURLState);
+  const [ specifiedOptionState, setSpecifiedOptionState ] = useState(initialSpecifiedOption);
+  const [ dialogBoxState, setDialogBoxState ] = useState(initialDialogBoxState);
+
+  // URLクエリパラメタ処理
+  const searchParams = useSearchParams();
+//  const pathname = usePathname();
+  const url = searchParams.get('url');
+  const atUri = searchParams.get('at-uri');
+  const isOutputPlayer = searchParams.get('player') != 'false';
+  const isOutputCommentKI2 = searchParams.get('KI2-comment') != 'false';
+  const isOutputCommentKIF = searchParams.get('KIF-comment') != 'false';
+  const step = searchParams.get('step');
+
+  // クエリパラメタにURL/profile/record id指定時にfetchして状態・画面に反映
+  const procedureQueryParameter = async (url: string | null, atUri: string | null, isOutputPlayer: boolean, isOutputCommentKI2: boolean, isOutputCommentKIF: boolean, step: string | null) => {
+    try {
+      const [parsedInfo, kifuStore, replayURLText, historyViewText, postURLState, dataUSI, dataKI2, dataKIF]: [parsedInfo: ParsedInfo, kifuStore: any, replayURLText: string, historyViewText: string, postURLState: string, dataUSI: string, dataKI2: string, dataKIF: string] = await buildShogithreadInfo(url, atUri, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step);
+      setParsedInfoState(parsedInfo);
+      if (step) {
+        kifuStore.player.goto(parseInt(step));
+      }
+      setKifuStoreState({ kifuStore: kifuStore});
+      setKifuManageState({ isBuilt: true, step: step ? parseInt(step) : 0, });
+      setURLState(url ? url : convertATURItoURL(atUri ? atUri : '', undefined));
+//      resultDisplayState.replayURL = `${getURLoriginPath()}${resultDisplayState.replayURL}`;
+//      if (step) {
+//        resultDisplayState.replayURL += `&step=${step}`;
+//      }
+//      setResultDisplayState(resultDisplayState);
+      setReplayURLText(replayURLText);
+      setHistoryViewText(historyViewText);
+      setPostURLState(postURLState);
+      setKifuDataUSIText(dataUSI);
+      setKifuDataKI2Text(dataKI2);
+      setKifuDataKIFText(dataKIF);
+      setSpecifiedOptionState({ isOutputPlayer: isOutputPlayer, isOutputCommentKI2: isOutputCommentKI2, isOutputCommentKIF: isOutputCommentKIF, })
+    } catch(e: unknown) {
+      if (e instanceof Error) {
+        setParsedInfoState(initialParsedInfo);
+        setKifuStoreState(initialKifuStore);
+        setKifuManageState(initialKifuManageState);
+        // setURLState() URLは指定時のものを維持
+//        setResultDisplayState(initialResultDisplayState);
+        setReplayURLText('');
+        setHistoryViewText('');
+        setPostURLState(initialPostURLState);
+        setKifuDataUSIText('');
+        setKifuDataKI2Text('');
+        setKifuDataKIFText('');
+        // setSpecifiedOptionState() オプション指定は維持
+        setDialogBoxState({ isOpen: true, textTitle: dialogBoxState.textTitle, textBody: e.message});
+      }
+    }
+  };
+/*
+  useEffect(() => {
+    const urlWithHostPath = new URL(window.location.href);
+    const host = urlWithHostPath.host;
+    const path = urlWithHostPath.pathname;
+    setKifuManageState({ isBuilt: kifuManageState.isBuilt, step: kifuManageState.step, URLhostPath: host + path, });
+  }, []);
+*/
+  // コンポーネントレンダリング後にクエリパラメタによるfetchと反映を実施（状態変更副作用が発生するため直接実行すると初期化処理と競合）
+  useEffect(() => {
+    if (url || atUri) {
+      procedureQueryParameter(url, atUri, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step);
+    }
+//  }, [pathname, searchParams]);
+  }, [searchParams]);
 
   return (
-    <div className={`flex flex-row`}>
-      <div className="flex flex-col">
-        <div className="w-4 md:w-12 h-[50vh] bg-[#B3936C]" />
-        <div className="w-4 md:w-12 h-[50vh] bg-white" />
-      </div>
-      <div className="border-x border-x-white bg-[#DEBF7E] p-2">
-        <div className="border-2 border-black p-1 space-y-6">
-          <div className="bg-[url('/board.jpg')] bg-cover p-1">
-            <Title />
-            <Description />
+    <>
+      <div className="flex flex-row">
+        <div className="flex flex-col">
+          <div className="w-4 md:w-12 xl:w-24 2xl:w-48 h-[50vh] bg-[#B3936C]" />
+          <div className="w-4 md:w-12 xl:w-24 2xl:w-48 h-[50vh] bg-white" />
+        </div>
+        <div className="border-x border-x-white bg-[#DEBF7E] p-2">
+          <div className="border-2 border-black space-y-6">
+            <div className="bg-[url('/board.jpg')] bg-cover">
+              <Title />
+              <Description />
+            </div>
+            <div className="p-2 space-y-6">
+              <Input
+                setParsedInfoState={setParsedInfoState} parsedInfoState={parsedInfoState}
+                setKifuStoreState={setKifuStoreState} kifuStoreState={kifuStoreState}
+                setKifuManageState={setKifuManageState} kifuManageState={kifuManageState}
+                setURLState={setURLState} urlState={urlState}
+//                setResultDisplayState={setResultDisplayState} resultDisplayState={resultDisplayState}
+                setPostURLState={setPostURLState} postURLState={postURLState}
+                setSpecifiedOptionState={setSpecifiedOptionState} specifiedOptionState={specifiedOptionState}
+                setDialogBoxState={setDialogBoxState} dialogBoxState={dialogBoxState}
+              />
+              <div className="flex flex-row justify-center
+                [&_button]:rounded [&_button]:border [&_button]:border-gray-500
+                [&_button]:bg-[#FFE581] hover:[&_button]:bg-[#EFD571] active:[&_button]:bg-[#DFC561]
+                [&_div[aria-label]]:!bg-[#FFFFDD] 
+              ">
+                <KifuForJS kifuStoreState={kifuStoreState} />
+              </div>
+              <ReplayURL />
+              <HistoryView postURLState={postURLState} />
+              <Export
+                parsedInfoState={parsedInfoState}
+                setKifuManageState={setKifuManageState} kifuManageState={kifuManageState}
+                setURLState={setURLState} urlState={urlState}
+//                setResultDisplayState={setResultDisplayState} resultDisplayState={resultDisplayState}
+                setSpecifiedOptionState={setSpecifiedOptionState} specifiedOptionState={specifiedOptionState}
+              />
+              <Notice />
+              <Footer />
+            </div>
           </div>
-          <Input setReplayState={setReplayState} replayState={replayState} />
-          <div className={`flex flex-row justify-center
-            [&_button]:rounded [&_button]:border [&_button]:border-gray-500
-            [&_button]:bg-[#FFE581] hover:[&_button]:bg-[#EFD571] active:[&_button]:bg-[#DFC561]
-            [&_div[aria-label]]:!bg-[#FFFFDD] 
-          `}>
-            <KifuForJS replayState={replayState} />
-          </div>
-          <HistoryView replayState={replayState} />
-          <Export replayState={replayState} />
-          <Notice />
-          <Footer />
+        </div>
+        <div className="flex flex-col">
+          <div className="w-4 md:w-12 xl:w-24 2xl:w-48 h-[50vh] bg-white" />
+          <div className="w-4 md:w-12 xl:w-24 2xl:w-48 h-[50vh] bg-[#B3936C]" />
         </div>
       </div>
-      <div className="flex flex-col">
-        <div className="w-4 md:w-12 h-[50vh] bg-white" />
-        <div className="w-4 md:w-12 h-[50vh] bg-[#B3936C]" />
-      </div>
-    </div>
+      <DialogBox
+        isOpen={dialogBoxState.isOpen}
+        onCancel={() => setDialogBoxState({ isOpen: false, textTitle: dialogBoxState.textTitle, textBody: dialogBoxState.textBody, })}
+        onOK={() => setDialogBoxState({ isOpen: false, textTitle: dialogBoxState.textTitle, textBody: dialogBoxState.textBody, })}
+        textTitle={dialogBoxState.textTitle}
+        textBody={dialogBoxState.textBody}
+      />
+    </>
   );
 }
 
 // タイトル
 const Title: React.FC = () => {
   return (
-    <div className="flex flex-row justify-center">
+    <div className="flex flex-row justify-center p-2">
       <Image src="/title.png" width="450" height="100" alt="Re:将棋thread" />
     </div>
   );
@@ -89,7 +211,14 @@ const Description: React.FC = () => {
             <li>以下の入力欄に対局スレッド中の最終指し手ポストのURLを指定</li>
             <li>「棋譜リプレイ」を押す</li>
           </ol>
-          <li>盤面の下にある操作パネルで指し手を進めたり戻したりできます。</li>
+          <li>盤面の下にある操作パネルで指し手を進めたり戻したりできます。{' '}
+            <Link href="https://whtwnd.com/bills-appworks.blue/entries/Re%3A%E5%B0%86%E6%A3%8Bthread" target="_blank">
+              <span className="rounded px-1 text-black bg-[#FFE581] hover:bg-[#EFD571] active:bg-[#DFC561]">
+                説明ページ{' '}
+                <FontAwesomeIcon icon={faLink} className="text-xs" />
+              </span>
+            </Link>
+          </li>
         </ul>
       </div>
     </div>
@@ -100,6 +229,7 @@ const Description: React.FC = () => {
 const Notice: React.FC = () => {
   return (
     <div>
+      <hr />
       <h2 className="text-lg font-bold">[留意事項]</h2>
       <div>
         <ul className="list-disc list-inside">
@@ -128,8 +258,10 @@ const Footer: React.FC = () => {
   return (
     <div>
       <hr />
+      <div className="font-sans">Version: {process.env.APP_VERSION}</div>
       <div className="font-sans">Copyright &copy; 2024 bills-appworks</div>
-      <div className="font-sans">Author: (Bluesky)
+      <div className="font-sans">Author: (Bluesky{' '}
+        <FontAwesomeIcon icon={faBluesky} className="text-xs"/>){' '}
         <Link href="https://bsky.app/profile/bills-appworks.blue" target="_blank">@bills-appworks.blue{' '}
           <FontAwesomeIcon icon={faLink} className="text-xs" />
         </Link>
