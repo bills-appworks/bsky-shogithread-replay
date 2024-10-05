@@ -15,15 +15,6 @@ const nextConfig = {
   experimental: {
     missingSuspenseWithCSRBailout: false,
   },
-  webpack: (config) => {
-    if (!isDev) {
-      config.module.rules.push({
-        test: /app\/api\/.*/,
-        use: 'ignore-loader',
-      });
-      return config;
-    }
-  },
 };
 
 export default nextConfig;
