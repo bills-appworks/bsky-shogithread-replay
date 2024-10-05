@@ -1,7 +1,7 @@
 'use client';
 
 // React
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 // Next.js
 import Image from "next/image";
 import Link from "next/link";
@@ -117,6 +117,7 @@ export default function Home() {
 
   return (
     <>
+      <Suspense>
       <div className="flex flex-row">
         <div className="flex flex-col">
           <div className="w-4 md:w-12 xl:w-24 2xl:w-48 h-[50vh] bg-[#B3936C]" />
@@ -172,6 +173,7 @@ export default function Home() {
         textTitle={dialogBoxState.textTitle}
         textBody={dialogBoxState.textBody}
       />
+    </Suspense>
     </>
   );
 }

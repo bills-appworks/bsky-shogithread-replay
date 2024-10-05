@@ -12,6 +12,9 @@ const nextConfig = {
   env: {
     APP_VERSION: packageJson.version,
   },
+  experimental: {
+    missingSuspenseWithCSRBailout: false,
+  },
 };
 
 export default nextConfig;
