@@ -19,7 +19,6 @@ import Export, { setKifuDataKI2Text, setKifuDataKIFText, setKifuDataUSIText } fr
 import PrivacyPolicy from '@/app/ui/privacy-policy';
 import DialogBox from '@/app/ui/dialog-box';
 // 定義参照
-import { Version } from '@/app/lib/definition';
 import {
 //  ResultDisplayState,
   SpecifiedOption,
@@ -252,7 +251,7 @@ const Footer: React.FC = () => {
   return (
     <div>
       <hr />
-      <div className="font-sans">Version: {Version}</div>
+      <div className="font-sans">Version: {process.env.APP_VERSION}</div>
       <div className="font-sans">Copyright &copy; 2024 bills-appworks</div>
       <div className="font-sans">Author: (Bluesky{' '}
         <FontAwesomeIcon icon={faBluesky} className="text-xs"/>){' '}
