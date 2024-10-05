@@ -1,3 +1,8 @@
+/**
+ * @author bills-appworks
+ * @copyright bills-appworks 2024
+ * @license This software is released under the MIT License. http://opensource.org/licenses/mit-license.php
+ */
 'use client';
 
 // React
@@ -18,6 +23,7 @@ import HistoryView, { setHistoryViewText } from '@/app/ui/history-view';
 import Export, { setKifuDataKI2Text, setKifuDataKIFText, setKifuDataUSIText } from '@/app/ui/export';
 import PrivacyPolicy from '@/app/ui/privacy-policy';
 import DialogBox from '@/app/ui/dialog-box';
+import NowLoading from '@/app/ui/now-loading';
 // 定義参照
 import {
 //  ResultDisplayState,
@@ -31,7 +37,8 @@ import {
   initialPostURLState,
   initialSpecifiedOption,
   initialDialogBoxState,
-  getURLoriginPath
+  initialNowLoadingState,
+  getURLoriginPath,
 } from '@/app/lib/common';
 import { KifuStore } from 'kifu-for-js';
 import { convertATURItoURL, ParsedInfo, ParsedInfoSingleMove } from "@/app/lib/bsky";
@@ -47,6 +54,7 @@ export default function Home() {
   const [ postURLState, setPostURLState ] = useState(initialPostURLState);
   const [ specifiedOptionState, setSpecifiedOptionState ] = useState(initialSpecifiedOption);
   const [ dialogBoxState, setDialogBoxState ] = useState(initialDialogBoxState);
+  const [ nowLoadingState, setNowLoadingState ] = useState(initialNowLoadingState);
 
   // URLクエリパラメタ処理
   const searchParams = useSearchParams();
@@ -61,6 +69,7 @@ export default function Home() {
   // クエリパラメタにURL/profile/record id指定時にfetchして状態・画面に反映
   const procedureQueryParameter = async (url: string | null, atUri: string | null, isOutputPlayer: boolean, isOutputCommentKI2: boolean, isOutputCommentKIF: boolean, step: string | null) => {
     try {
+      setNowLoadingState({ isOpen: true, textTitle: nowLoadingState.textTitle, textBody: 'Blueskyから将棋threadデータを取得しています' });
       const [parsedInfo, kifuStore, replayURLText, historyViewText, postURLState, dataUSI, dataKI2, dataKIF]: [parsedInfo: ParsedInfo, kifuStore: any, replayURLText: string, historyViewText: string, postURLState: string, dataUSI: string, dataKI2: string, dataKIF: string] = await buildShogithreadInfo(url, atUri, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step);
       setParsedInfoState(parsedInfo);
       if (step) {
@@ -81,6 +90,7 @@ export default function Home() {
       setKifuDataKI2Text(dataKI2);
       setKifuDataKIFText(dataKIF);
       setSpecifiedOptionState({ isOutputPlayer: isOutputPlayer, isOutputCommentKI2: isOutputCommentKI2, isOutputCommentKIF: isOutputCommentKIF, })
+      setNowLoadingState({ isOpen: false, textTitle: nowLoadingState.textTitle, textBody: nowLoadingState.textBody });
     } catch(e: unknown) {
       if (e instanceof Error) {
         setParsedInfoState(initialParsedInfo);
@@ -95,6 +105,7 @@ export default function Home() {
         setKifuDataKI2Text('');
         setKifuDataKIFText('');
         // setSpecifiedOptionState() オプション指定は維持
+        setNowLoadingState({ isOpen: false, textTitle: nowLoadingState.textTitle, textBody: nowLoadingState.textBody });
         setDialogBoxState({ isOpen: true, textTitle: dialogBoxState.textTitle, textBody: e.message});
       }
     }
@@ -171,6 +182,11 @@ export default function Home() {
           onOK={() => setDialogBoxState({ isOpen: false, textTitle: dialogBoxState.textTitle, textBody: dialogBoxState.textBody, })}
           textTitle={dialogBoxState.textTitle}
           textBody={dialogBoxState.textBody}
+        />
+        <NowLoading
+          isOpen = {nowLoadingState.isOpen}
+          textTitle = {nowLoadingState.textTitle}
+          textBody = {nowLoadingState.textBody}
         />
     </>
   );

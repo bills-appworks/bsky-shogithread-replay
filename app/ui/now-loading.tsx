@@ -4,24 +4,19 @@
  * @license This software is released under the MIT License. http://opensource.org/licenses/mit-license.php
  */
 
-// ダイアログ実装参考
-// https://qiita.com/Revocraft/items/583e8106af5f63217988
-
-export type DialogBoxProps = {
-  isOpen: boolean;
-  onCancel: () => void;
-  onOK: () => void;
-  textTitle: string;
-  textBody: string;
-};
-
-export type DialogBoxState = {
+export type NowLoadingProps = {
   isOpen: boolean;
   textTitle: string;
   textBody: string;
 };
 
-const DialogBox = (props: DialogBoxProps) => {
+export type NowLoadingState = {
+  isOpen: boolean;
+  textTitle: string;
+  textBody: string;
+};
+
+const NowLoading = (props: NowLoadingProps) => {
   return props.isOpen ? (
     <>
       <div className="
@@ -37,18 +32,6 @@ const DialogBox = (props: DialogBoxProps) => {
       >
         <h1 className="text-xl font-bold mb-5">{props.textTitle}</h1>
         <p className="mb-5">{props.textBody}</p>
-        <div className="flex mt-auto w-full">
-          <button className="
-            bg-[#FFE581] hover:bg-[#EFD571] active:bg-[#DFC561]
-            text-black
-            shadow shadow-black font-bold p-1 rounded border-2 border-black
-            px-8 py-2 mx-auto
-            "
-            onClick={() => props.onOK()}
-          >
-            OK
-          </button>
-        </div>
       </div>
       <div className="
         fixed top-0 left-0
@@ -56,7 +39,6 @@ const DialogBox = (props: DialogBoxProps) => {
         w-full h-full
         z-10
         "
-        onClick={() => props.onCancel()}
       >
       </div>
     </>
@@ -65,4 +47,4 @@ const DialogBox = (props: DialogBoxProps) => {
   )
 };
 
-export default DialogBox;
+export default NowLoading;

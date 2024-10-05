@@ -1,3 +1,9 @@
+/**
+ * @author bills-appworks
+ * @copyright bills-appworks 2024
+ * @license This software is released under the MIT License. http://opensource.org/licenses/mit-license.php
+ */
+
 // 定義参照
 import { SpecifiedOption } from '@/app/lib/common';
 import { convertShogithreadToHistoryView, convertShogithreadToKI2, convertShogithreadToKIF } from '@/app/lib/convert';
