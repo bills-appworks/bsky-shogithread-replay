@@ -4,7 +4,10 @@
  * @license This software is released under the MIT License. http://opensource.org/licenses/mit-license.php
  */
 import Link from "next/link";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 import { setTextAreaById, notoSansJP } from '@/app/lib/common';
+import CopyClipboard from '@/app/ui/copy-clipboard';
 
 const postLinkButtonText = 'リプレイ中の現在指し手ポストをBlueskyで開く';
 
@@ -24,8 +27,13 @@ const HistoryView = ({ postURLState, }: { postURLState: string, }) => {
   return (
     <div className="flex flex-col">
       <hr />
-      <h2 className="text-lg font-bold">[スレッド一覧]</h2>
       <div className="space-y">
+        <div className="flex justify-stretch m-1">
+          <div>
+            <h2 className="text-lg font-bold">[スレッド一覧]</h2>
+          </div>
+          <CopyClipboard copyTextAreaId="history-view" copiedBalloonId="copied-balloon-history-view" />
+        </div>
         <textarea
           className={`w-full h-20 rounded border border-black bg-[#FFFFDD] ${notoSansJP.className}`}
           id="history-view"
@@ -42,10 +50,11 @@ const HistoryView = ({ postURLState, }: { postURLState: string, }) => {
           >
             {postURLState.length > 0 ?
               <Link href={postURLState} rel="noopener noreferrer" target="_blank">
-                {postLinkButtonText}
+                <span className="inline-flex items-center gap-1">{postLinkButtonText}{' '}<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="text-xs" /></span>
               </Link>
               :
-              <div>{postLinkButtonText}</div>
+//              <div className="flex"><div><span>{postLinkButtonText}{' '}</span></div><div><FontAwesomeIcon icon={faArrowUpRightFromSquare} className="text-xs" /></div></div>
+              <span className="inline-flex items-center gap-1">{postLinkButtonText}{' '}<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="text-xs" /></span>
             }
           </button>
         </div>

@@ -14,7 +14,7 @@ import { useSearchParams, usePathname } from 'next/navigation';
 // Font Awesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBluesky } from '@fortawesome/free-brands-svg-icons';
-import { faLink } from '@fortawesome/free-solid-svg-icons';
+import { faLink, faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 // アプリ内UIコンポーネント
 import Input from '@/app/ui/input';
 import KifuForJS from '@/app/ui/kifu-for-js';
@@ -209,16 +209,17 @@ const Description: React.FC = () => {
         <ul className="list-disc list-inside">
           <li>
             <Link href="https://bsky.app/" rel="noopener noreferrer" target="_blank">
-              <span className="rounded px-1 text-white bg-[#0085FF] hover:bg-[#0075EF] active:bg-[#0065DF]">
-                Bluesky{' '}
+              <span className="inline-flex items-center gap-1 rounded px-1 text-white bg-[#0085FF] hover:bg-[#0075EF] active:bg-[#0065DF]">
+                Bluesky
                 <FontAwesomeIcon icon={faBluesky} className="text-xs"/>
+                <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="text-xs" />
               </span>
             </Link>
             に投稿されている
             <Link href="https://bsky.app/profile/shogithread.bsky.social"  rel="noopener noreferrer" target="_blank">
-              <span className="rounded px-1 text-black bg-[#FFE581] hover:bg-[#EFD571] active:bg-[#DFC561]">
-                将棋<span className="font-sans">thread</span> {' '}
-                <FontAwesomeIcon icon={faLink} className="text-xs" />
+              <span className="inline-flex items-center gap-1 rounded px-1 text-black bg-[#FFE581] hover:bg-[#EFD571] active:bg-[#DFC561]">
+                将棋<span className="font-sans">thread</span>
+                <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="text-xs" />
               </span>
             </Link>
             の対局スレッドから棋譜を再生します。
@@ -229,9 +230,9 @@ const Description: React.FC = () => {
           </ol>
           <li>盤面の下にある操作パネルで指し手を進めたり戻したりできます。{' '}
             <Link href="https://whtwnd.com/bills-appworks.blue/entries/Re%3A%E5%B0%86%E6%A3%8Bthread" target="_blank">
-              <span className="rounded px-1 text-black bg-[#FFE581] hover:bg-[#EFD571] active:bg-[#DFC561]">
-                説明ページ{' '}
-                <FontAwesomeIcon icon={faLink} className="text-xs" />
+              <span className="inline-flex items-center gap-1 rounded px-1 text-black bg-[#FFE581] hover:bg-[#EFD571] active:bg-[#DFC561]">
+                説明ページ
+                <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="text-xs" />
               </span>
             </Link>
           </li>
@@ -278,8 +279,8 @@ const Footer: React.FC = () => {
       <div className="font-sans">Copyright &copy; 2024 bills-appworks</div>
       <div className="font-sans">Author: (Bluesky{' '}
         <FontAwesomeIcon icon={faBluesky} className="text-xs"/>){' '}
-        <Link href="https://bsky.app/profile/bills-appworks.blue" target="_blank">@bills-appworks.blue{' '}
-          <FontAwesomeIcon icon={faLink} className="text-xs" />
+        <Link href="https://bsky.app/profile/did:plc:lfjssqqi6somnb7vhup2jm5w" target="_blank">@bills-appworks.blue{' '}
+          <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="text-xs" />
         </Link>
       </div>
       <hr />

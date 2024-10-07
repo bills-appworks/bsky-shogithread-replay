@@ -65,6 +65,23 @@ export function setTextAreaById(id: string, text: string) {
   }
 }
 
+export function popCopiedBalloon(copyTextAreaId: string, copiedBalloonId: string) {
+  const element = document.getElementById(copyTextAreaId);
+  if (element && element instanceof HTMLTextAreaElement) {
+    const text = element.value;
+    navigator.clipboard.writeText(text);
+    const copiedBalloonElement = document.getElementById(copiedBalloonId);
+    if (copiedBalloonElement) {
+      copiedBalloonElement.style.opacity = '0';
+      copiedBalloonElement.style.visibility = 'visible';
+      setTimeout(() => {
+        copiedBalloonElement.style.opacity = '1';
+        copiedBalloonElement.style.visibility = 'hidden';
+      }, 3000);
+    }
+  }
+}
+
 export async function buildShogithreadInfo(
   url: string | null,
   atUri: string | null,
