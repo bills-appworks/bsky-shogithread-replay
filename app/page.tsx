@@ -1,3 +1,8 @@
+/**
+ * @author bills-appworks
+ * @copyright bills-appworks 2024
+ * @license This software is released under the MIT License. http://opensource.org/licenses/mit-license.php
+ */
 'use client';
 
 // React
@@ -9,7 +14,7 @@ import { useSearchParams, usePathname } from 'next/navigation';
 // Font Awesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBluesky } from '@fortawesome/free-brands-svg-icons';
-import { faLink } from '@fortawesome/free-solid-svg-icons';
+import { faLink, faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 // アプリ内UIコンポーネント
 import Input from '@/app/ui/input';
 import KifuForJS from '@/app/ui/kifu-for-js';
@@ -18,6 +23,7 @@ import HistoryView, { setHistoryViewText } from '@/app/ui/history-view';
 import Export, { setKifuDataKI2Text, setKifuDataKIFText, setKifuDataUSIText } from '@/app/ui/export';
 import PrivacyPolicy from '@/app/ui/privacy-policy';
 import DialogBox from '@/app/ui/dialog-box';
+import NowLoading from '@/app/ui/now-loading';
 // 定義参照
 import {
 //  ResultDisplayState,
@@ -31,7 +37,8 @@ import {
   initialPostURLState,
   initialSpecifiedOption,
   initialDialogBoxState,
-  getURLoriginPath
+  initialNowLoadingState,
+  getURLoriginPath,
 } from '@/app/lib/common';
 import { KifuStore } from 'kifu-for-js';
 import { convertATURItoURL, ParsedInfo, ParsedInfoSingleMove } from "@/app/lib/bsky";
@@ -47,6 +54,7 @@ export default function Home() {
   const [ postURLState, setPostURLState ] = useState(initialPostURLState);
   const [ specifiedOptionState, setSpecifiedOptionState ] = useState(initialSpecifiedOption);
   const [ dialogBoxState, setDialogBoxState ] = useState(initialDialogBoxState);
+  const [ nowLoadingState, setNowLoadingState ] = useState(initialNowLoadingState);
 
   // URLクエリパラメタ処理
   const searchParams = useSearchParams();
@@ -61,6 +69,7 @@ export default function Home() {
   // クエリパラメタにURL/profile/record id指定時にfetchして状態・画面に反映
   const procedureQueryParameter = async (url: string | null, atUri: string | null, isOutputPlayer: boolean, isOutputCommentKI2: boolean, isOutputCommentKIF: boolean, step: string | null) => {
     try {
+      setNowLoadingState({ isOpen: true, textTitle: nowLoadingState.textTitle, textBody: 'Blueskyから将棋threadデータを取得しています' });
       const [parsedInfo, kifuStore, replayURLText, historyViewText, postURLState, dataUSI, dataKI2, dataKIF]: [parsedInfo: ParsedInfo, kifuStore: any, replayURLText: string, historyViewText: string, postURLState: string, dataUSI: string, dataKI2: string, dataKIF: string] = await buildShogithreadInfo(url, atUri, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step);
       setParsedInfoState(parsedInfo);
       if (step) {
@@ -81,6 +90,7 @@ export default function Home() {
       setKifuDataKI2Text(dataKI2);
       setKifuDataKIFText(dataKIF);
       setSpecifiedOptionState({ isOutputPlayer: isOutputPlayer, isOutputCommentKI2: isOutputCommentKI2, isOutputCommentKIF: isOutputCommentKIF, })
+      setNowLoadingState({ isOpen: false, textTitle: nowLoadingState.textTitle, textBody: nowLoadingState.textBody });
     } catch(e: unknown) {
       if (e instanceof Error) {
         setParsedInfoState(initialParsedInfo);
@@ -95,6 +105,7 @@ export default function Home() {
         setKifuDataKI2Text('');
         setKifuDataKIFText('');
         // setSpecifiedOptionState() オプション指定は維持
+        setNowLoadingState({ isOpen: false, textTitle: nowLoadingState.textTitle, textBody: nowLoadingState.textBody });
         setDialogBoxState({ isOpen: true, textTitle: dialogBoxState.textTitle, textBody: e.message});
       }
     }
@@ -172,6 +183,11 @@ export default function Home() {
           textTitle={dialogBoxState.textTitle}
           textBody={dialogBoxState.textBody}
         />
+        <NowLoading
+          isOpen = {nowLoadingState.isOpen}
+          textTitle = {nowLoadingState.textTitle}
+          textBody = {nowLoadingState.textBody}
+        />
     </>
   );
 }
@@ -193,16 +209,17 @@ const Description: React.FC = () => {
         <ul className="list-disc list-inside">
           <li>
             <Link href="https://bsky.app/" rel="noopener noreferrer" target="_blank">
-              <span className="rounded px-1 text-white bg-[#0085FF] hover:bg-[#0075EF] active:bg-[#0065DF]">
-                Bluesky{' '}
+              <span className="font-sans inline-flex items-center gap-1 rounded px-1 text-white bg-[#0085FF] hover:bg-[#0075EF] active:bg-[#0065DF]">
+                Bluesky
                 <FontAwesomeIcon icon={faBluesky} className="text-xs"/>
+                <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="text-xs" />
               </span>
             </Link>
             に投稿されている
             <Link href="https://bsky.app/profile/shogithread.bsky.social"  rel="noopener noreferrer" target="_blank">
-              <span className="rounded px-1 text-black bg-[#FFE581] hover:bg-[#EFD571] active:bg-[#DFC561]">
-                将棋<span className="font-sans">thread</span> {' '}
-                <FontAwesomeIcon icon={faLink} className="text-xs" />
+              <span className="inline-flex items-center gap-1 rounded px-1 text-black bg-[#FFE581] hover:bg-[#EFD571] active:bg-[#DFC561]">
+                将棋<span className="font-sans">thread</span>
+                <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="text-xs" />
               </span>
             </Link>
             の対局スレッドから棋譜を再生します。
@@ -213,9 +230,9 @@ const Description: React.FC = () => {
           </ol>
           <li>盤面の下にある操作パネルで指し手を進めたり戻したりできます。{' '}
             <Link href="https://whtwnd.com/bills-appworks.blue/entries/Re%3A%E5%B0%86%E6%A3%8Bthread" target="_blank">
-              <span className="rounded px-1 text-black bg-[#FFE581] hover:bg-[#EFD571] active:bg-[#DFC561]">
-                説明ページ{' '}
-                <FontAwesomeIcon icon={faLink} className="text-xs" />
+              <span className="inline-flex items-center gap-1 rounded px-1 text-black bg-[#FFE581] hover:bg-[#EFD571] active:bg-[#DFC561]">
+                説明ページ
+                <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="text-xs" />
               </span>
             </Link>
           </li>
@@ -262,8 +279,8 @@ const Footer: React.FC = () => {
       <div className="font-sans">Copyright &copy; 2024 bills-appworks</div>
       <div className="font-sans">Author: (Bluesky{' '}
         <FontAwesomeIcon icon={faBluesky} className="text-xs"/>){' '}
-        <Link href="https://bsky.app/profile/bills-appworks.blue" target="_blank">@bills-appworks.blue{' '}
-          <FontAwesomeIcon icon={faLink} className="text-xs" />
+        <Link href="https://bsky.app/profile/did:plc:lfjssqqi6somnb7vhup2jm5w" target="_blank">@bills-appworks.blue{' '}
+          <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="text-xs" />
         </Link>
       </div>
       <hr />

@@ -1,13 +1,21 @@
+/**
+ * @author bills-appworks
+ * @copyright bills-appworks 2024
+ * @license This software is released under the MIT License. http://opensource.org/licenses/mit-license.php
+ */
+
 // Next.js
 import { Noto_Sans_JP } from 'next/font/google';
 // 定義参照
 import { KifuStore } from 'kifu-for-js';
 import { queryShogithread, ParsedInfoSingleMove, ParsedInfo, buildPostURL, convertATURItoURL } from '@/app/lib/bsky';
 import { DialogBoxState } from '@/app/ui/dialog-box';
+import { NowLoadingState } from '@/app/ui/now-loading';
 
 export const notoSansJP = Noto_Sans_JP({
   weight: '400',
   subsets: ['latin'],
+  display: 'swap',
 });
 
 // UIコンポーネント間でクエリ結果共有のための状態管理の型
@@ -44,6 +52,7 @@ export const initialURLState: string = '';
 export const initialPostURLState: string = "";
 export const initialSpecifiedOption: SpecifiedOption = { isOutputPlayer: true, isOutputCommentKI2: true, isOutputCommentKIF: true, };
 export const initialDialogBoxState: DialogBoxState = { isOpen: false, textTitle: '確認してください', textBody: '', };
+export const initialNowLoadingState: NowLoadingState = { isOpen: false, textTitle: 'NOW LOADING...', textBody: 'データを確認しています' };
 
 export function getURLoriginPath() {
   const href = new URL(window.location.href);
@@ -54,6 +63,23 @@ export function setTextAreaById(id: string, text: string) {
   const element = document.getElementById(id);
   if (element && element instanceof HTMLTextAreaElement) {
     element.value = text;
+  }
+}
+
+export function popCopiedBalloon(copyTextAreaId: string, copiedBalloonId: string) {
+  const element = document.getElementById(copyTextAreaId);
+  if (element && element instanceof HTMLTextAreaElement) {
+    const text = element.value;
+    navigator.clipboard.writeText(text);
+    const copiedBalloonElement = document.getElementById(copiedBalloonId);
+    if (copiedBalloonElement) {
+      copiedBalloonElement.style.opacity = '0';
+      copiedBalloonElement.style.visibility = 'visible';
+      setTimeout(() => {
+        copiedBalloonElement.style.opacity = '1';
+        copiedBalloonElement.style.visibility = 'hidden';
+      }, 3000);
+    }
   }
 }
 

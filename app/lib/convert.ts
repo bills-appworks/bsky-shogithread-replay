@@ -1,3 +1,9 @@
+/**
+ * @author bills-appworks
+ * @copyright bills-appworks 2024
+ * @license This software is released under the MIT License. http://opensource.org/licenses/mit-license.php
+ */
+
 import { ParsedInfo, ParsedInfoSingleMove } from "./bsky";
 
 // KIF形式消費時間最大単位

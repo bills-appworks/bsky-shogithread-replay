@@ -1,3 +1,8 @@
+/**
+ * @author bills-appworks
+ * @copyright bills-appworks 2024
+ * @license This software is released under the MIT License. http://opensource.org/licenses/mit-license.php
+ */
 'use client';
 
 // React
@@ -94,7 +99,7 @@ const Input = ({
       isOutputCommentKI2: specifiedOptionState.isOutputCommentKI2,
       isOutputCommentKIF: specifiedOptionState.isOutputCommentKIF,
     });
-    history.replaceState(null, '', replayURLParameters);
+    history.replaceState(history.state, '', replayURLParameters);
   }
 
   const onScrollKifu = () => {

@@ -1,3 +1,8 @@
+/**
+ * @author bills-appworks
+ * @copyright bills-appworks 2024
+ * @license This software is released under the MIT License. http://opensource.org/licenses/mit-license.php
+ */
 import type { Metadata } from "next";
 //import localFont from "next/font/local";
 import { Klee_One, Noto_Sans_JP } from 'next/font/google';
@@ -16,6 +21,13 @@ const geistMono = localFont({
 });
 */
 const kleeOne = Klee_One({
+  weight: '400',
+  subsets: ['latin'],
+  display: 'swap',
+});
+
+// common.tsでのローディングのみだと失敗するケースがある
+const notoSansJP = Noto_Sans_JP({
   weight: '400',
   subsets: ['latin'],
   display: 'swap',

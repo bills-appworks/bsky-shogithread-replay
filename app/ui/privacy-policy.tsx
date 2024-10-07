@@ -1,3 +1,9 @@
+/**
+ * @author bills-appworks
+ * @copyright bills-appworks 2024
+ * @license This software is released under the MIT License. http://opensource.org/licenses/mit-license.php
+ */
+
 export default function PrivacyPolicy() {
   return (
     <div className="border border-black text-sm mt-2 p-1">
