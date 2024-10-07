@@ -9,7 +9,7 @@ import { convertShogithreadToKI2, convertShogithreadToKIF } from '@/app/lib/conv
 import { ParsedInfo } from '@/app/lib/bsky';
 import CopyClipboard from '@/app/ui/copy-clipboard';
 
-// set...Stateすると再レンダリングでユーザresizeがリセットされるため直接設定
+// テキストエリアの値を状態管理しset...Stateすると再レンダリングでユーザresizeがリセットされるため直接設定
 export function setKifuDataUSIText(text: string) {
   setTextAreaById('kifu-data-usi', text);
 }
@@ -78,12 +78,14 @@ const Export = ({ parsedInfoState, setKifuManageState, kifuManageState, setURLSt
                   const text = convertShogithreadToKI2(parsedInfoState, specifiedOptionState.isOutputPlayer, event.target.checked);
                   replayURLParameters = buildReplayURLParameters(urlState, null, specifiedOptionState.isOutputPlayer, event.target.checked, specifiedOptionState.isOutputCommentKIF, kifuManageState.step.toString(), );
                   const replayURL = getURLoriginPath() + replayURLParameters;
+                  setTextAreaById('replay-url', replayURL);
   //                setResultDisplayState({
   //                  dataKIF: resultDisplayState.dataKIF,
   //                });
                   setKifuDataKI2Text(text);
                 }
-                history.replaceState(null, '', replayURLParameters);
+                // history.stateを指定しないと再レンダリングが行われる
+                history.replaceState(history.state, '', replayURLParameters);
               }}
             />
             <label htmlFor="comment-ki2">コメント出力</label>
@@ -120,12 +122,14 @@ const Export = ({ parsedInfoState, setKifuManageState, kifuManageState, setURLSt
                   const text = convertShogithreadToKIF(parsedInfoState, false, specifiedOptionState.isOutputPlayer, event.target.checked, true);
                   replayURLParameters = buildReplayURLParameters(urlState, null, specifiedOptionState.isOutputPlayer, specifiedOptionState.isOutputCommentKI2, event.target.checked, kifuManageState.step.toString(), );
                   const replayURL = getURLoriginPath() + replayURLParameters;
+                  setTextAreaById('replay-url', replayURL);
   //                setResultDisplayState({
   //                  dataKIF: text,
   //                });
                   setKifuDataKIFText(text);
                 }
-                history.replaceState(null, '', replayURLParameters);
+                // history.stateを指定しないと再レンダリングが行われる
+                history.replaceState(history.state, '', replayURLParameters);
               }}
             />
             <label htmlFor="comment-kif">コメント出力</label>

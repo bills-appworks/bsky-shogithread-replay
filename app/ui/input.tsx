@@ -99,7 +99,7 @@ const Input = ({
       isOutputCommentKI2: specifiedOptionState.isOutputCommentKI2,
       isOutputCommentKIF: specifiedOptionState.isOutputCommentKIF,
     });
-    history.replaceState(null, '', replayURLParameters);
+    history.replaceState(history.state, '', replayURLParameters);
   }
 
   const onScrollKifu = () => {

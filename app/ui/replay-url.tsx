@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy } from '@fortawesome/free-regular-svg-icons';
 import CopyClipboard from '@/app/ui/copy-clipboard';
 
-// set...Stateすると再レンダリングでユーザresizeがリセットされるため直接設定
+// テキストエリアの値を状態管理しset...Stateすると再レンダリングでユーザresizeがリセットされるため直接設定
 export function setReplayURLText(text: string) {
 /*
   const element = document.getElementById("replay-url");
@@ -20,6 +20,7 @@ export function setReplayURLText(text: string) {
 }
 
 const ReplayURL = () => {
+  const noto = notoSansJP.className;
   return (
     <div>
       <hr />

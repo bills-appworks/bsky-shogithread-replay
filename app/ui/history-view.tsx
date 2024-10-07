@@ -11,7 +11,7 @@ import CopyClipboard from '@/app/ui/copy-clipboard';
 
 const postLinkButtonText = 'リプレイ中の現在指し手ポストをBlueskyで開く';
 
-// set...Stateすると再レンダリングでユーザresizeがリセットされるため直接設定
+// テキストエリアの値を状態管理しset...Stateすると再レンダリングでユーザresizeがリセットされるため直接設定
 export function setHistoryViewText(text: string) {
 /*
   const element = document.getElementById("history-view");

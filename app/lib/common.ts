@@ -15,6 +15,7 @@ import { NowLoadingState } from '@/app/ui/now-loading';
 export const notoSansJP = Noto_Sans_JP({
   weight: '400',
   subsets: ['latin'],
+  display: 'swap',
 });
 
 // UIコンポーネント間でクエリ結果共有のための状態管理の型
