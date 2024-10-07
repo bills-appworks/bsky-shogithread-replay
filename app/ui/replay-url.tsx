@@ -20,7 +20,6 @@ export function setReplayURLText(text: string) {
 }
 
 const ReplayURL = () => {
-  const noto = notoSansJP.className;
   return (
     <div>
       <hr />

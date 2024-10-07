@@ -26,6 +26,13 @@ const kleeOne = Klee_One({
   display: 'swap',
 });
 
+// common.tsでのローディングのみだと失敗するケースがある
+const notoSansJP = Noto_Sans_JP({
+  weight: '400',
+  subsets: ['latin'],
+  display: 'swap',
+});
+
 import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 config.autoAddCss = false;

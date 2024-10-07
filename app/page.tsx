@@ -209,7 +209,7 @@ const Description: React.FC = () => {
         <ul className="list-disc list-inside">
           <li>
             <Link href="https://bsky.app/" rel="noopener noreferrer" target="_blank">
-              <span className="inline-flex items-center gap-1 rounded px-1 text-white bg-[#0085FF] hover:bg-[#0075EF] active:bg-[#0065DF]">
+              <span className="font-sans inline-flex items-center gap-1 rounded px-1 text-white bg-[#0085FF] hover:bg-[#0075EF] active:bg-[#0065DF]">
                 Bluesky
                 <FontAwesomeIcon icon={faBluesky} className="text-xs"/>
                 <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="text-xs" />
