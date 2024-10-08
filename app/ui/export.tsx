@@ -1,5 +1,5 @@
 /**
- * @author bills-appworks
+ * @author bills-appworks https://bsky.app/profile/did:plc:lfjssqqi6somnb7vhup2jm5w
  * @copyright bills-appworks 2024
  * @license This software is released under the MIT License. http://opensource.org/licenses/mit-license.php
  */
@@ -22,15 +22,11 @@ export function setKifuDataKIFText(text: string) {
   setTextAreaById('kifu-data-kif', text);
 }
 
-const Export = ({ parsedInfoState, setKifuManageState, kifuManageState, setURLState, urlState, setSpecifiedOptionState, specifiedOptionState, }:
+const Export = ({ parsedInfoState, kifuManageState, urlState, setSpecifiedOptionState, specifiedOptionState, }:
   {
     parsedInfoState: ParsedInfo,
-    setKifuManageState: React.Dispatch<React.SetStateAction<KifuManageState>>,
     kifuManageState: KifuManageState,
-    setURLState: React.Dispatch<React.SetStateAction<string>>,
     urlState: string,
-//    setResultDisplayState: React.Dispatch<React.SetStateAction<ResultDisplayState>>,
-//    resultDisplayState: ResultDisplayState,
     setSpecifiedOptionState: React.Dispatch<React.SetStateAction<SpecifiedOption>>,
     specifiedOptionState: SpecifiedOption,
   }) => {
@@ -51,8 +47,6 @@ const Export = ({ parsedInfoState, setKifuManageState, kifuManageState, setURLSt
             className={`w-full h-40 rounded border border-black bg-[#FFFFDD] ${notoSansJP.className}`}
             id="kifu-data-usi"
             name="kifu-data-usi"
-//            key={resultDisplayState.dataUSI}
-//            defaultValue={resultDisplayState.dataUSI}
             readOnly
           />
         </details>
@@ -79,9 +73,6 @@ const Export = ({ parsedInfoState, setKifuManageState, kifuManageState, setURLSt
                   replayURLParameters = buildReplayURLParameters(urlState, null, specifiedOptionState.isOutputPlayer, event.target.checked, specifiedOptionState.isOutputCommentKIF, kifuManageState.step.toString(), );
                   const replayURL = getURLoriginPath() + replayURLParameters;
                   setTextAreaById('replay-url', replayURL);
-  //                setResultDisplayState({
-  //                  dataKIF: resultDisplayState.dataKIF,
-  //                });
                   setKifuDataKI2Text(text);
                 }
                 // history.stateを指定しないと再レンダリングが行われる
@@ -95,8 +86,6 @@ const Export = ({ parsedInfoState, setKifuManageState, kifuManageState, setURLSt
             className={`w-full h-40 rounded border border-black bg-[#FFFFDD] ${notoSansJP.className}`}
             id="kifu-data-ki2"
             name="kifu-data-ki2"
-//            key={resultDisplayState.dataKI2}
-//            defaultValue={resultDisplayState.dataKI2}
             readOnly
           />
         </details>
@@ -123,9 +112,6 @@ const Export = ({ parsedInfoState, setKifuManageState, kifuManageState, setURLSt
                   replayURLParameters = buildReplayURLParameters(urlState, null, specifiedOptionState.isOutputPlayer, specifiedOptionState.isOutputCommentKI2, event.target.checked, kifuManageState.step.toString(), );
                   const replayURL = getURLoriginPath() + replayURLParameters;
                   setTextAreaById('replay-url', replayURL);
-  //                setResultDisplayState({
-  //                  dataKIF: text,
-  //                });
                   setKifuDataKIFText(text);
                 }
                 // history.stateを指定しないと再レンダリングが行われる
@@ -139,8 +125,6 @@ const Export = ({ parsedInfoState, setKifuManageState, kifuManageState, setURLSt
             className={`w-full h-40 rounded border border-black bg-[#FFFFDD] ${notoSansJP.className}`}
             id="kifu-data-kif"
             name="kifu-data-kif"
-//            key={resultDisplayState.dataKIF}
-//            defaultValue={resultDisplayState.dataKIF}
             readOnly
           />
         </details>

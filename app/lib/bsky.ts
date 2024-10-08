@@ -1,11 +1,10 @@
 /**
- * @author bills-appworks
+ * @author bills-appworks https://bsky.app/profile/did:plc:lfjssqqi6somnb7vhup2jm5w
  * @copyright bills-appworks 2024
  * @license This software is released under the MIT License. http://opensource.org/licenses/mit-license.php
  */
 
 // 定義参照
-import { SpecifiedOption } from '@/app/lib/common';
 import { convertShogithreadToHistoryView, convertShogithreadToKI2, convertShogithreadToKIF } from '@/app/lib/convert';
 
 const BskyPublicApiPrefix: string = 'https://public.api.bsky.app/xrpc';
@@ -49,35 +48,6 @@ export type ParsedInfo = {
 //     url：指し手履歴スレッド中のいずれかのポスト参照URL
 // 戻り値
 //   指し手履歴KI2棋譜データ
-/*
-export async function queryShogithread(formData: FormData, specifiedOptionState: SpecifiedOption): Promise<[ParsedInfo, string, string, string, string, string]> {
-  const rawFormData = {
-    url: formData.get('url'),
-  }
-//  console.log("formData: " + formData);
-//  console.log("url: " + rawFormData.url);
-  let kifuText: string = '';
-  let historyViewText: string = '';
-  let dataUSI: string = '';
-  let dataKI2: string = '';
-  let dataKIF: string = '';
-  let parsedInfo: ParsedInfo = { moves: [], text: '', movesAlt: '', resignAt: null, };
-  if (rawFormData.url) {
-    parsedInfo = await parseSpecifiedURL(rawFormData.url.toString(), specifiedOptionState.isOutputPlayer);
-
-//      console.log(parsedInfo.moves.map((x)=>{return x.text?.replace(/.+([△▲][^ ]+) .+$/, "$1")}).join(" "));
-
-    kifuText = convertShogithreadToKI2(parsedInfo, specifiedOptionState.isOutputPlayer, true);
-    historyViewText = convertShogithreadToHistoryView(parsedInfo, specifiedOptionState.isOutputPlayer);
-    dataUSI = parsedInfo.movesAlt;
-    dataKI2 = kifuText;
-    dataKIF = convertShogithreadToKIF(parsedInfo, false, specifiedOptionState.isOutputPlayer, specifiedOptionState.isOutputCommentKIF, true);
-  } else {
-    throw new Error('フォームデータが無効です');
-  }
-  return [parsedInfo, kifuText, historyViewText, dataUSI, dataKI2, dataKIF];
-}
-*/
 export async function queryShogithread(
   url: string | null,
   atUri: string | null,
@@ -169,59 +139,6 @@ async function parseSpecifiedURL(url: string): Promise<ParsedInfo> {
   }
   const aturi: string = `${AtUriScheme}${profileIdentity}/${AtUriCollectionPost}/${recordId}`;
   return parseSpecifiedATURI(aturi, isShogithread);
-/*
-  // Bluesky APIで指定URLポストのスレッド情報取得（親方向のみ）
-  let apiResponse = await getPostThread(atUri);
-
-// for debug
-//  // APIレスポンスをJSONシリアライズ（空白インデント:2）
-  const apiResponseString = JSON.stringify(apiResponse, null, 2);
-  console.log(`api response: ${apiResponseString}`);
-
-  const parsedInfo: ParsedInfo = { moves: [], text: apiResponse.thread.post.record.text, movesAlt: '', resignAt: null, resignURI: null, };
-  if (isShogithread) { // 指定URLが将棋threadのポスト
-    // ポストrecordのlexicon（キー$typeの値）からURL指定ポストが投了ポストかスレッド中ポストかを判別し、投了ポストなら引用内の最終指し手ポストを改めて解析対象とする
-    const lexicon: string = apiResponse.thread.post.record.embed["$type"];
-//    console.log(`lexicon: ${lexicon}`);
-
-    // KIFフォーマットなど投了情報を使用する場合の参考
-    //let isResign: boolean = false;
-
-    switch(lexicon) {
-      case 'app.bsky.embed.record': // 通常レコード（画像埋め込みなし）：投了ポストと仮定
-        // 投了日時は投了ポスト基準
-        parsedInfo.resignAt = apiResponse.thread.post.indexedAt;
-        parsedInfo.resignURI = apiResponse.thread.post.uri;
-        // 引用内ポストを最終指し手ポストとしてスレッド再取得
-        apiResponse = await getPostThread(apiResponse.thread.post.embed.record.uri);
-
-        // fall-through：そのまま指し手ポストの解析を続行
-      case 'app.bsky.embed.images': // 画像埋め込みあり：指し手ポストと仮定
-        parseThread(apiResponse.thread, parsedInfo);
-        break;
-      default:
-        // TODO: エラー処理
-        throw new Error(`想定外のlexicon: ${lexicon}`);
-    }
-  } else { // 指定URLが将棋thread以外のポストならばリプライ親ポストの将棋threadポストを処理対象とする
-    if (apiResponse.thread.hasOwnProperty('parent')) {
-      const parentDID: string = apiResponse.thread.parent.post.author.did;
-
-// for debug
-//      const parentHandle = apiResponse.thread.parent.post.author.handle;
-//      console.log(`parent handle: ${parentHandle}`);
-
-      if (parentDID === ShogithreadDID) {
-        parseThread(apiResponse.thread.parent, parsedInfo);
-      } else { // リプライ先が将棋threadポストではない
-        throw new Error(`${MessageInvalidPostURL}: リプライ先が将棋threadではありません`);
-      }
-    } else { // リプライ先が存在しない
-      throw new Error(`${MessageInvalidPostURL}: 将棋threadへのリプライではありません`);
-    }
-  }
-  return parsedInfo;
-*/
 }
 
 async function parseSpecifiedATURI(aturi: string, isShogithread: boolean | undefined): Promise<ParsedInfo> {

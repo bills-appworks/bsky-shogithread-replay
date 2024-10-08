@@ -1,11 +1,11 @@
 /**
- * @author bills-appworks
+ * @author bills-appworks https://bsky.app/profile/did:plc:lfjssqqi6somnb7vhup2jm5w
  * @copyright bills-appworks 2024
  * @license This software is released under the MIT License. http://opensource.org/licenses/mit-license.php
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { queryShogithread } from '@/app/lib/bsky';
+//import { queryShogithread } from '@/app/lib/bsky';
 
 export async function GET(request: NextRequest) {
 // 静的ページ出力ではAPI Routeがサポートされていないため無効化

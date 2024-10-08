@@ -1,5 +1,5 @@
 /**
- * @author bills-appworks
+ * @author bills-appworks https://bsky.app/profile/did:plc:lfjssqqi6somnb7vhup2jm5w
  * @copyright bills-appworks 2024
  * @license This software is released under the MIT License. http://opensource.org/licenses/mit-license.php
  */
@@ -26,23 +26,17 @@ import DialogBox from '@/app/ui/dialog-box';
 import NowLoading from '@/app/ui/now-loading';
 // 定義参照
 import {
-//  ResultDisplayState,
-  SpecifiedOption,
   buildShogithreadInfo,
   initialParsedInfo,
   initialKifuStore,
   initialKifuManageState,
   initialURLState,
-//  initialResultDisplayState,
   initialPostURLState,
   initialSpecifiedOption,
   initialDialogBoxState,
   initialNowLoadingState,
-  getURLoriginPath,
 } from '@/app/lib/common';
-import { KifuStore } from 'kifu-for-js';
-import { convertATURItoURL, ParsedInfo, ParsedInfoSingleMove } from "@/app/lib/bsky";
-import { DialogBoxState } from '@/app/ui/dialog-box';
+import { convertATURItoURL, ParsedInfo } from "@/app/lib/bsky";
 
 export default function Home() {
   // コンポーネント間の状態を共有するためここで状態管理
@@ -50,7 +44,6 @@ export default function Home() {
   const [ kifuStoreState, setKifuStoreState ] = useState(initialKifuStore);
   const [ kifuManageState, setKifuManageState ] = useState(initialKifuManageState);
   const [ urlState, setURLState ] = useState(initialURLState);
-//  const [ resultDisplayState, setResultDisplayState ] = useState(initialResultDisplayState);
   const [ postURLState, setPostURLState ] = useState(initialPostURLState);
   const [ specifiedOptionState, setSpecifiedOptionState ] = useState(initialSpecifiedOption);
   const [ dialogBoxState, setDialogBoxState ] = useState(initialDialogBoxState);
@@ -58,7 +51,6 @@ export default function Home() {
 
   // URLクエリパラメタ処理
   const searchParams = useSearchParams();
-//  const pathname = usePathname();
   const url = searchParams.get('url');
   const atUri = searchParams.get('at-uri');
   const isOutputPlayer = searchParams.get('player') != 'false';
@@ -78,11 +70,6 @@ export default function Home() {
       setKifuStoreState({ kifuStore: kifuStore});
       setKifuManageState({ isBuilt: true, step: step ? parseInt(step) : 0, });
       setURLState(url ? url : convertATURItoURL(atUri ? atUri : '', undefined));
-//      resultDisplayState.replayURL = `${getURLoriginPath()}${resultDisplayState.replayURL}`;
-//      if (step) {
-//        resultDisplayState.replayURL += `&step=${step}`;
-//      }
-//      setResultDisplayState(resultDisplayState);
       setReplayURLText(replayURLText);
       setHistoryViewText(historyViewText);
       setPostURLState(postURLState);
@@ -97,7 +84,6 @@ export default function Home() {
         setKifuStoreState(initialKifuStore);
         setKifuManageState(initialKifuManageState);
         // setURLState() URLは指定時のものを維持
-//        setResultDisplayState(initialResultDisplayState);
         setReplayURLText('');
         setHistoryViewText('');
         setPostURLState(initialPostURLState);
@@ -110,20 +96,12 @@ export default function Home() {
       }
     }
   };
-/*
-  useEffect(() => {
-    const urlWithHostPath = new URL(window.location.href);
-    const host = urlWithHostPath.host;
-    const path = urlWithHostPath.pathname;
-    setKifuManageState({ isBuilt: kifuManageState.isBuilt, step: kifuManageState.step, URLhostPath: host + path, });
-  }, []);
-*/
+
   // コンポーネントレンダリング後にクエリパラメタによるfetchと反映を実施（状態変更副作用が発生するため直接実行すると初期化処理と競合）
   useEffect(() => {
     if (url || atUri) {
       procedureQueryParameter(url, atUri, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step);
     }
-//  }, [pathname, searchParams]);
   }, [searchParams]);
 
   return (
@@ -145,10 +123,8 @@ export default function Home() {
                   setKifuStoreState={setKifuStoreState} kifuStoreState={kifuStoreState}
                   setKifuManageState={setKifuManageState} kifuManageState={kifuManageState}
                   setURLState={setURLState} urlState={urlState}
-  //                setResultDisplayState={setResultDisplayState} resultDisplayState={resultDisplayState}
                   setPostURLState={setPostURLState} postURLState={postURLState}
                   setSpecifiedOptionState={setSpecifiedOptionState} specifiedOptionState={specifiedOptionState}
-                  setDialogBoxState={setDialogBoxState} dialogBoxState={dialogBoxState}
                 />
                 <div className="flex flex-row justify-center
                   [&_button]:rounded [&_button]:border [&_button]:border-gray-500
@@ -161,9 +137,8 @@ export default function Home() {
                 <HistoryView postURLState={postURLState} />
                 <Export
                   parsedInfoState={parsedInfoState}
-                  setKifuManageState={setKifuManageState} kifuManageState={kifuManageState}
-                  setURLState={setURLState} urlState={urlState}
-  //                setResultDisplayState={setResultDisplayState} resultDisplayState={resultDisplayState}
+                  kifuManageState={kifuManageState}
+                  urlState={urlState}
                   setSpecifiedOptionState={setSpecifiedOptionState} specifiedOptionState={specifiedOptionState}
                 />
                 <Notice />

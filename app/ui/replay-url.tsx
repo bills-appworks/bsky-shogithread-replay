@@ -1,21 +1,13 @@
 /**
- * @author bills-appworks
+ * @author bills-appworks https://bsky.app/profile/did:plc:lfjssqqi6somnb7vhup2jm5w
  * @copyright bills-appworks 2024
  * @license This software is released under the MIT License. http://opensource.org/licenses/mit-license.php
  */
-import { setTextAreaById, popCopiedBalloon, notoSansJP } from '@/app/lib/common';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCopy } from '@fortawesome/free-regular-svg-icons';
+import { setTextAreaById, notoSansJP } from '@/app/lib/common';
 import CopyClipboard from '@/app/ui/copy-clipboard';
 
 // テキストエリアの値を状態管理しset...Stateすると再レンダリングでユーザresizeがリセットされるため直接設定
 export function setReplayURLText(text: string) {
-/*
-  const element = document.getElementById("replay-url");
-  if (element && element instanceof HTMLTextAreaElement) {
-    element.value = text;
-  }
-*/
   setTextAreaById('replay-url', text);
 }
 
@@ -33,8 +25,6 @@ const ReplayURL = () => {
         className={`w-full h-20 rounded border border-black bg-[#FFFFDD] ${notoSansJP.className}`}
         id="replay-url"
         name="replay-url"
-//        key={resultDisplayState.replayURL}
-//        defaultValue={resultDisplayState.replayURL}
         readOnly
       />
     </div>

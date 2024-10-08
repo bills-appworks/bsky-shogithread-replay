@@ -1,5 +1,5 @@
 /**
- * @author bills-appworks
+ * @author bills-appworks https://bsky.app/profile/did:plc:lfjssqqi6somnb7vhup2jm5w
  * @copyright bills-appworks 2024
  * @license This software is released under the MIT License. http://opensource.org/licenses/mit-license.php
  */
@@ -28,14 +28,6 @@ export type KifuManageState = {
   step: number;
 };
 
-//export type ResultDisplayState = {
-//  replayURL: string;
-//  historyView: string;
-//  dataUSI: string;
-//  dataKI2: string;
-//  dataKIF: string;
-//};
-
 export type SpecifiedOption = {
   isOutputPlayer: boolean;
   isOutputCommentKI2: boolean;
@@ -48,7 +40,6 @@ export const initialParsedInfo: ParsedInfo = {moves:[initialMoves], text: "", mo
 export const initialKifuStore = { kifuStore: new KifuStore({ kifu: "", }) };
 export const initialKifuManageState: KifuManageState = { isBuilt: false, step: 0, };
 export const initialURLState: string = '';
-//export const initialResultDisplayState: ResultDisplayState = { dataKIF: "", };
 export const initialPostURLState: string = "";
 export const initialSpecifiedOption: SpecifiedOption = { isOutputPlayer: true, isOutputCommentKI2: true, isOutputCommentKIF: true, };
 export const initialDialogBoxState: DialogBoxState = { isOpen: false, textTitle: '確認してください', textBody: '', };
@@ -90,28 +81,12 @@ export async function buildShogithreadInfo(
   isOutputCommentKI2: boolean,
   isOutputCommentKIF: boolean,
   step : string | null,
-//  setDialogBoxState: React.Dispatch<React.SetStateAction<DialogBoxState>>,
-//  dialogBoxState: DialogBoxState,
 ): Promise<[ParsedInfo, any, string, string, string, string, string, string]> {
-//  try{
-    const [parsedInfo, kifuText, historyViewText, dataUSI, dataKI2, dataKIF] = await queryShogithread(url, atUri, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF);
-    const kifuStore = new KifuStore({ kifu: kifuText });
-//    const resultDisplayState: ResultDisplayState = {
-//      replayURL: getURLoriginPath() + buildReplayURLParameters(url, profile, recordId, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step),
-//      historyView: historyViewText,
-//      dataUSI: dataUSI,
-//      dataKI2: dataKI2,
-//      dataKIF: dataKIF,
-//    };
-    const replayURL = getURLoriginPath() + buildReplayURLParameters(url, atUri, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step);
-    const postURL = buildPostURL(parsedInfo, step ? parseInt(step) : null);
-    return [parsedInfo, kifuStore, replayURL, historyViewText, postURL, dataUSI, dataKI2, dataKIF];
-//  } catch(e: unknown) {
-//    if (e instanceof Error) {
-////      setDialogBoxState({ isOpen: true, textTitle: dialogBoxState.textTitle, textBody: e.message});
-//      console.log(e);
-//    }
-//  }
+  const [parsedInfo, kifuText, historyViewText, dataUSI, dataKI2, dataKIF] = await queryShogithread(url, atUri, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF);
+  const kifuStore = new KifuStore({ kifu: kifuText });
+  const replayURL = getURLoriginPath() + buildReplayURLParameters(url, atUri, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step);
+  const postURL = buildPostURL(parsedInfo, step ? parseInt(step) : null);
+  return [parsedInfo, kifuStore, replayURL, historyViewText, postURL, dataUSI, dataKI2, dataKIF];
 };
 
 export function buildReplayURLParameters(
@@ -141,5 +116,3 @@ export function buildReplayURLParameters(
   const URLParameters = '?' + new URLSearchParams(parameters).toString();
   return URLParameters;
 }
-
-

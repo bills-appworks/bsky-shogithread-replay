@@ -7,3 +7,7 @@ Blueskyに投稿されている将棋threadの対局スレッドから棋譜を�
 ## ライセンス
 
 This software is released under the MIT license. Please refer to [LICENSE](https://github.com/bills-appworks/bsky-shogithread-replay/blob/main/LICENSE).
+
+## 作成者
+
+[びるず @bills-appworks.blue]( https://bsky.app/profile/did:plc:lfjssqqi6somnb7vhup2jm5w) 
