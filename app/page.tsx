@@ -130,7 +130,7 @@ export default function Home() {
                   [&_button]:rounded [&_button]:border [&_button]:border-gray-500
                   [&_button]:bg-[#FFE581] hover:[&_button]:bg-[#EFD571] active:[&_button]:bg-[#DFC561]
                   [&_div[aria-label]]:!bg-[#FFFFDD] 
-                  h-[533px];
+                  h-[533px]
                 ">
                   <KifuForJS kifuStoreState={kifuStoreState} />
                 </div>
