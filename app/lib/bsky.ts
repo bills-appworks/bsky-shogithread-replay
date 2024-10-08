@@ -152,8 +152,8 @@ async function parseSpecifiedATURI(aturi: string, isShogithread: boolean | undef
 
 // for debug
 //  // APIレスポンスをJSONシリアライズ（空白インデント:2）
-  const apiResponseString = JSON.stringify(apiResponse, null, 2);
-  console.log(`api response: ${apiResponseString}`);
+//  const apiResponseString = JSON.stringify(apiResponse, null, 2);
+//  console.log(`api response: ${apiResponseString}`);
 
   const parsedInfo: ParsedInfo = { moves: [], text: apiResponse.thread.post.record.text, movesAlt: '', resignAt: null, resignURI: null, };
   if (isShogithread) { // 指定URLが将棋threadのポスト
