@@ -5,7 +5,6 @@
  */
 import type { Metadata } from "next";
 import Script from 'next/script';
-import { headers } from 'next/headers';
 import { Klee_One, Noto_Sans_JP } from 'next/font/google';
 import "@/app/globals.css";
 
@@ -29,7 +28,7 @@ config.autoAddCss = false;
 export const metadata: Metadata = {
   title: "Re:将棋thread",
   description: "将棋threadの対局スレッドから棋譜を再生",
-  metadataBase: new URL(`https://${headers().get("host")}`),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
 };
 
 export default function RootLayout({
