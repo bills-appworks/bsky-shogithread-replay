@@ -4,6 +4,7 @@
  * @license This software is released under the MIT License. http://opensource.org/licenses/mit-license.php
  */
 import type { Metadata } from "next";
+import Script from 'next/script';
 import { Klee_One, Noto_Sans_JP } from 'next/font/google';
 import "@/app/globals.css";
 
@@ -40,6 +41,21 @@ export default function RootLayout({
         className={`${kleeOne.className} antialiased text-black`}
       >
         {children}
+        {/*<!-- Google tag (gtag.js) -->*/}
+        <Script strategy="afterInteractive" src="https://www.googletagmanager.com/gtag/js?id=G-GLV44TDZ0X" />
+        <Script
+          id="gtag-init"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+
+              gtag('config', 'G-GLV44TDZ0X');
+            `,
+          }}
+        />
       </body>
     </html>
   );
