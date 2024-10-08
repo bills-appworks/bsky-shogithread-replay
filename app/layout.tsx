@@ -51,7 +51,7 @@ export default function RootLayout({
     <html lang="ja">
       <body
 /*        className={`${geistSans.variable} ${geistMono.variable} antialiased`} */
-        className={`${kleeOne.className}`}
+        className={`${kleeOne.className} antialiased text-black`}
       >
         {children}
       </body>
