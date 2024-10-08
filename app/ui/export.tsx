@@ -22,12 +22,10 @@ export function setKifuDataKIFText(text: string) {
   setTextAreaById('kifu-data-kif', text);
 }
 
-const Export = ({ parsedInfoState, setKifuManageState, kifuManageState, setURLState, urlState, setSpecifiedOptionState, specifiedOptionState, }:
+const Export = ({ parsedInfoState, kifuManageState, urlState, setSpecifiedOptionState, specifiedOptionState, }:
   {
     parsedInfoState: ParsedInfo,
-    setKifuManageState: React.Dispatch<React.SetStateAction<KifuManageState>>,
     kifuManageState: KifuManageState,
-    setURLState: React.Dispatch<React.SetStateAction<string>>,
     urlState: string,
     setSpecifiedOptionState: React.Dispatch<React.SetStateAction<SpecifiedOption>>,
     specifiedOptionState: SpecifiedOption,

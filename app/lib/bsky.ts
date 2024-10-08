@@ -5,7 +5,6 @@
  */
 
 // 定義参照
-import { SpecifiedOption } from '@/app/lib/common';
 import { convertShogithreadToHistoryView, convertShogithreadToKI2, convertShogithreadToKIF } from '@/app/lib/convert';
 
 const BskyPublicApiPrefix: string = 'https://public.api.bsky.app/xrpc';

@@ -26,7 +26,6 @@ import DialogBox from '@/app/ui/dialog-box';
 import NowLoading from '@/app/ui/now-loading';
 // 定義参照
 import {
-  SpecifiedOption,
   buildShogithreadInfo,
   initialParsedInfo,
   initialKifuStore,
@@ -36,11 +35,8 @@ import {
   initialSpecifiedOption,
   initialDialogBoxState,
   initialNowLoadingState,
-  getURLoriginPath,
 } from '@/app/lib/common';
-import { KifuStore } from 'kifu-for-js';
-import { convertATURItoURL, ParsedInfo, ParsedInfoSingleMove } from "@/app/lib/bsky";
-import { DialogBoxState } from '@/app/ui/dialog-box';
+import { convertATURItoURL, ParsedInfo } from "@/app/lib/bsky";
 
 export default function Home() {
   // コンポーネント間の状態を共有するためここで状態管理
@@ -129,7 +125,6 @@ export default function Home() {
                   setURLState={setURLState} urlState={urlState}
                   setPostURLState={setPostURLState} postURLState={postURLState}
                   setSpecifiedOptionState={setSpecifiedOptionState} specifiedOptionState={specifiedOptionState}
-                  setDialogBoxState={setDialogBoxState} dialogBoxState={dialogBoxState}
                 />
                 <div className="flex flex-row justify-center
                   [&_button]:rounded [&_button]:border [&_button]:border-gray-500
@@ -142,8 +137,8 @@ export default function Home() {
                 <HistoryView postURLState={postURLState} />
                 <Export
                   parsedInfoState={parsedInfoState}
-                  setKifuManageState={setKifuManageState} kifuManageState={kifuManageState}
-                  setURLState={setURLState} urlState={urlState}
+                  kifuManageState={kifuManageState}
+                  urlState={urlState}
                   setSpecifiedOptionState={setSpecifiedOptionState} specifiedOptionState={specifiedOptionState}
                 />
                 <Notice />

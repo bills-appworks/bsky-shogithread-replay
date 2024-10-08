@@ -3,9 +3,7 @@
  * @copyright bills-appworks 2024
  * @license This software is released under the MIT License. http://opensource.org/licenses/mit-license.php
  */
-import { setTextAreaById, popCopiedBalloon, notoSansJP } from '@/app/lib/common';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCopy } from '@fortawesome/free-regular-svg-icons';
+import { setTextAreaById, notoSansJP } from '@/app/lib/common';
 import CopyClipboard from '@/app/ui/copy-clipboard';
 
 // テキストエリアの値を状態管理しset...Stateすると再レンダリングでユーザresizeがリセットされるため直接設定

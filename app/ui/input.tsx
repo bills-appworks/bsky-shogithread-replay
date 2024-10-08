@@ -8,9 +8,9 @@
 // React
 import React, { useEffect, useRef } from 'react';
 // Next.js
-import { useSearchParams, usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 // 定義参照
-import { ParsedInfo, ShogithreadUrlPlaceholder, queryShogithread, buildPostURL } from '@/app/lib/bsky';
+import { ParsedInfo, ShogithreadUrlPlaceholder, buildPostURL } from '@/app/lib/bsky';
 import { KifuStoreState, KifuManageState, SpecifiedOption, initialParsedInfo, initialKifuStore, initialKifuManageState, initialURLState, initialSpecifiedOption, initialDialogBoxState, buildReplayURLParameters, getURLoriginPath, initialPostURLState } from '@/app/lib/common';
 import { convertShogithreadToHistoryView, convertShogithreadToKI2, convertShogithreadToKIF } from '@/app/lib/convert';
 import { setReplayURLText } from '@/app/ui/replay-url';
@@ -26,7 +26,6 @@ const Input = ({
   setURLState, urlState,
   setPostURLState, postURLState,
   setSpecifiedOptionState, specifiedOptionState,
-  setDialogBoxState, dialogBoxState,
 }: {
   setParsedInfoState: React.Dispatch<React.SetStateAction<ParsedInfo>>, parsedInfoState: ParsedInfo,
   setKifuStoreState: React.Dispatch<React.SetStateAction<KifuStoreState>>, kifuStoreState: KifuStoreState,
@@ -34,7 +33,6 @@ const Input = ({
   setURLState: React.Dispatch<React.SetStateAction<string>>, urlState: string,
   setPostURLState: React.Dispatch<React.SetStateAction<string>>, postURLState: string,
   setSpecifiedOptionState: React.Dispatch<React.SetStateAction<SpecifiedOption>>, specifiedOptionState: SpecifiedOption,
-  setDialogBoxState: React.Dispatch<React.SetStateAction<DialogBoxState>>, dialogBoxState: DialogBoxState,
 }) => {
   // イベントリスナー内で参照するため
   const parsedInfoRef = useRef(parsedInfoState);
@@ -50,7 +48,6 @@ const Input = ({
   const postURLRef = useRef(postURLState);
   postURLRef.current = postURLState;
 
-  const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
 

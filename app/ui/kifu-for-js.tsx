@@ -6,7 +6,6 @@
 
 import { KifuLite } from 'kifu-for-js';
 import { KifuStoreState } from '@/app/lib/common';
-import { faRightToBracket } from '@fortawesome/free-solid-svg-icons';
 
 const KifuForJS = ({ kifuStoreState }: { kifuStoreState: KifuStoreState }) => {
     return (

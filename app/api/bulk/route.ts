@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { queryShogithread } from '@/app/lib/bsky';
+//import { queryShogithread } from '@/app/lib/bsky';
 
 export async function GET(request: NextRequest) {
 // 静的ページ出力ではAPI Routeがサポートされていないため無効化
