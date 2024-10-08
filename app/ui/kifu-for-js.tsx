@@ -14,7 +14,6 @@ const KifuForJS = ({ kifuStoreState }: { kifuStoreState: KifuStoreState }) => {
       style={{
         border: "1px black solid",
         backgroundColor: "rgba(255, 255, 255, 0.2)",
-        maxHeight: "533px",
       }}
     />
   );
