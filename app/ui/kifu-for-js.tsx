@@ -6,6 +6,7 @@
 
 import { KifuLite } from 'kifu-for-js';
 import { KifuStoreState } from '@/app/lib/common';
+import { Autour_One } from 'next/font/google';
 
 const KifuForJS = ({ kifuStoreState }: { kifuStoreState: KifuStoreState }) => {
   return (
@@ -14,6 +15,7 @@ const KifuForJS = ({ kifuStoreState }: { kifuStoreState: KifuStoreState }) => {
       style={{
         border: "1px black solid",
         backgroundColor: "rgba(255, 255, 255, 0.2)",
+        margin: "auto",
       }}
     />
   );
