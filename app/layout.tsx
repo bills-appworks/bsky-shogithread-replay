@@ -52,7 +52,9 @@ export default function RootLayout({
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
 
-              gtag('config', 'G-GLV44TDZ0X');
+              gtag('config', 'G-GLV44TDZ0X', {
+                'cookie_flags': 'SameSite=None;Secure'
+              });
             `,
           }}
         />
