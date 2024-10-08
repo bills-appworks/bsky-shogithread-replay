@@ -28,7 +28,7 @@ config.autoAddCss = false;
 export const metadata: Metadata = {
   title: "Re:将棋thread",
   description: "将棋threadの対局スレッドから棋譜を再生",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
+  metadataBase: new URL(process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://re-shogithread.bills-appworks.net'),
 };
 
 export default function RootLayout({
