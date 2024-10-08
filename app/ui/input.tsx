@@ -11,7 +11,6 @@ import React, { useEffect, useRef } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 // 定義参照
 import { ParsedInfo, ShogithreadUrlPlaceholder, queryShogithread, buildPostURL } from '@/app/lib/bsky';
-//import { KifuStoreState, ResultDisplayState, SpecifiedOption } from '@/app/lib/common';
 import { KifuStoreState, KifuManageState, SpecifiedOption, initialParsedInfo, initialKifuStore, initialKifuManageState, initialURLState, initialSpecifiedOption, initialDialogBoxState, buildReplayURLParameters, getURLoriginPath, initialPostURLState } from '@/app/lib/common';
 import { convertShogithreadToHistoryView, convertShogithreadToKI2, convertShogithreadToKIF } from '@/app/lib/convert';
 import { setReplayURLText } from '@/app/ui/replay-url';
@@ -25,7 +24,6 @@ const Input = ({
   setKifuStoreState, kifuStoreState,
   setKifuManageState, kifuManageState,
   setURLState, urlState,
-//  setResultDisplayState, resultDisplayState,
   setPostURLState, postURLState,
   setSpecifiedOptionState, specifiedOptionState,
   setDialogBoxState, dialogBoxState,
@@ -34,7 +32,6 @@ const Input = ({
   setKifuStoreState: React.Dispatch<React.SetStateAction<KifuStoreState>>, kifuStoreState: KifuStoreState,
   setKifuManageState: React.Dispatch<React.SetStateAction<KifuManageState>>, kifuManageState: KifuManageState,
   setURLState: React.Dispatch<React.SetStateAction<string>>, urlState: string,
-//  setResultDisplayState: React.Dispatch<React.SetStateAction<ResultDisplayState>>, resultDisplayState: ResultDisplayState,
   setPostURLState: React.Dispatch<React.SetStateAction<string>>, postURLState: string,
   setSpecifiedOptionState: React.Dispatch<React.SetStateAction<SpecifiedOption>>, specifiedOptionState: SpecifiedOption,
   setDialogBoxState: React.Dispatch<React.SetStateAction<DialogBoxState>>, dialogBoxState: DialogBoxState,
@@ -50,8 +47,6 @@ const Input = ({
   urlRef.current = urlState;
   const specifiedOptionRef = useRef(specifiedOptionState);
   specifiedOptionRef.current = specifiedOptionState;
-//  const resultDisplayRef = useRef(resultDisplayState);
-//  resultDisplayRef.current = resultDisplayState;
   const postURLRef = useRef(postURLState);
   postURLRef.current = postURLState;
 
@@ -78,15 +73,11 @@ const Input = ({
       const kifuStore = new KifuStore({ kifu: kifuText });
       setKifuStoreState({ kifuStore: kifuStore});
       kifuStore.player.goto(step);
-//      const replayURL = buildReplayURL(urlState, null, null, specifiedOptionState.isOutputPlayer, specifiedOptionState.isOutputCommentKI2, specifiedOptionState.isOutputCommentKIF, step ? step.toString() : null);
-//      const replayURL = getURLoriginPath() + buildReplayURLParameters(urlState, null, null, isOutputPlayer, specifiedOptionState.isOutputCommentKI2, specifiedOptionState.isOutputCommentKIF, step ? step.toString() : null);
       replayURLParameters = buildReplayURLParameters(urlState, null, isOutputPlayer, specifiedOptionState.isOutputCommentKI2, specifiedOptionState.isOutputCommentKIF, step ? step.toString() : null);
       const replayURL = getURLoriginPath() + replayURLParameters;
       const historyView = convertShogithreadToHistoryView(parsedInfoState, isOutputPlayer);
-//      const dataUSI = resultDisplayState.dataUSI;
       const dataKI2 = convertShogithreadToKI2(parsedInfoState, isOutputPlayer, specifiedOptionState.isOutputCommentKI2);
       const dataKIF = convertShogithreadToKIF(parsedInfoState, false, isOutputPlayer, specifiedOptionState.isOutputCommentKIF, true);
-//      setResultDisplayState({ dataKIF: dataKIF, });
       setReplayURLText(replayURL);
       setHistoryViewText(historyView);
       // USIはプレイヤー表示なし
@@ -116,22 +107,9 @@ const Input = ({
       );
       const replayURL: string = getURLoriginPath() + replayURLParameters;
       const postURL: string = buildPostURL(parsedInfoRef.current, step);
-//      resultDisplayRef.current = {
-//        replayURL: replayURL,
-//        historyView: resultDisplayRef.current.historyView,
-//        dataUSI: resultDisplayRef.current.dataUSI,
-//        dataKI2: resultDisplayRef.current.dataKI2,
-//        dataKIF: resultDisplayRef.current.dataKIF,
-//      };
       // history.replaceStateでhistory.stateを渡すとset...Stateしないと変更部分が反映されない
       // ただしset...Stateすると再レンダリングでユーザresizeがリセットされるため直接設定
       //setResultDisplayState(resultDisplayRef.current);
-/*
-      const element = document.getElementById("replay-url");
-      if (element && element instanceof HTMLTextAreaElement) {
-        element.value = replayURL;
-      }
-*/
       setReplayURLText(replayURL);
       setPostURLState(postURL);
       // history.stateを渡さないとKifu for JSでボタン押しっぱなしによる自動再生が動作しない
@@ -175,13 +153,6 @@ const Input = ({
                 name="player-output"
                 checked={specifiedOptionState.isOutputPlayer}
                 onChange={(event) => {
-                  /*
-                  setSpecifiedOptionState({
-                    isOutputPlayer: event.target.checked,
-                    isOutputCommentKI2: specifiedOptionState.isOutputCommentKI2,
-                    isOutputCommentKIF: specifiedOptionState.isOutputCommentKIF,
-                  });
-                  */
                   onChangeOutputPlayer(event.target.checked);
                 }}
               />
@@ -202,7 +173,6 @@ const Input = ({
                 setKifuStoreState(initialKifuStore);
                 setKifuManageState(initialKifuManageState);
                 setURLState(initialURLState);
-//                setResultDisplayState(initialResultDisplayState);
                 setReplayURLText('');
                 setHistoryViewText('');
                 setPostURLState(initialPostURLState);
@@ -210,9 +180,6 @@ const Input = ({
                 setKifuDataKI2Text('');
                 setKifuDataKIFText('');
                 setSpecifiedOptionState(initialSpecifiedOption);
-//                const params = new URLSearchParams();
-//                replace(`${pathname}?${params.toString()}`);
-//                replace(`${pathname}`);
                 history.replaceState(null, '', '/');
               }}
             >
