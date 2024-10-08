@@ -204,7 +204,7 @@ const Description: React.FC = () => {
             <li>「棋譜リプレイ」を押す</li>
           </ol>
           <li>盤面の下にある操作パネルで指し手を進めたり戻したりできます。{' '}
-            <Link href="https://whtwnd.com/bills-appworks.blue/entries/Re%3A%E5%B0%86%E6%A3%8Bthread" target="_blank">
+            <Link href="https://whtwnd.com/did:plc:lfjssqqi6somnb7vhup2jm5w/entries/Re%3A%E5%B0%86%E6%A3%8Bthread" target="_blank">
               <span className="inline-flex items-center gap-1 rounded px-1 text-black bg-[#FFE581] hover:bg-[#EFD571] active:bg-[#DFC561]">
                 説明ページ
                 <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="text-xs" />
