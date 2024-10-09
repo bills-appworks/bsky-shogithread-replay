@@ -6,18 +6,23 @@
 
 import { KifuLite } from 'kifu-for-js';
 import { KifuStoreState } from '@/app/lib/common';
-import { Autour_One } from 'next/font/google';
 
 const KifuForJS = ({ kifuStoreState }: { kifuStoreState: KifuStoreState }) => {
   return (
-    <KifuLite
-      kifuStore={ kifuStoreState.kifuStore }
-      style={{
-        border: "1px black solid",
-        backgroundColor: "rgba(255, 255, 255, 0.2)",
-        margin: "auto",
-      }}
-    />
+    <div className="
+      [&_button]:rounded [&_button]:border [&_button]:border-gray-500
+      [&_button]:bg-[#FFE581] hover:[&_button]:bg-[#EFD571] active:[&_button]:bg-[#DFC561]
+      [&_div[aria-label]]:!bg-[#FFFFDD] 
+    ">
+      <KifuLite
+        kifuStore={ kifuStoreState.kifuStore }
+        style={{
+          border: "1px black solid",
+          backgroundColor: "rgba(255, 255, 255, 0.2)",
+          margin: "auto",
+        }}
+      />
+    </div>
   );
 }
 
