@@ -126,13 +126,7 @@ export default function Home() {
                   setPostURLState={setPostURLState} postURLState={postURLState}
                   setSpecifiedOptionState={setSpecifiedOptionState} specifiedOptionState={specifiedOptionState}
                 />
-                <div className="
-                  [&_button]:rounded [&_button]:border [&_button]:border-gray-500
-                  [&_button]:bg-[#FFE581] hover:[&_button]:bg-[#EFD571] active:[&_button]:bg-[#DFC561]
-                  [&_div[aria-label]]:!bg-[#FFFFDD] 
-                ">
-                  <KifuForJS kifuStoreState={kifuStoreState} />
-                </div>
+                <KifuForJS kifuStoreState={kifuStoreState} />
                 <ReplayURL />
                 <HistoryView postURLState={postURLState} />
                 <Export
