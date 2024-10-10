@@ -54,8 +54,11 @@ export async function queryShogithread(
   isOutputPlayer: boolean,
   isOutputCommentKI2: boolean,
   isOutputCommentKIF: boolean,
+  isDebug: boolean,
 ): Promise<[ParsedInfo, string, string, string, string, string]> {
-//  console.log("url: " + url);
+  if (isDebug) {
+    console.log("url: " + url);
+  }
   let kifuText: string = '';
   let historyViewText: string = '';
   let dataUSI: string = '';
@@ -64,20 +67,22 @@ export async function queryShogithread(
 
   let parsedInfo;
   if (url) {
-    parsedInfo = await parseSpecifiedURL(url);
+    parsedInfo = await parseSpecifiedURL(url, isDebug);
   } else if (atUri) {
-    parsedInfo = await parseSpecifiedATURI(atUri, undefined);
+    parsedInfo = await parseSpecifiedATURI(atUri, undefined, isDebug);
   } else {
     throw new Error('パラメタにURLまたはAT-URIを指定してください。');
   }
 
-//  console.log(parsedInfo.moves.map((x)=>{return x.text?.replace(/.+([△▲][^ ]+) .+$/, "$1")}).join(" "));
+  if (isDebug) {
+    console.log(parsedInfo.moves.map((x)=>{return x.text?.replace(/.+([△▲][^ ]+) .+$/, "$1")}).join(" "));
+  }
 
   kifuText = convertShogithreadToKI2(parsedInfo, isOutputPlayer, true);
   historyViewText = convertShogithreadToHistoryView(parsedInfo, isOutputPlayer);
   dataUSI = parsedInfo.movesAlt;
   dataKI2 = convertShogithreadToKI2(parsedInfo, isOutputPlayer, isOutputCommentKI2);
-  dataKIF = convertShogithreadToKIF(parsedInfo, false, isOutputPlayer, isOutputCommentKIF, true);
+  dataKIF = convertShogithreadToKIF(parsedInfo, false, isOutputPlayer, isOutputCommentKIF, true, isDebug);
   return [parsedInfo, kifuText, historyViewText, dataUSI, dataKI2, dataKIF];
 }
 
@@ -86,23 +91,28 @@ export async function queryShogithreadByATURI(
   isOutputPlayer: boolean,
   isOutputCommentKI2: boolean,
   isOutputCommentKIF: boolean,
+  isDebug: boolean
 ): Promise<[ParsedInfo, string, string, string, string, string]> {
-//  console.log("url: " + url);
+  if (isDebug) {
+    console.log("aturi: " + aturi);
+  }
   let kifuText: string = '';
   let historyViewText: string = '';
   let dataUSI: string = '';
   let dataKI2: string = '';
   let dataKIF: string = '';
 
-  const parsedInfo = await parseSpecifiedATURI(aturi, undefined);
+  const parsedInfo = await parseSpecifiedATURI(aturi, undefined, isDebug);
 
-//  console.log(parsedInfo.moves.map((x)=>{return x.text?.replace(/.+([△▲][^ ]+) .+$/, "$1")}).join(" "));
+  if (isDebug) {
+    console.log(parsedInfo.moves.map((x)=>{return x.text?.replace(/.+([△▲][^ ]+) .+$/, "$1")}).join(" "));
+  }
 
   kifuText = convertShogithreadToKI2(parsedInfo, isOutputPlayer, true);
   historyViewText = convertShogithreadToHistoryView(parsedInfo, isOutputPlayer);
   dataUSI = parsedInfo.movesAlt;
   dataKI2 = convertShogithreadToKI2(parsedInfo, isOutputPlayer, isOutputCommentKI2);
-  dataKIF = convertShogithreadToKIF(parsedInfo, false, isOutputPlayer, isOutputCommentKIF, true);
+  dataKIF = convertShogithreadToKIF(parsedInfo, false, isOutputPlayer, isOutputCommentKIF, true, isDebug);
   return [parsedInfo, kifuText, historyViewText, dataUSI, dataKI2, dataKIF];
 }
 
@@ -111,7 +121,7 @@ export async function queryShogithreadByATURI(
 //   url：利用者指定URL
 // 戻り値
 //   解析情報（ParsedInfo）
-async function parseSpecifiedURL(url: string): Promise<ParsedInfo> {
+async function parseSpecifiedURL(url: string, isDebug: boolean): Promise<ParsedInfo> {
   // TODO:ハンドルまたはDID、record idのスマートな抽出
 
   let profileIdentity = null;
@@ -134,32 +144,35 @@ async function parseSpecifiedURL(url: string): Promise<ParsedInfo> {
   } else {
     // ハンドルが将棋threadでなければDID取得
     if (!profileIdentity.startsWith('did:')) {
-      profileIdentity = await getDID(profileIdentity);
+      profileIdentity = await getDID(profileIdentity, isDebug);
     }
   }
   const aturi: string = `${AtUriScheme}${profileIdentity}/${AtUriCollectionPost}/${recordId}`;
-  return parseSpecifiedATURI(aturi, isShogithread);
+  return parseSpecifiedATURI(aturi, isShogithread, isDebug);
 }
 
-async function parseSpecifiedATURI(aturi: string, isShogithread: boolean | undefined): Promise<ParsedInfo> {
+async function parseSpecifiedATURI(aturi: string, isShogithread: boolean | undefined, isDebug: boolean): Promise<ParsedInfo> {
   // Bluesky APIで指定URLポストのスレッド情報取得（親方向のみ）
-  let apiResponse = await getPostThread(aturi);
+  let apiResponse = await getPostThread(aturi, isDebug);
 
   if (isShogithread === undefined) {
     const profileIdentity = extractProfileIdentityFromATURI(aturi);
     isShogithread = (profileIdentity === ShogithreadHandle || profileIdentity === ShogithreadDID);
   }
 
-// for debug
-//  // APIレスポンスをJSONシリアライズ（空白インデント:2）
-//  const apiResponseString = JSON.stringify(apiResponse, null, 2);
-//  console.log(`api response: ${apiResponseString}`);
+  if (isDebug) {
+    // APIレスポンスをJSONシリアライズ（空白インデント:2）
+    const apiResponseString = JSON.stringify(apiResponse, null, 2);
+    console.log(`api response: ${apiResponseString}`);
+  }
 
   const parsedInfo: ParsedInfo = { moves: [], text: apiResponse.thread.post.record.text, movesAlt: '', resignAt: null, resignURI: null, };
   if (isShogithread) { // 指定URLが将棋threadのポスト
     // ポストrecordのlexicon（キー$typeの値）からURL指定ポストが投了ポストかスレッド中ポストかを判別し、投了ポストなら引用内の最終指し手ポストを改めて解析対象とする
     const lexicon: string = apiResponse.thread.post.record.embed["$type"];
-//    console.log(`lexicon: ${lexicon}`);
+    if (isDebug) {
+      console.log(`lexicon: ${lexicon}`);
+    }
 
     // KIFフォーマットなど投了情報を使用する場合の参考
     //let isResign: boolean = false;
@@ -170,11 +183,11 @@ async function parseSpecifiedATURI(aturi: string, isShogithread: boolean | undef
         parsedInfo.resignAt = apiResponse.thread.post.indexedAt;
         parsedInfo.resignURI = apiResponse.thread.post.uri;
         // 引用内ポストを最終指し手ポストとしてスレッド再取得
-        apiResponse = await getPostThread(apiResponse.thread.post.embed.record.uri);
+        apiResponse = await getPostThread(apiResponse.thread.post.embed.record.uri, isDebug);
 
         // fall-through：そのまま指し手ポストの解析を続行
       case 'app.bsky.embed.images': // 画像埋め込みあり：指し手ポストと仮定
-        parseThread(apiResponse.thread, parsedInfo);
+        parseThread(apiResponse.thread, parsedInfo, isDebug);
         break;
       default:
         // TODO: エラー処理
@@ -184,12 +197,13 @@ async function parseSpecifiedATURI(aturi: string, isShogithread: boolean | undef
     if (apiResponse.thread.hasOwnProperty('parent')) {
       const parentDID: string = apiResponse.thread.parent.post.author.did;
 
-// for debug
-//      const parentHandle = apiResponse.thread.parent.post.author.handle;
-//      console.log(`parent handle: ${parentHandle}`);
+      if (isDebug) {
+        const parentHandle = apiResponse.thread.parent.post.author.handle;
+        console.log(`parent handle: ${parentHandle}`);
+      }
 
       if (parentDID === ShogithreadDID) {
-        parseThread(apiResponse.thread.parent, parsedInfo);
+        parseThread(apiResponse.thread.parent, parsedInfo, isDebug);
       } else { // リプライ先が将棋threadポストではない
         throw new Error(`${MessageInvalidPostURL}: リプライ先が将棋threadではありません`);
       }
@@ -205,21 +219,27 @@ async function parseSpecifiedATURI(aturi: string, isShogithread: boolean | undef
 //   handle：ハンドル
 // 戻り値
 //   DID
-async function getDID(handle: string) {
+async function getDID(handle: string, isDebug: boolean) {
   const params: Record<string, string> = {
     handle: handle,
   };
-//  console.log(params);
+  if (isDebug) {
+    console.log(params);
+  }
   const urlSearchParams: URLSearchParams = new URLSearchParams(params);
   const queryUrl: string = `${BskyPublicApiPrefix}/com.atproto.identity.resolveHandle?${urlSearchParams}`;
-//  console.log(`query url: ${queryUrl}`)
+  if (isDebug) {
+    console.log(`query url: ${queryUrl}`);
+  }
   const response: Response = await fetch(queryUrl, {
     method: "GET",
     headers: {
       "Accept":"application/json"
     }
   });
-//  console.log(`response status: ${response.status}`);
+  if (isDebug) {
+    console.log(`response status: ${response.status}`);
+  }
   if (response.status != 200) {
     throw new Error(`${MessageErrorOfAPI}: resolveHandle@getDID`);
   }
@@ -232,23 +252,29 @@ async function getDID(handle: string) {
 //   at_uri：利用者指定URLのポストを示すAT URI
 // 戻り値
 //   JavaScriptオブジェクト化したgetPostThread APIレスポンス
-async function getPostThread(atUri: string) {
+async function getPostThread(atUri: string, isDebug: boolean) {
   const params: Record<string, string> = {
     uri: atUri,
     depth: "0", // 指定URLポストの子リプライは取得しない
     parentHeight: "1000", // 指定URLポストの親リプライチェーン取得最大数（API仕様最大値）
   };
-//  console.log(params);
+  if (isDebug) {
+    console.log(params);
+  }
   const urlSearchParams: URLSearchParams = new URLSearchParams(params);
   const queryUrl: string = `${BskyPublicApiPrefix}/app.bsky.feed.getPostThread?${urlSearchParams}`;
-//  console.log(`query url: ${queryUrl}`)
+  if (isDebug) {
+    console.log(`query url: ${queryUrl}`);
+  }
   const response: Response = await fetch(queryUrl, {
     method: "GET",
     headers: {
       "Accept":"application/json"
     }
   });
-//  console.log(`response status: ${response.status}`);
+  if (isDebug) {
+    console.log(`response status: ${response.status}`);
+  }
   if (response.status != 200) {
     throw new Error(`${MessageErrorOfAPI}: getPostThread`);
   }
@@ -261,7 +287,7 @@ async function getPostThread(atUri: string) {
 //   thread：getPostThread APIレスポンスJSON中のthreadオブジェクト（先頭ポストは将棋thread指し手ポストと仮定）
 //   parsedInfo：解析情報
 // 戻り値
-function parseThread(thread: any, parsedInfo: ParsedInfo) {
+function parseThread(thread: any, parsedInfo: ParsedInfo, isDebug: boolean) {
   // TODO:getPostThread上限を解決してリプライ先祖をさらにたどる場合は循環参照検出
   // TODO: APIレスポンスオブジェクト構造（threadオブジェクト構造）の検証・型
   // 画像のaltプロパティに埋め込まれている指し手履歴情報
@@ -271,7 +297,7 @@ function parseThread(thread: any, parsedInfo: ParsedInfo) {
 
   // リプライ先親ポスト（人による指し手ポストを仮定）を解析
   if (thread.hasOwnProperty('parent')) {
-    parseParent(thread.parent, parsedInfo);
+    parseParent(thread.parent, parsedInfo, isDebug);
   } else {
     throw new Error(`${MessageInternalError}: parseThread`);
   }
@@ -286,7 +312,7 @@ function parseThread(thread: any, parsedInfo: ParsedInfo) {
 // パラメタ
 //   parent：スレッド構造の先行処理ポストのparentオブジェクト
 //   parsedInfo：解析情報
-function parseParent(parent: any, parsedInfo: ParsedInfo) {
+function parseParent(parent: any, parsedInfo: ParsedInfo, isDebug: boolean) {
   // TODO: APIレスポンスオブジェクト構造（parentオブジェクト構造）の検証・型
   // textに埋め込まれている指し手情報
   const text: string = parent.post.record.text;
@@ -306,14 +332,16 @@ function parseParent(parent: any, parsedInfo: ParsedInfo) {
   // ポスト（指し手）のuri
   const uri: string = parent.post.uri;
 
-//  console.log(`${moveAt} ${text}`);
+  if (isDebug) {
+    console.log(`${moveAt} ${text}`);
+  }
 
   // 子ポストフラグ：処理中ポストのparentが存在すればtrue
   const isChild = parent.hasOwnProperty('parent');
   // 処理中ポストが子ポストであれば親ポストを再帰解析
   // 履歴情報構築前にスレッドを遡って辿り、折り返しで戻る際にparsedInfo.movesにpushすることにより配列要素は時系列順に整列
   if (isChild) {
-    parseParent(parent.parent, parsedInfo);
+    parseParent(parent.parent, parsedInfo, isDebug);
   }
 
   // 以降はスレッド親ポスト再帰解析の戻り処理：処理順としては指し手の時系列順

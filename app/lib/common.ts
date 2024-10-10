@@ -81,8 +81,9 @@ export async function buildShogithreadInfo(
   isOutputCommentKI2: boolean,
   isOutputCommentKIF: boolean,
   step : string | null,
+  isDebug: boolean,
 ): Promise<[ParsedInfo, any, string, string, string, string, string, string]> {
-  const [parsedInfo, kifuText, historyViewText, dataUSI, dataKI2, dataKIF] = await queryShogithread(url, atUri, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF);
+  const [parsedInfo, kifuText, historyViewText, dataUSI, dataKI2, dataKIF] = await queryShogithread(url, atUri, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, isDebug);
   const kifuStore = new KifuStore({ kifu: kifuText });
   const replayURL = getURLoriginPath() + buildReplayURLParameters(url, atUri, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step);
   const postURL = buildPostURL(parsedInfo, step ? parseInt(step) : null);
