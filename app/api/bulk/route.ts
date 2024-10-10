@@ -16,10 +16,11 @@ export async function GET(request: NextRequest) {
   const isOutputPlayer = searchParams.get('player') != 'false';
   const isOutputCommentKI2 = searchParams.get('KI2-comment') != 'false';
   const isOutputCommentKIF = searchParams.get('KIF-comment') != 'false';
+  const isDebug = searchParams.get('debug') == 'true';
 
   let response;
   try {
-    const [parsedInfo, kifuText, historyViewText, dataUSI, dataKI2, dataKIF] = await queryShogithread(url, atUri, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF);
+    const [parsedInfo, kifuText, historyViewText, dataUSI, dataKI2, dataKIF] = await queryShogithread(url, atUri, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, isDebug);
     response = {
       "SFEN": dataUSI,
       "KI2": dataKI2,

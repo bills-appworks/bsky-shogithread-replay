@@ -26,6 +26,7 @@ const Input = ({
   setURLState, urlState,
   setPostURLState, postURLState,
   setSpecifiedOptionState, specifiedOptionState,
+  isDebug,
 }: {
   setParsedInfoState: React.Dispatch<React.SetStateAction<ParsedInfo>>, parsedInfoState: ParsedInfo,
   setKifuStoreState: React.Dispatch<React.SetStateAction<KifuStoreState>>, kifuStoreState: KifuStoreState,
@@ -33,6 +34,7 @@ const Input = ({
   setURLState: React.Dispatch<React.SetStateAction<string>>, urlState: string,
   setPostURLState: React.Dispatch<React.SetStateAction<string>>, postURLState: string,
   setSpecifiedOptionState: React.Dispatch<React.SetStateAction<SpecifiedOption>>, specifiedOptionState: SpecifiedOption,
+  isDebug: boolean,
 }) => {
   // イベントリスナー内で参照するため
   const parsedInfoRef = useRef(parsedInfoState);
@@ -74,7 +76,7 @@ const Input = ({
       const replayURL = getURLoriginPath() + replayURLParameters;
       const historyView = convertShogithreadToHistoryView(parsedInfoState, isOutputPlayer);
       const dataKI2 = convertShogithreadToKI2(parsedInfoState, isOutputPlayer, specifiedOptionState.isOutputCommentKI2);
-      const dataKIF = convertShogithreadToKIF(parsedInfoState, false, isOutputPlayer, specifiedOptionState.isOutputCommentKIF, true);
+      const dataKIF = convertShogithreadToKIF(parsedInfoState, false, isOutputPlayer, specifiedOptionState.isOutputCommentKIF, true, isDebug);
       setReplayURLText(replayURL);
       setHistoryViewText(historyView);
       // USIはプレイヤー表示なし

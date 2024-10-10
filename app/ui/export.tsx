@@ -22,13 +22,14 @@ export function setKifuDataKIFText(text: string) {
   setTextAreaById('kifu-data-kif', text);
 }
 
-const Export = ({ parsedInfoState, kifuManageState, urlState, setSpecifiedOptionState, specifiedOptionState, }:
+const Export = ({ parsedInfoState, kifuManageState, urlState, setSpecifiedOptionState, specifiedOptionState, isDebug, }:
   {
     parsedInfoState: ParsedInfo,
     kifuManageState: KifuManageState,
     urlState: string,
     setSpecifiedOptionState: React.Dispatch<React.SetStateAction<SpecifiedOption>>,
     specifiedOptionState: SpecifiedOption,
+    isDebug: boolean,
   }) => {
     return (
     <div>
@@ -108,7 +109,7 @@ const Export = ({ parsedInfoState, kifuManageState, urlState, setSpecifiedOption
                 });
                 let replayURLParameters = '';
                 if (kifuManageState.isBuilt) {
-                  const text = convertShogithreadToKIF(parsedInfoState, false, specifiedOptionState.isOutputPlayer, event.target.checked, true);
+                  const text = convertShogithreadToKIF(parsedInfoState, false, specifiedOptionState.isOutputPlayer, event.target.checked, true, isDebug);
                   replayURLParameters = buildReplayURLParameters(urlState, null, specifiedOptionState.isOutputPlayer, specifiedOptionState.isOutputCommentKI2, event.target.checked, kifuManageState.step.toString(), );
                   const replayURL = getURLoriginPath() + replayURLParameters;
                   setTextAreaById('replay-url', replayURL);

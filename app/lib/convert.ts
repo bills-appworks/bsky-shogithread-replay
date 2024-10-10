@@ -76,12 +76,15 @@ export function extractMoveStep(shogithreadText: string | null): string {
   return shogithreadText?.replace(/(.+)[△▲][^ ]+ .+$/, "$1");
 }
 
-export function convertShogithreadToKIF(parsedInfo: ParsedInfo, isOutputTurn: boolean = false, isOutputPlayer: boolean = true, isOutputComment: boolean = true, isOutputTime: boolean = true): string {
+export function convertShogithreadToKIF(parsedInfo: ParsedInfo, isOutputTurn: boolean = false, isOutputPlayer: boolean = true, isOutputComment: boolean = true, isOutputTime: boolean = true, isDebug: boolean = false): string {
   const startMove: ParsedInfoSingleMove | undefined = parsedInfo.moves.at(0);
   const endMove: ParsedInfoSingleMove | undefined = parsedInfo.moves.at(-1);
 
-  //  console.log(`startMove: ${JSON.stringify(startMove, null, 2)}`);
-  //  console.log(`endMove: ${JSON.stringify(endMove, null, 2)}`);
+  if (isDebug) {
+    console.log(`startMove: ${JSON.stringify(startMove, null, 2)}`);
+    console.log(`endMove: ${JSON.stringify(endMove, null, 2)}`);
+  }
+  
   if (startMove === undefined || endMove === undefined) {
     return '';
   }

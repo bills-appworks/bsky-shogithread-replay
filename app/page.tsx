@@ -57,12 +57,13 @@ export default function Home() {
   const isOutputCommentKI2 = searchParams.get('KI2-comment') != 'false';
   const isOutputCommentKIF = searchParams.get('KIF-comment') != 'false';
   const step = searchParams.get('step');
+  const isDebug = searchParams.get('debug') == 'true';
 
   // クエリパラメタにURL/profile/record id指定時にfetchして状態・画面に反映
-  const procedureQueryParameter = async (url: string | null, atUri: string | null, isOutputPlayer: boolean, isOutputCommentKI2: boolean, isOutputCommentKIF: boolean, step: string | null) => {
+  const procedureQueryParameter = async (url: string | null, atUri: string | null, isOutputPlayer: boolean, isOutputCommentKI2: boolean, isOutputCommentKIF: boolean, step: string | null, isDebug: boolean) => {
     try {
       setNowLoadingState({ isOpen: true, textTitle: nowLoadingState.textTitle, textBody: 'Blueskyから将棋threadデータを取得しています' });
-      const [parsedInfo, kifuStore, replayURLText, historyViewText, postURLState, dataUSI, dataKI2, dataKIF]: [parsedInfo: ParsedInfo, kifuStore: any, replayURLText: string, historyViewText: string, postURLState: string, dataUSI: string, dataKI2: string, dataKIF: string] = await buildShogithreadInfo(url, atUri, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step);
+      const [parsedInfo, kifuStore, replayURLText, historyViewText, postURLState, dataUSI, dataKI2, dataKIF]: [parsedInfo: ParsedInfo, kifuStore: any, replayURLText: string, historyViewText: string, postURLState: string, dataUSI: string, dataKI2: string, dataKIF: string] = await buildShogithreadInfo(url, atUri, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step, isDebug);
       setParsedInfoState(parsedInfo);
       if (step) {
         kifuStore.player.goto(parseInt(step));
@@ -100,7 +101,7 @@ export default function Home() {
   // コンポーネントレンダリング後にクエリパラメタによるfetchと反映を実施（状態変更副作用が発生するため直接実行すると初期化処理と競合）
   useEffect(() => {
     if (url || atUri) {
-      procedureQueryParameter(url, atUri, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step);
+      procedureQueryParameter(url, atUri, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step, isDebug);
     }
   }, [searchParams]);
 
@@ -125,6 +126,7 @@ export default function Home() {
                   setURLState={setURLState} urlState={urlState}
                   setPostURLState={setPostURLState} postURLState={postURLState}
                   setSpecifiedOptionState={setSpecifiedOptionState} specifiedOptionState={specifiedOptionState}
+                  isDebug={isDebug}
                 />
                 <KifuForJS kifuStoreState={kifuStoreState} />
                 <ReplayURL />
@@ -134,6 +136,7 @@ export default function Home() {
                   kifuManageState={kifuManageState}
                   urlState={urlState}
                   setSpecifiedOptionState={setSpecifiedOptionState} specifiedOptionState={specifiedOptionState}
+                  isDebug={isDebug}
                 />
                 <Notice />
                 <Footer />
