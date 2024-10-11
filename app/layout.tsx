@@ -38,10 +38,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <body
-        className={`${kleeOne.className} antialiased text-black`}
-      >
-        {children}
+      <head>
         {/*<!-- Google tag (gtag.js) -->*/}
         <Script strategy="afterInteractive" src="https://www.googletagmanager.com/gtag/js?id=G-GLV44TDZ0X" />
         <Script
@@ -59,6 +56,11 @@ export default function RootLayout({
             `,
           }}
         />
+      </head>
+      <body
+        className={`${kleeOne.className} antialiased text-black`}
+      >
+        {children}
       </body>
     </html>
   );
