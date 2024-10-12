@@ -178,9 +178,9 @@ export function convertShogithreadToKIF(parsedInfo: ParsedInfo, isOutputTurn: bo
         if (prevMove !== undefined) {
           const prevMoveAt: string | null = prevMove.at;
           const thisMoveAt: string | null = parsedInfoMove.at;
-          if (prevMoveAt != null && thisMoveAt != null) {
+          if (prevMoveAt != null && thisMoveAt != null && startMove.at != null) {
             consumptionTime = getDiffISO8601ToKifDatetime(prevMoveAt, thisMoveAt, KifDatetimeMaxUnit.Minute);
-            cumulativeConsumptionTime = getDiffISO8601ToKifDatetime(startDatetime, thisMoveAt, KifDatetimeMaxUnit.Hour);
+            cumulativeConsumptionTime = getDiffISO8601ToKifDatetime(startMove.at, thisMoveAt, KifDatetimeMaxUnit.Hour);
           }
         }
       }
@@ -228,10 +228,10 @@ export function getDiffISO8601ToKifDatetime(startDatetime: string, endDatetime: 
   let kifDatetime: string | null = null;
   let diffSecond: number = Math.floor(diffMilliSecond / 1000);
   if (maxDatetimeUnit > KifDatetimeMaxUnit.Second) {
-    let diffMinute = Math.floor(diffSecond / 60);
+    let diffMinute: number = Math.floor(diffSecond / 60);
     diffSecond -= (diffMinute * 60);
     if (maxDatetimeUnit > KifDatetimeMaxUnit.Minute) {
-      const diffHour = Math.floor(diffMinute / 60); // 上位単位処理を拡張するなら上位処理で補正するのでconstはletに
+      let diffHour: number = Math.floor(diffMinute / 60);
       diffMinute -= (diffHour * 60);
       if (maxDatetimeUnit > KifDatetimeMaxUnit.Hour) {
         // 日単位以降は未実装（棋譜で未対応）
