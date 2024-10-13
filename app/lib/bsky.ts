@@ -11,6 +11,7 @@ const BskyPublicApiPrefix: string = 'https://public.api.bsky.app/xrpc';
 const ShogithreadDID: string = 'did:plc:mpyhemzzouqzykmbwiblggwg';
 const ShogithreadHandle: string = 'shogithread.bsky.social';
 const ShogithreadUrlSpecifiedPostPrefix: string = 'https://bsky.app/profile';
+// https://bsky.app/profile/<アカウント識別子>/post/<ポストuri>
 const ShogithreadUrlValidRegExp: string = `^${ShogithreadUrlSpecifiedPostPrefix}/[^/]+/post/[^/]+$`
 export const ShogithreadUrlPlaceholder: string = `${ShogithreadUrlSpecifiedPostPrefix}/********/post/********`;
 const AtUriScheme: string = 'at://';
@@ -19,35 +20,64 @@ const MessageInvalidPostURL: string = '指定されたURLは有効な将棋threa
 const MessageErrorOfAPI: string = 'Bluesky APIエラー';
 const MessageInternalError: string = '内部エラー';
 
-// 単体指し手情報（各データはポストから未加工）
+/**
+ * 単体指し手情報（各データはポストから未加工）
+ * @type {Object} ParsedInfoSingleMove
+ * @property {string | null} text ポストテキスト（将棋threadポストの確定手）
+ * @property {string | null} at 指し手日時（プレイヤーポスト）
+ * @property {string | null} did プレイヤーDID
+ * @property {string | null} handle プレイヤーハンドル
+ * @property {string | null} displayName プレイヤー表示名
+ * @property {string | null} alt 将棋threadポストの画像のalt（SFEN/USI）
+ * @property {string | null} uri プレイヤーポストのuri
+ */
 export type ParsedInfoSingleMove = {
-  text: string | null, // ポストテキスト（将棋threadポストの確定手）
-  at: string | null, // 指し手日時（プレイヤーポスト）
-  did: string | null, // プレイヤーDID
-  handle: string | null, // プレイヤーハンドル
-  displayName: string | null, // プレイヤー表示名
-  alt: string | null, // 将棋threadポストの画像のalt（usi）
-  uri: string | null, // プレイヤーポストのuri
-}
+  text: string | null,
+  at: string | null,
+  did: string | null,
+  handle: string | null,
+  displayName: string | null,
+  alt: string | null,
+  uri: string | null,
+};
 
-// スレッド解析情報（各データはポストから未加工）
+/**
+ * スレッド解析情報（各データはポストから未加工）
+ * @type {Object} ParsedInfo
+ * @property {ParsedInfoSingleMove[]} moves スレッドの棋譜履歴（単体指し手情報の配列）
+ * @property {string} text 指定URLポストのテキスト
+ * @property {string} movesAlt 指定スレッドでの最終指し手の将棋threadポストの画像のalt（SFEN/USI）
+ * @property {string | null} resignAt 投了日時（指定URLのポストが投了確定でない場合はnull）
+ * @property {string | null} resignURI 投了ポストのuri（指定URLのポストが投了確定でない場合はnull）
+ */
 export type ParsedInfo = {
-  moves: ParsedInfoSingleMove[], // スレッドの棋譜履歴（単体指し手情報の配列）
-  text: string, // 指定URLポストのテキスト
-  movesAlt: string, // 指定スレッドでの最終指し手の将棋threadポストの画像のalt（usi）
-  resignAt: string | null, // 投了日時（指定URLのポストが投了確定でない場合はnull）
-  resignURI: string | null, // 投了ポストのuri（指定URLのポストが投了確定でない場合はnull）
+  moves: ParsedInfoSingleMove[],
+  text: string,
+  movesAlt: string,
+  resignAt: string | null,
+  resignURI: string | null,
 };
 
 
 // TODO: 全般的にAPIレスポンスオブジェクト構造の検証
 
-// 指し手履歴スレッドをクエリ
-// パラメタ
-//   formData：画面フォームデータ
-//     url：指し手履歴スレッド中のいずれかのポスト参照URL
-// 戻り値
-//   指し手履歴KI2棋譜データ
+// TODO: queryShogithreadByATURI()と統合
+/**
+ * 指し手履歴棋譜スレッドをクエリ（URL/AT-URI）
+ * @param url 棋譜スレッドBlueskyポストURL
+ * @param atUri 棋譜スレッドBlueskyポストAT-URI
+ * @param isOutputPlayer プレイヤー名出力有無
+ * @param isOutputCommentKI2 KI2形式コメント出力有無
+ * @param isOutputCommentKIF KIF形式コメント出力有無
+ * @param isDebug デバッグモード
+ * @returns 各種解析情報配列
+ *  parsedInfo 解析情報オブジェクト
+ *  kifuText KI2形式抽出棋譜情報（Kifu for JS入力向け）
+ *  historyViewText スレッド一覧テキスト
+ *  dataUSI SFEN(USI)形式棋譜データ文字列
+ *  dataKI2 KI2形式棋譜データ文字列
+ *  dataKIF KIF形式棋譜データ文字列
+ */
 export async function queryShogithread(
   url: string | null,
   atUri: string | null,
@@ -83,9 +113,31 @@ export async function queryShogithread(
   dataUSI = parsedInfo.movesAlt;
   dataKI2 = convertShogithreadToKI2(parsedInfo, isOutputPlayer, isOutputCommentKI2);
   dataKIF = convertShogithreadToKIF(parsedInfo, false, isOutputPlayer, isOutputCommentKIF, true, isDebug);
-  return [parsedInfo, kifuText, historyViewText, dataUSI, dataKI2, dataKIF];
+  return [
+    parsedInfo,
+    kifuText,
+    historyViewText,
+    dataUSI,
+    dataKI2,
+    dataKIF,
+  ];
 }
 
+/**
+ * 指し手履歴棋譜スレッドをクエリ（AT-URI）
+ * @param atUri 棋譜スレッドBlueskyポストAT-URI
+ * @param isOutputPlayer プレイヤー名出力有無
+ * @param isOutputCommentKI2 KI2形式コメント出力有無
+ * @param isOutputCommentKIF KIF形式コメント出力有無
+ * @param isDebug デバッグモード
+ * @returns 各種解析情報配列
+ *  parsedInfo 解析情報オブジェクト
+ *  kifuText KI2形式抽出棋譜情報（Kifu for JS入力向け）
+ *  historyViewText スレッド一覧テキスト
+ *  dataUSI SFEN(USI)形式棋譜データ文字列
+ *  dataKI2 KI2形式棋譜データ文字列
+ *  dataKIF KIF形式棋譜データ文字列
+ */
 export async function queryShogithreadByATURI(
   aturi: string,
   isOutputPlayer: boolean,
@@ -113,14 +165,22 @@ export async function queryShogithreadByATURI(
   dataUSI = parsedInfo.movesAlt;
   dataKI2 = convertShogithreadToKI2(parsedInfo, isOutputPlayer, isOutputCommentKI2);
   dataKIF = convertShogithreadToKIF(parsedInfo, false, isOutputPlayer, isOutputCommentKIF, true, isDebug);
-  return [parsedInfo, kifuText, historyViewText, dataUSI, dataKI2, dataKIF];
+  return [
+    parsedInfo,
+    kifuText,
+    historyViewText,
+    dataUSI,
+    dataKI2,
+    dataKIF
+  ];
 }
 
-// 指定URLを解析
-// パラメタ
-//   url：利用者指定URL
-// 戻り値
-//   解析情報（ParsedInfo）
+/**
+ * 指定ポストURLを解析
+ * @param url 棋譜スレッドBlueskyポストURL
+ * @param isDebug デバッグモード
+ * @returns 解析情報オブジェクト
+ */
 async function parseSpecifiedURL(url: string, isDebug: boolean): Promise<ParsedInfo> {
   // TODO:ハンドルまたはDID、record idのスマートな抽出
 
@@ -151,6 +211,13 @@ async function parseSpecifiedURL(url: string, isDebug: boolean): Promise<ParsedI
   return parseSpecifiedATURI(aturi, isShogithread, isDebug);
 }
 
+/**
+ * 指定ポストAT-URIを解析
+ * @param aturi 棋譜スレッドBlueskyポストAT-URI
+ * @param isShogithread 指定ポストが将棋threadによるポスト（既知の場合の判定スキップ用）
+ * @param isDebug デバッグモード
+ * @returns 解析情報オブジェクト
+ */
 async function parseSpecifiedATURI(aturi: string, isShogithread: boolean | undefined, isDebug: boolean): Promise<ParsedInfo> {
   // Bluesky APIで指定URLポストのスレッド情報取得（親方向のみ）
   let apiResponse = await getPostThread(aturi, isDebug);
@@ -173,9 +240,6 @@ async function parseSpecifiedATURI(aturi: string, isShogithread: boolean | undef
     if (isDebug) {
       console.log(`lexicon: ${lexicon}`);
     }
-
-    // KIFフォーマットなど投了情報を使用する場合の参考
-    //let isResign: boolean = false;
 
     switch(lexicon) {
       case 'app.bsky.embed.record': // 通常レコード（画像埋め込みなし）：投了ポストと仮定
@@ -214,11 +278,12 @@ async function parseSpecifiedATURI(aturi: string, isShogithread: boolean | undef
   return parsedInfo;
 }
 
-// Bluesky APIでDID取得
-// パラメタ
-//   handle：ハンドル
-// 戻り値
-//   DID
+/**
+ * Bluesky APIでハンドルに対応するDID取得
+ * @param handle ハンドル文字列
+ * @param isDebug デバッグモード
+ * @returns ハンドルに対応するDID文字列
+ */
 async function getDID(handle: string, isDebug: boolean) {
   const params: Record<string, string> = {
     handle: handle,
@@ -247,11 +312,12 @@ async function getDID(handle: string, isDebug: boolean) {
   return apiResponse.did;
 }
 
-// Bluesky APIでスレッド情報取得
-// パラメタ
-//   at_uri：利用者指定URLのポストを示すAT URI
-// 戻り値
-//   JavaScriptオブジェクト化したgetPostThread APIレスポンス
+/**
+ * Bluesky APIでスレッド情報取得
+ * @param atUri 棋譜スレッドBlueskyポストAT-URI
+ * @param isDebug デバッグモード
+ * @returns JavaScriptオブジェクト化したgetPostThread APIレスポンス
+ */
 async function getPostThread(atUri: string, isDebug: boolean) {
   const params: Record<string, string> = {
     uri: atUri,
@@ -282,11 +348,12 @@ async function getPostThread(atUri: string, isDebug: boolean) {
   return apiResponse;
 }
 
-// スレッド解析
-// パラメタ
-//   thread：getPostThread APIレスポンスJSON中のthreadオブジェクト（先頭ポストは将棋thread指し手ポストと仮定）
-//   parsedInfo：解析情報
-// 戻り値
+/**
+ * スレッド解析
+ * @param thread getPostThread APIレスポンスJSON中のthreadオブジェクト（先頭ポストは将棋thread指し手ポストと仮定）
+ * @param parsedInfo 解析情報オブジェクト
+ * @param isDebug デバッグモード
+ */
 function parseThread(thread: any, parsedInfo: ParsedInfo, isDebug: boolean) {
   // TODO:getPostThread上限を解決してリプライ先祖をさらにたどる場合は循環参照検出
   // TODO: APIレスポンスオブジェクト構造（threadオブジェクト構造）の検証・型
@@ -308,10 +375,12 @@ function parseThread(thread: any, parsedInfo: ParsedInfo, isDebug: boolean) {
   }
 }
 
-// リプライ先親ポスト（先行指し手）の解析
-// パラメタ
-//   parent：スレッド構造の先行処理ポストのparentオブジェクト
-//   parsedInfo：解析情報
+/**
+ * リプライ先親ポスト（先行指し手）の解析
+ * @param parent スレッド構造の先行処理ポストのparentオブジェクト
+ * @param parsedInfo 解析情報オブジェクト
+ * @param isDebug デバッグモード
+ */
 function parseParent(parent: any, parsedInfo: ParsedInfo, isDebug: boolean) {
   // TODO: APIレスポンスオブジェクト構造（parentオブジェクト構造）の検証・型
   // textに埋め込まれている指し手情報
@@ -365,13 +434,21 @@ function parseParent(parent: any, parsedInfo: ParsedInfo, isDebug: boolean) {
   }
 }
 
+/**
+ * 指定の解析情報と手数に対応するBlueskyで開く指し手ポストURL文字列を構築
+ * @param parsedInfo 解析情報オブジェクト
+ * @param step 手数
+ * @returns Blueskyで開く指し手ポストURL文字列
+ */
 export function buildPostURL(parsedInfo: ParsedInfo, step: number | null): string {
   if (step && step > 0) {
     let handle, uri;
     if (parsedInfo.resignAt && step > parsedInfo.moves.length) {
+      // 投了手数が指定された場合は将棋threadの投了ポストが対象
       handle = ShogithreadHandle;
       uri = parsedInfo.resignURI;
     } else {
+      // 投了以外
       handle = parsedInfo.moves[step - 1].handle;
       uri = parsedInfo.moves[step - 1].uri;
     }
@@ -382,6 +459,12 @@ export function buildPostURL(parsedInfo: ParsedInfo, step: number | null): strin
   }
 }
 
+/**
+ * AT-URIから対応するポストURLに変換
+ * @param atUri 棋譜スレッドBlueskyポストAT-URI
+ * @param handle ハンドル（undefinedの場合はAT-URIから識別情報を抽出）
+ * @returns BlueskyポストURL文字列
+ */
 export function convertATURItoURL(atUri: string, handle: string | undefined) {
   if (handle === undefined) {
     handle = extractProfileIdentityFromATURI(atUri);
@@ -390,6 +473,11 @@ export function convertATURItoURL(atUri: string, handle: string | undefined) {
   return `${ShogithreadUrlSpecifiedPostPrefix}/${handle}/post/${recordId}`;
 }
 
+/**
+ * AT-URIからプロファイルと期待する識別情報を抽出
+ * @param atUri 棋譜スレッドBlueskyポストAT-URI
+ * @returns AT-URIから抽出した識別情報
+ */
 function extractProfileIdentityFromATURI(atUri: string) {
   const regexp = `^at:\/\/([^/]+)/${AtUriCollectionPost}/[^/]+$`;
   return atUri.replace(new RegExp(regexp), "$1");

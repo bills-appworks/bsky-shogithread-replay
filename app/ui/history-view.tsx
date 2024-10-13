@@ -3,20 +3,31 @@
  * @copyright bills-appworks 2024
  * @license This software is released under the MIT License. http://opensource.org/licenses/mit-license.php
  */
+
+// Next.js
 import Link from "next/link";
+// Font Awesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
+// 定義参照
 import { setTextAreaById, notoSansJP } from '@/app/lib/common';
 import CopyClipboard from '@/app/ui/copy-clipboard';
 
 const postLinkButtonText = 'リプレイ中の現在指し手ポストをBlueskyで開く';
 
-// テキストエリアの値を状態管理しset...Stateすると再レンダリングでユーザresizeがリセットされるため直接設定
+/**
+ * テキストエリアの値を状態管理しset...Stateすると再レンダリングでユーザresizeがリセットされるため直接設定
+ * @param text スレッド一覧テキストエリアに設定するテキスト
+ */
 export function setHistoryViewText(text: string) {
   setTextAreaById('history-view', text);
 }
 
-//const HistoryView = ({ replayState }: {replayState:  ReplayState }) => {
+/**
+ * スレッド一覧部分UIコンポーネント
+ * @param postURLState Blueskyで開く指し手ポストURL管理State
+ * @returns スレッド一覧部分UIのJSX
+ */
 const HistoryView = ({ postURLState, }: { postURLState: string, }) => {
   return (
     <div className="flex flex-col">
@@ -40,12 +51,19 @@ const HistoryView = ({ postURLState, }: { postURLState: string, }) => {
             shadow shadow-black p-1 rounded border border-black"
             disabled={postURLState.length == 0}
           >
+            {/* Blueskyで開く指し手ポストURLが有効な場合のみLinkコンポーネント生成 */}
             {postURLState.length > 0 ?
               <Link href={postURLState} rel="noopener noreferrer" target="_blank">
-                <span className="inline-flex items-center gap-1">{postLinkButtonText}{' '}<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="text-xs" /></span>
+                <span className="inline-flex items-center gap-1">
+                  {postLinkButtonText}{' '}
+                  <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="text-xs" />
+                </span>
               </Link>
               :
-              <span className="inline-flex items-center gap-1">{postLinkButtonText}{' '}<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="text-xs" /></span>
+              <span className="inline-flex items-center gap-1">
+                {postLinkButtonText}{' '}
+                <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="text-xs" />
+              </span>
             }
           </button>
         </div>

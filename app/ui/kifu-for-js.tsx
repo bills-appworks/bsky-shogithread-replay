@@ -4,9 +4,16 @@
  * @license This software is released under the MIT License. http://opensource.org/licenses/mit-license.php
  */
 
+// Kifu for JS
 import { KifuLite } from 'kifu-for-js';
+// 定義参照
 import { KifuStoreState } from '@/app/lib/common';
 
+/**
+ * 棋譜再生盤面（Kifu for JS）UIコンポーネント
+ * @param kifuStoreState Kifu for JS KifuStoreオブジェクトのState
+ * @returns Kifu for JS表示部分UIのJSX
+ */
 const KifuForJS = ({ kifuStoreState }: { kifuStoreState: KifuStoreState }) => {
   return (
     <div className="

@@ -10,11 +10,11 @@ import React, { useState, useEffect, Suspense } from "react";
 // Next.js
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams, usePathname } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 // Font Awesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBluesky } from '@fortawesome/free-brands-svg-icons';
-import { faLink, faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 // アプリ内UIコンポーネント
 import Input from '@/app/ui/input';
 import KifuForJS from '@/app/ui/kifu-for-js';
@@ -38,6 +38,10 @@ import {
 } from '@/app/lib/common';
 import { convertATURItoURL, ParsedInfo } from "@/app/lib/bsky";
 
+/**
+ * ページ全体コンポーネント
+ * @returns ページJSX
+ */
 export default function Home() {
   // コンポーネント間の状態を共有するためここで状態管理
   const [ parsedInfoState, setParsedInfoState ] = useState(initialParsedInfo);
@@ -59,15 +63,38 @@ export default function Home() {
   const step = searchParams.get('step');
   const isDebug = searchParams.get('debug') == 'true';
 
-  // クエリパラメタにURL/profile/record id指定時にfetchして状態・画面に反映
+  /**
+   * クエリパラメタにURL/profile/record idが指定されて場合にBlueskyへfetchして状態・画面に反映
+   * @param url クエリパラメタ指定urlの値
+   * @param atUri クエリパラメタ指定at-uriの値
+   * @param isOutputPlayer クエリパラメタ指定playerの値
+   * @param isOutputCommentKI2 クエリパラメタ指定KI2-commentの値
+   * @param isOutputCommentKIF クエリパラメタ指定KIF-commentの値
+   * @param step  クエリパラメタ指定stepの値
+   * @param isDebug クエリパラメタ指定debugの値
+   */
   const procedureQueryParameter = async (url: string | null, atUri: string | null, isOutputPlayer: boolean, isOutputCommentKI2: boolean, isOutputCommentKIF: boolean, step: string | null, isDebug: boolean) => {
     try {
+      // NOW LOADING...
       setNowLoadingState({ isOpen: true, textTitle: nowLoadingState.textTitle, textBody: 'Blueskyから将棋threadデータを取得しています' });
-      const [parsedInfo, kifuStore, replayURLText, historyViewText, postURLState, dataUSI, dataKI2, dataKIF]: [parsedInfo: ParsedInfo, kifuStore: any, replayURLText: string, historyViewText: string, postURLState: string, dataUSI: string, dataKI2: string, dataKIF: string] = await buildShogithreadInfo(url, atUri, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step, isDebug);
+      // クエリパラメタに対応するスレッドから解析情報構築
+      const [parsedInfo, kifuStore, replayURLText, historyViewText, postURLState, dataUSI, dataKI2, dataKIF]:
+        [
+          parsedInfo: ParsedInfo,
+          kifuStore: any,
+          replayURLText: string,
+          historyViewText: string,
+          postURLState: string,
+          dataUSI: string,
+          dataKI2: string,
+          dataKIF: string
+        ] = await buildShogithreadInfo(url, atUri, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step, isDebug);
       setParsedInfoState(parsedInfo);
+      // stepパラメタが指定されている場合は指定手数にシフト
       if (step) {
         kifuStore.player.goto(parseInt(step));
       }
+      // 各種状態管理に反映
       setKifuStoreState({ kifuStore: kifuStore});
       setKifuManageState({ isBuilt: true, step: step ? parseInt(step) : 0, });
       setURLState(url ? url : convertATURItoURL(atUri ? atUri : '', undefined));
@@ -98,7 +125,7 @@ export default function Home() {
     }
   };
 
-  // コンポーネントレンダリング後にクエリパラメタによるfetchと反映を実施（状態変更副作用が発生するため直接実行すると初期化処理と競合）
+  // コンポーネントレンダリング後にクエリパラメタurl/at-uriによるfetchと反映を実施（状態変更副作用が発生するため直接実行すると初期化処理と競合）
   useEffect(() => {
     if (url || atUri) {
       procedureQueryParameter(url, atUri, isOutputPlayer, isOutputCommentKI2, isOutputCommentKIF, step, isDebug);
@@ -148,6 +175,7 @@ export default function Home() {
             <div className="w-4 md:w-12 xl:w-24 2xl:w-48 h-[50vh] bg-[#B3936C]" />
           </div>
         </div>
+        {/* 以下は必要時のみ表示 */}
         <DialogBox
           isOpen={dialogBoxState.isOpen}
           onCancel={() => setDialogBoxState({ isOpen: false, textTitle: dialogBoxState.textTitle, textBody: dialogBoxState.textBody, })}
@@ -164,7 +192,10 @@ export default function Home() {
   );
 }
 
-// タイトル
+/**
+ * タイトル部分UIコンポーネント
+ * @returns タイトル部分UIのJSX
+ */
 const Title: React.FC = () => {
   return (
     <div className="flex flex-row justify-center p-2">
@@ -173,7 +204,10 @@ const Title: React.FC = () => {
   );
 }
 
-// 説明
+/**
+ * 説明部分UIコンポーネント
+ * @returns 説明部分UIのJSX
+ */
 const Description: React.FC = () => {
   return (
     <div>
@@ -214,7 +248,10 @@ const Description: React.FC = () => {
   );
 }
 
-// 留意事項
+/**
+ * 留意事項部分UIコンポーネント
+ * @returns 留意事項部分UIのJSX
+ */
 const Notice: React.FC = () => {
   return (
     <div>
@@ -242,7 +279,10 @@ const Notice: React.FC = () => {
   );
 }
 
-// フッター
+/**
+ * フッター部分UIコンポーネント
+ * @returns フッター部分UIのJSX
+ */
 const Footer: React.FC = () => {
   return (
     <div>

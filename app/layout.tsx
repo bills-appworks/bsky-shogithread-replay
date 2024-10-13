@@ -3,9 +3,15 @@
  * @copyright bills-appworks 2024
  * @license This software is released under the MIT License. http://opensource.org/licenses/mit-license.php
  */
+// Next.js
 import type { Metadata } from "next";
 import Script from 'next/script';
+// Google Fonts
 import { Klee_One, Noto_Sans_JP } from 'next/font/google';
+// Font Awesome
+import { config } from '@fortawesome/fontawesome-svg-core';
+import '@fortawesome/fontawesome-svg-core/styles.css';
+
 import "@/app/globals.css";
 
 const kleeOne = Klee_One({
@@ -14,15 +20,14 @@ const kleeOne = Klee_One({
   display: 'swap',
 });
 
-// common.tsでのローディングのみだと失敗するケースがある
+// common.tsでのローディングのみだと失敗するケースがある場合の暫定対策
 const notoSansJP = Noto_Sans_JP({
   weight: '400',
   subsets: ['latin'],
   display: 'swap',
 });
 
-import { config } from '@fortawesome/fontawesome-svg-core';
-import '@fortawesome/fontawesome-svg-core/styles.css';
+// Font Awesome用
 config.autoAddCss = false;
 
 export const metadata: Metadata = {
@@ -38,10 +43,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <body
-        className={`${kleeOne.className} antialiased text-black`}
-      >
-        {children}
+      <head>
         {/*<!-- Google tag (gtag.js) -->*/}
         <Script strategy="afterInteractive" src="https://www.googletagmanager.com/gtag/js?id=G-GLV44TDZ0X" />
         <Script
@@ -59,6 +61,11 @@ export default function RootLayout({
             `,
           }}
         />
+      </head>
+      <body
+        className={`${kleeOne.className} antialiased text-black`}
+      >
+        {children}
       </body>
     </html>
   );

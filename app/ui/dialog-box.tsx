@@ -7,6 +7,15 @@
 // ダイアログ実装参考
 // https://qiita.com/Revocraft/items/583e8106af5f63217988
 
+/**
+ * ダイアログボックスプロパティ
+ * @type {Object} DialogBoxProps
+ * @property {boolean} isOpen ダイアログボックスオープン（表示）状態
+ * @property {void} onCancel キャンセルボタンハンドラ
+ * @property {void} onOK OKボタンハンドラ
+ * @property {string} textTile タイトル文字列
+ * @property {string} textBody 本文文字列
+ */
 export type DialogBoxProps = {
   isOpen: boolean;
   onCancel: () => void;
@@ -15,15 +24,27 @@ export type DialogBoxProps = {
   textBody: string;
 };
 
+/**
+ * ダイアログボックスState
+ * @property {boolean} isOpen ダイアログボックスオープン（表示）状態
+ * @property {string} textTitle タイトル文字列
+ * @property {string} textBody 本文文字列
+ */
 export type DialogBoxState = {
   isOpen: boolean;
   textTitle: string;
   textBody: string;
 };
 
+/**
+ * ダイアログボックスUIコンポーネント
+ * @param props ダイアログボックスプロパティ
+ * @returns ダイアログボックスUIのJSX
+ */
 const DialogBox = (props: DialogBoxProps) => {
   return props.isOpen ? (
     <>
+      {/* ダイアログボックス内 */}
       <div className="
         bg-[#FFFFDD]
         border-2 border-black
@@ -35,9 +56,12 @@ const DialogBox = (props: DialogBoxProps) => {
         absolute z-20
         "
       >
+        {/* タイトル */}
         <h1 className="text-xl font-bold mb-5">{props.textTitle}</h1>
+        {/* 本文 */}
         <p className="mb-5">{props.textBody}</p>
         <div className="flex mt-auto w-full">
+          {/* OKボタン */}
           <button className="
             bg-[#FFE581] hover:bg-[#EFD571] active:bg-[#DFC561]
             text-black
@@ -50,6 +74,7 @@ const DialogBox = (props: DialogBoxProps) => {
           </button>
         </div>
       </div>
+      {/* ダイアログボックス外側を半透過背景としキャンセルボタン相当とする */}
       <div className="
         fixed top-0 left-0
         bg-black bg-opacity-50
@@ -60,7 +85,7 @@ const DialogBox = (props: DialogBoxProps) => {
       >
       </div>
     </>
-  ) : (
+  ) : (  // isOpen:false　ダイアログボックス非表示
     <></>
   )
 };
