@@ -15,6 +15,7 @@ import {
 } from '@/app/lib/common';
 import { convertShogithreadToKI2, convertShogithreadToKIF } from '@/app/lib/convert';
 import { ParsedInfo } from '@/app/lib/bsky';
+import { setReplayURLText } from '@/app/ui/replay-url';
 import CopyClipboard from '@/app/ui/copy-clipboard';
 
 /**
@@ -110,7 +111,7 @@ const Export = ({
                   const text = convertShogithreadToKI2(parsedInfoState, specifiedOptionState.isOutputPlayer, event.target.checked);
                   replayURLParameters = buildReplayURLParameters(urlState, null, specifiedOptionState.isOutputPlayer, event.target.checked, specifiedOptionState.isOutputCommentKIF, kifuManageState.step.toString(), );
                   const replayURL = getURLoriginPath() + replayURLParameters;
-                  setTextAreaById('replay-url', replayURL);
+                  setReplayURLText(replayURL);
                   setKifuDataKI2Text(text);
                 }
                 // Webブラウザアドレスバークエリパラメタ更新（再現URLに同期）
@@ -152,7 +153,7 @@ const Export = ({
                   const text = convertShogithreadToKIF(parsedInfoState, false, specifiedOptionState.isOutputPlayer, event.target.checked, true, isDebug);
                   replayURLParameters = buildReplayURLParameters(urlState, null, specifiedOptionState.isOutputPlayer, specifiedOptionState.isOutputCommentKI2, event.target.checked, kifuManageState.step.toString(), );
                   const replayURL = getURLoriginPath() + replayURLParameters;
-                  setTextAreaById('replay-url', replayURL);
+                  setReplayURLText(replayURL);
                   setKifuDataKIFText(text);
                 }
                 // Webブラウザアドレスバークエリパラメタ更新（再現URLに同期）
