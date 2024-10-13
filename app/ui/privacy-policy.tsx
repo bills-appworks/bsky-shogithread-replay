@@ -4,6 +4,10 @@
  * @license This software is released under the MIT License. http://opensource.org/licenses/mit-license.php
  */
 
+/**
+ * プライバシーポリシー部分UIコンポーネント
+ * @returns プライバシーポリシー部分UIのJSX
+ */
 export default function PrivacyPolicy() {
   return (
     <div className="border border-black text-sm mt-2 p-1">

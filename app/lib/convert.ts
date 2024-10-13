@@ -4,7 +4,8 @@
  * @license This software is released under the MIT License. http://opensource.org/licenses/mit-license.php
  */
 
-import { ParsedInfo, ParsedInfoSingleMove } from "./bsky";
+// 定義参照
+import { ParsedInfo, ParsedInfoSingleMove } from "@/app/lib/bsky";
 
 // KIF形式消費時間最大単位
 export enum KifDatetimeMaxUnit {
@@ -16,6 +17,13 @@ export enum KifDatetimeMaxUnit {
   Year
 }
 
+/**
+ * 棋譜スレッド情報をKI2形式に変換
+ * @param parsedInfo 棋譜スレッド解析情報
+ * @param isOutputPlayer プレイヤー名出力有無
+ * @param isOutputComment コメント出力有無
+ * @returns KI2形式棋譜データテキスト
+ */
 export function convertShogithreadToKI2(parsedInfo: ParsedInfo, isOutputPlayer: boolean = true, isOutputComment: boolean = true): string {
   const startText = '*対局開始';
   const movesText = parsedInfo.moves.map((parsedInfoSingleMove: ParsedInfoSingleMove) => {
@@ -23,9 +31,11 @@ export function convertShogithreadToKI2(parsedInfo: ParsedInfo, isOutputPlayer: 
     let text = extractMoveKI2(parsedInfoSingleMove.text);
     // コメント行（指し手メタ情報）
     if (isOutputComment) {
+      // 指し手ポスト日時
       const datetime = convertISO8601ToKifDatetime(parsedInfoSingleMove.at);
       //text += `\n*${parsedInfoSingleMove.text}`; // 指し手ポストテキスト
       text += `\n*${datetime}`;
+      // プレイヤー名
       if (isOutputPlayer) {
         text += `\n*${parsedInfoSingleMove.displayName}`;
       }
@@ -33,16 +43,25 @@ export function convertShogithreadToKI2(parsedInfo: ParsedInfo, isOutputPlayer: 
     return text;
   }).join("\n");
   let movesKI2 = `${movesText}`;
+  // 対局開始コメント
   if (isOutputComment) {
     movesKI2 = `${startText}\n${movesKI2}`;
   }
+  // 投了
   if (parsedInfo.resignAt !== null) {
     movesKI2 = `${movesKI2}\nまで${parsedInfo.text}`;
   }
   return movesKI2;
 }
 
+/**
+ * 棋譜スレッド情報をスレッド一覧テキストに変換
+ * @param parsedInfo 棋譜スレッド解析情報
+ * @param isOutputPlayer プレイヤー名出力有無
+ * @returns スレッド一覧テキスト
+ */
 export function convertShogithreadToHistoryView(parsedInfo: ParsedInfo, isOutputPlayer: boolean = true): string {
+  // YYYY/MM/DD(曜)    ○手目: ▲○○駒　　<プレイヤー名>
   let movesText = parsedInfo.moves.map((parsedInfoSingleMove: ParsedInfoSingleMove) => {
     const datetime = convertISO8601ToKifDatetime(parsedInfoSingleMove.at);
     const moveStep = extractMoveStep(parsedInfoSingleMove.text).padEnd(3, '　');
@@ -55,6 +74,7 @@ export function convertShogithreadToHistoryView(parsedInfo: ParsedInfo, isOutput
     }
     return text;
   }).join("\n");
+  // 投了
   if (parsedInfo.resignAt !== null) {
     const datetime = convertISO8601ToKifDatetime(parsedInfo.resignAt);
     movesText = `${movesText}\n${datetime}    ${parsedInfo.text}`;
@@ -62,6 +82,11 @@ export function convertShogithreadToHistoryView(parsedInfo: ParsedInfo, isOutput
   return movesText;
 }
 
+/**
+ * 将棋threadのポストからKI2相当の指し手テキストを抽出
+ * @param shogithreadText 将棋threadポストテキスト
+ * @returns 指し手部分テキスト（▲○○駒）
+ */
 export function extractMoveKI2(shogithreadText: string | null): string {
   if (shogithreadText == null) {
     return '';
@@ -69,6 +94,11 @@ export function extractMoveKI2(shogithreadText: string | null): string {
   return shogithreadText?.replace(/.+([△▲][^ ]+) .+$/, "$1");
 }
 
+/**
+ * 将棋threadのポストから手数テキストを抽出
+ * @param shogithreadText 将棋threadポスト的s津尾
+ * @returns 手数テキスト（○手目）
+ */
 export function extractMoveStep(shogithreadText: string | null): string {
   if (shogithreadText == null) {
     return '';
@@ -76,6 +106,16 @@ export function extractMoveStep(shogithreadText: string | null): string {
   return shogithreadText?.replace(/(.+)[△▲][^ ]+ .+$/, "$1");
 }
 
+/**
+ * 棋譜スレッド情報をKIF形式に変換
+ * @param parsedInfo 棋譜スレッド解析情報
+ * @param isOutputTurn 先手後手文字（▲△）出力有無
+ * @param isOutputPlayer プレイヤー名出力有無
+ * @param isOutputComment コメント出力有無
+ * @param isOutputTime 消費時間出力有無
+ * @param isDebug デバッグモード
+ * @returns KIF形式棋譜データテキスト
+ */
 export function convertShogithreadToKIF(parsedInfo: ParsedInfo, isOutputTurn: boolean = false, isOutputPlayer: boolean = true, isOutputComment: boolean = true, isOutputTime: boolean = true, isDebug: boolean = false): string {
   const startMove: ParsedInfoSingleMove | undefined = parsedInfo.moves.at(0);
   const endMove: ParsedInfoSingleMove | undefined = parsedInfo.moves.at(-1);
@@ -200,6 +240,11 @@ export function convertShogithreadToKIF(parsedInfo: ParsedInfo, isOutputTurn: bo
   return kifHeader + kifMoves.join("\n");
 }
 
+/**
+ * ISO8601形式から棋譜表示形式日時文字列への変換
+ * @param iso8601Datetime ISO8601形式日時文字列
+ * @returns 棋譜表示形式日時文字列（YYYY/MM/DD(曜) hh:mm:ss）
+ */
 export function convertISO8601ToKifDatetime(iso8601Datetime: string | null): string {
   const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
 
@@ -220,6 +265,13 @@ export function convertISO8601ToKifDatetime(iso8601Datetime: string | null): str
   return kifDatetime;
 }
 
+/**
+ * 2つの時点日時の差分時間を取得（消費時間計算）
+ * @param startDatetime 差分起点日時文字列（ISO8601形式）
+ * @param endDatetime 差分終点日時文字列（ISO8601形式）
+ * @param maxDatetimeUnit 出力最大日時単位
+ * @returns 差分時間文字列（終点日時 - 起点日時の時間）
+ */
 export function getDiffISO8601ToKifDatetime(startDatetime: string, endDatetime: string, maxDatetimeUnit: KifDatetimeMaxUnit): string {
   const startDate: Date = new Date(startDatetime);
   const endDate: Date = new Date(endDatetime);;

@@ -3,14 +3,23 @@
  * @copyright bills-appworks 2024
  * @license This software is released under the MIT License. http://opensource.org/licenses/mit-license.php
  */
+
+// 定義参照
 import { setTextAreaById, notoSansJP } from '@/app/lib/common';
 import CopyClipboard from '@/app/ui/copy-clipboard';
 
-// テキストエリアの値を状態管理しset...Stateすると再レンダリングでユーザresizeがリセットされるため直接設定
+/**
+ * テキストエリアの値を状態管理しset...Stateすると再レンダリングでユーザresizeがリセットされるため直接設定
+ * @param text 再現URLテキストエリア出力テキスト
+ */
 export function setReplayURLText(text: string) {
   setTextAreaById('replay-url', text);
 }
 
+/**
+ * 再現URL部分のUIコンポーネント
+ * @returns 再現URL部分UIのJSX
+ */
 const ReplayURL = () => {
   return (
     <div>

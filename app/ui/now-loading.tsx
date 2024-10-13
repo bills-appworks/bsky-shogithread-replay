@@ -4,18 +4,37 @@
  * @license This software is released under the MIT License. http://opensource.org/licenses/mit-license.php
  */
 
+/**
+ * NOW LOADING UIコンポーネントプロパティ
+ * @type {Object} NowLoadingProps
+ * @property {boolean} isOpen NOW LOADING表示時true
+ * @property {string} textTitle NOW LOADINGダイアログタイトル
+ * @property {string} textBody NOW LOADINGダイアログ本文
+ */
 export type NowLoadingProps = {
   isOpen: boolean;
   textTitle: string;
   textBody: string;
 };
 
+/**
+ * NOW LOADING UI関連状態
+ * @type {Object} NowLoadingProps
+ * @property {boolean} isOpen NOW LOADING表示時true
+ * @property {string} textTitle NOW LOADINGダイアログタイトル
+ * @property {string} textBody NOW LOADINGダイアログ本文
+ */
 export type NowLoadingState = {
   isOpen: boolean;
   textTitle: string;
   textBody: string;
 };
 
+/**
+ * fetch等時間がかかる処理に対するNOW LOADING表示UIコンポーネント
+ * @param props NOW LOADING UIコンポーネントプロパティ
+ * @returns NOW LOADING画面JSX
+ */
 const NowLoading = (props: NowLoadingProps) => {
   return props.isOpen ? (
     <>

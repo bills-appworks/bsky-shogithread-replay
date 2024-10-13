@@ -3,10 +3,19 @@
  * @copyright bills-appworks 2024
  * @license This software is released under the MIT License. http://opensource.org/licenses/mit-license.php
  */
+
+// Font Awesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy } from "@fortawesome/free-regular-svg-icons";
+// 定義参照
 import { popCopiedBalloon } from "@/app/lib/common";
 
+/**
+ * クリップボードコピーボタンUIコンポーネント
+ * @param copyTextAreaId コピー対象テキストエリア要素ID
+ * @param copiedBalloonId コピー完了バルーン要素ID
+ * @returns クリップボードコピーボタンUIのJSX
+ */
 const CopyClipboard = ({
   copyTextAreaId,
   copiedBalloonId,
@@ -16,6 +25,7 @@ const CopyClipboard = ({
 }) => {
   return (
     <div className="flex grow justify-end">
+      {/* コピー完了バルーン（デフォルト非表示） */}
       <div
         id={copiedBalloonId}
         className="
@@ -25,6 +35,7 @@ const CopyClipboard = ({
       >
         <span>コピーしました</span>
       </div>
+      {/* コピーボタン */}
       <button className="ml-2 px-1 bg-[#FFE581] hover:bg-[#EFD571] active:bg-[#DFC561]
         disabled:font-normal disabled:border-1 disabled:shadow-none disabled:border-gray-500 disabled:bg-gray-300 disabled:text-gray-400
         shadow shadow-black rounded border border-black"

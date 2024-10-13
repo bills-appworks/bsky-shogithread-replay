@@ -3,9 +3,15 @@
  * @copyright bills-appworks 2024
  * @license This software is released under the MIT License. http://opensource.org/licenses/mit-license.php
  */
+// Next.js
 import type { Metadata } from "next";
 import Script from 'next/script';
+// Google Fonts
 import { Klee_One, Noto_Sans_JP } from 'next/font/google';
+// Font Awesome
+import { config } from '@fortawesome/fontawesome-svg-core';
+import '@fortawesome/fontawesome-svg-core/styles.css';
+
 import "@/app/globals.css";
 
 const kleeOne = Klee_One({
@@ -14,15 +20,14 @@ const kleeOne = Klee_One({
   display: 'swap',
 });
 
-// common.tsでのローディングのみだと失敗するケースがある
+// common.tsでのローディングのみだと失敗するケースがある場合の暫定対策
 const notoSansJP = Noto_Sans_JP({
   weight: '400',
   subsets: ['latin'],
   display: 'swap',
 });
 
-import { config } from '@fortawesome/fontawesome-svg-core';
-import '@fortawesome/fontawesome-svg-core/styles.css';
+// Font Awesome用
 config.autoAddCss = false;
 
 export const metadata: Metadata = {
